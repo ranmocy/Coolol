@@ -14,5 +14,8 @@ if (!('content' in document.createElement('template'))) {
 import twitter from "js/twitter.js";
 twitter.start();
 
+import $ from "js/utils.js";
 import Component from "js/component.js";
-var c = new Component('template/component.html');
+Component.register();
+var c = new Component();
+c.attach($('div#main'));

@@ -7,10 +7,21 @@
     <script src="config.js"></script>
     <script src="vendor/webcomponents.min.js" charset="utf-8"></script>
     <script type="text/javascript">
-      System.import('js/main.js');
+      // Wait for web components are ready.
+      window.addEventListener('WebComponentsReady', function() {
+        System.import('js/main.js');
+      });
     </script>
   </head>
   <body>
     <h1>Coolol</h1>
+    <div id='main'>
+      <span>no class is here</span>
+      <span class='p'>p is here.</span>
+      <span class="q">q is here.</span>
+    </div>
+    <x-component class="element">
+      X component
+    </x-component>
   </body>
 </html>

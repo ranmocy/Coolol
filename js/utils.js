@@ -68,7 +68,7 @@ function $http(url){
 }
 
 var $ = function () {
-  return document.querySelector.apply(arguments);
+  return document.querySelector.apply(document, arguments);
 };
 
 $.findAll = document.querySelectorAll;

@@ -3,25 +3,17 @@
   <head>
     <meta charset="utf-8">
     <title>Coolol</title>
+    <link rel="import" href="/template/tweet.html">
     <script src="jspm_packages/system.js"></script>
     <script src="config.js"></script>
-    <script src="vendor/webcomponents.min.js" charset="utf-8"></script>
-    <script type="text/javascript">
-      // Wait for web components are ready.
-      window.addEventListener('WebComponentsReady', function() {
-        System.import('js/main.js');
-      });
-    </script>
+    <script type="text/javascript">System.import('js/main.js');</script>
   </head>
   <body>
     <h1>Coolol</h1>
-    <div id='main'>
+    <x-tweet>
       <span>no class is here</span>
-      <span class='p'>p is here.</span>
-      <span class="q">q is here.</span>
-    </div>
-    <x-component class="element">
-      X component
-    </x-component>
+      <span class='title'>Tweet Title here</span>
+      <span class='body'>Tweet body here</span>
+    </x-tweet>
   </body>
 </html>

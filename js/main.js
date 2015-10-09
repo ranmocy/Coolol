@@ -19,3 +19,7 @@ if (!('content' in document.createElement('template'))) {
 // Component.register();
 // var c = new Component();
 // c.attach($('div#main'));
+
+var tweet = document.createElement('x-tweet');
+tweet.set('title', 'Title here').set('text', 'body text');
+document.body.appendChild(tweet);

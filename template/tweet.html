@@ -1,11 +1,17 @@
 <template>
   <style>
-    h4 { color: red; }
-    div { color: green; }
+    m-title {
+      color: red;
+      font-size: 200%;
+      display: block;
+    }
+    m-text {
+      color: green;
+    }
   </style>
 
-  <h4><content select=".title"></content></h4>
-  <div><content select=".body"></content></div>
+  <m-title></m-title>
+  <m-text></m-text>
 </template>
 
 <script type="text/javascript">
@@ -19,6 +25,15 @@
         var node = document.importNode(template.content, true);
         this.createShadowRoot();
         this.shadowRoot.appendChild(node);
+      }
+
+      set(prop, value) {
+        this.shadowRoot.querySelector(`m-${prop}`).textContent = value;
+        return this;
+      }
+
+      get(prop) {
+        return this.shadowRoot.querySelector(`m-${prop}`).textContent;
       }
     }
 

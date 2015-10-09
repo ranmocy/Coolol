@@ -11,14 +11,17 @@ if (!('content' in document.createElement('template'))) {
   throw "Can't use HTML template!";
 }
 
-// import twitter from "js/twitter.js";
-// twitter.start();
+if (document.services != null) {
+  throw "document.services is not null?!";
+}
+document.services = {};
 
-// import $ from "js/utils.js";
-// import Component from "js/component.js";
-// Component.register();
-// var c = new Component();
-// c.attach($('div#main'));
+// start twitter service
+System.import("js/twitter.js").then(function (m) {
+  var twitter = m.default;
+  twitter.start();
+  document.services.twitter = twitter;
+});
 
 var tweet = document.createElement('x-tweet');
 tweet.set('title', 'Title here').set('text', 'body text');

@@ -4,16 +4,25 @@
     <meta charset="utf-8">
     <title>Coolol</title>
     <link rel="import" href="/template/tweet.html">
+    <link rel="import" href="/template/channel.html">
     <script src="jspm_packages/system.js"></script>
     <script src="config.js"></script>
     <script type="text/javascript">System.import('js/main.js');</script>
   </head>
   <body>
     <h1>Coolol</h1>
-    <x-tweet>
-      <span>no class is here</span>
-      <span class='title'>Tweet Title here</span>
-      <span class='body'>Tweet body here</span>
-    </x-tweet>
+    <x-channel>
+      <p class="title">Channel 1</p>
+      <p class="body">
+        <x-tweet>
+          <span>no class is here</span>
+          <span class='title'>Tweet Title here</span>
+          <span class='body'>Tweet body here</span>
+        </x-tweet>
+      </p>
+    </x-channel>
+
+    <h4>outside h4</h4>
+    <div>outside div</div>
   </body>
 </html>

@@ -1,11 +1,14 @@
 <template>
   <style>
-    h4 { color: red; }
-    div { color: green; }
+    h3 { color: orange; }
+    div { color: purple; }
   </style>
 
-  <h4><content select=".title"></content></h4>
-  <div><content select=".body"></content></div>
+  <h3><content select=".title"></content></h3>
+  <div>
+    Channel desc:
+    <content select=".body"></content>
+  </div>
 </template>
 
 <script type="text/javascript">
@@ -14,7 +17,7 @@
 
     var template = document.currentScript.ownerDocument.querySelector('template');
 
-    class Tweet extends HTMLElement {
+    class Channel extends HTMLElement {
       createdCallback() {
         var node = document.importNode(template.content, true);
         this.createShadowRoot();
@@ -22,6 +25,6 @@
       }
     }
 
-    document.registerElement("x-tweet", Tweet);
+    document.registerElement("x-channel", Channel);
   })();
 </script>

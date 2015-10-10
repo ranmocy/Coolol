@@ -28,13 +28,16 @@ $('button[name=verify]').addEventListener('click', function () {
   twitter.verify($('input[name=pinCode]').value);
 });
 
-$('button[name=save]').addEventListener('click', function () {
-  localStorage.setItem('config', $("textarea[name='config']").value);
-  console.log("Config saved.");
-});
-
+// config
+var editor = new JSONEditor($('.config-editor'), {mode: 'code'});
 var config = localStorage.getItem('config');
 console.log("Config loaded:", config);
+editor.set(JSON.parse(config));
+
+$('button[name=save]').addEventListener('click', function () {
+  localStorage.setItem('config', JSON.stringify(editor.get()));
+  console.log("Config saved.", JSON.stringify(editor.get()));
+});
 
 // var tweet = document.createElement('x-tweet');
 // tweet.set('title', 'Title here').set('text', 'body text');

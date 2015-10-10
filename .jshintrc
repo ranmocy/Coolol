@@ -2,7 +2,8 @@
   "predef": [
     "document",
     "window",
-    "System"
+    "System",
+    "JSONEditor"
   ],
   "browser": true,
   "boss": true,

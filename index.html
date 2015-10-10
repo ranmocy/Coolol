@@ -15,9 +15,12 @@
         main();
       }
     </script>
+    <link href="vendor/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="vendor/jsoneditor.min.js"></script>
   </head>
   <body>
     <h1>Coolol</h1>
+
     <div class="login">
       <button type="button" name="auth">Auth</button>
       <span>
@@ -28,8 +31,11 @@
     </div>
 
     <div class="config">
-      <textarea name="config" rows="8" cols="40"></textarea>
+      <div class="config-editor" style="width: 400px; height: 400px;"></div>
       <button type="button" name="save">Save</button>
+    </div>
+
+    <div class="board">
     </div>
   </body>
 </html>

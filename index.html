@@ -8,16 +8,28 @@
     <script src="jspm_packages/system.js"></script>
     <script src="config.js"></script>
     <script type="text/javascript">
-      document.addEventListener("DOMContentLoaded", function() {
-        System.import('js/main.js');
-      });
+      var main = function() { System.import('js/main.js'); };
+      if (document.readyState === 'loading') {
+        document.addEventListener("DOMContentLoaded", main);
+      } else {
+        main();
+      }
     </script>
   </head>
   <body>
     <h1>Coolol</h1>
     <div class="login">
-      <button>Auth:</button>
+      <button type="button" name="auth">Auth</button>
+      <span>
+        pincode:
+        <input type="text" name="pinCode" value="">
+      </span>
+      <button type="button" name="verify">Verify</button>
+    </div>
 
+    <div class="config">
+      <textarea name="config" rows="8" cols="40"></textarea>
+      <button type="button" name="save">Save</button>
     </div>
   </body>
 </html>

@@ -16,13 +16,26 @@ if (document.services != null) {
 }
 document.services = {};
 
-// start twitter service
-System.import("js/twitter.js").then(function (m) {
-  var twitter = m.default;
-  twitter.start();
-  document.services.twitter = twitter;
+import twitter from "js/twitter.js";
+twitter.start();
+document.services.twitter = twitter;
+
+import $ from "js/utils.js";
+$('button[name=auth]').addEventListener('click', function () {
+  twitter.auth();
+});
+$('button[name=verify]').addEventListener('click', function () {
+  twitter.verify($('input[name=pinCode]').value);
 });
 
-var tweet = document.createElement('x-tweet');
-tweet.set('title', 'Title here').set('text', 'body text');
-document.body.appendChild(tweet);
+$('button[name=save]').addEventListener('click', function () {
+  localStorage.setItem('config', $("textarea[name='config']").value);
+  console.log("Config saved.");
+});
+
+var config = localStorage.getItem('config');
+console.log("Config loaded:", config);
+
+// var tweet = document.createElement('x-tweet');
+// tweet.set('title', 'Title here').set('text', 'body text');
+// document.body.appendChild(tweet);

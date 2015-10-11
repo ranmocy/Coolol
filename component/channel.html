@@ -4,11 +4,8 @@
     div { color: purple; }
   </style>
 
-  <h3><content select=".title"></content></h3>
-  <div>
-    Channel desc:
-    <content select=".body"></content>
-  </div>
+  <h3 id="title"></h3>
+  <div id="tweets"></div>
 </template>
 
 <script type="text/javascript">
@@ -22,6 +19,17 @@
         var node = document.importNode(template.content, true);
         this.createShadowRoot();
         this.shadowRoot.appendChild(node);
+        this.tweets = [];
+        this.list = this.shadowRoot.querySelector('#tweets');
+      }
+
+      setData(tweets) {
+        this.tweets = tweets;
+        this.tweets.forEach(function(tweet) {
+          var node = document.createElement('x-tweet');
+          node.setData(tweet);
+          this.list.appendChild(node);
+        }, this);
       }
     }
 

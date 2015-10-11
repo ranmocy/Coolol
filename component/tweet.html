@@ -35,6 +35,12 @@
       get(prop) {
         return this.shadowRoot.querySelector(`m-${prop}`).textContent;
       }
+
+      setData(tweet) {
+        console.log('tweet', tweet);
+        this.set('title', tweet.id);
+        this.set('text', tweet.text);
+      }
     }
 
     document.registerElement("x-tweet", Tweet);

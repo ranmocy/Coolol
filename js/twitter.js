@@ -11,6 +11,7 @@ class Twitter {
   constructor() {
     // Read saved token
     this.setToken(localStorage.getItem('oauth_token'), localStorage.getItem('oauth_token_secret'));
+    this.promises = {};
   }
 
   start() {
@@ -26,47 +27,6 @@ class Twitter {
 
   refresh() {
     console.debug('twitter refreshing');
-  //
-  //   store.findAll('channel').then(function(channels) {
-  //     console.debug('channels:', channels);
-  //     var channelMap = {}; // api_name => [channels]
-  //     channels.forEach(function(channel) {
-  //       console.debug('c:', channel);
-  //       var rule = channel.get('rules');
-  //       if (!(rule in channelMap)) {
-  //         channelMap[rule] = [];
-  //       }
-  //       channelMap[rule].push(channel);
-  //     });
-  //     console.debug('map:', channelMap, Object.keys(channelMap));
-  //
-  //     for (var api_name in channelMap) {
-  //       if (channelMap.hasOwnProperty(api_name)) {
-  //         var channelsNeedThisApi = channelMap[api_name];
-  //         cb.__call(api_name, {}, function(reply) {
-  //           if (reply.httpstatus !== 200) {
-  //             console.error('Failed!', api_name, reply.httpstatus);
-  //             return;
-  //           }
-  //
-  //           var tweets = [];
-  //           $(reply).each(function(index, tweet) {
-  //             store.createRecord('tweet', tweet).save();
-  //             tweets.push(store.findRecord('tweet', tweet.id));
-  //           });
-  //           console.debug('tweets', tweets);
-  //
-  //           channelsNeedThisApi.forEach(function(channelNeedTheseTweets) {
-  //             var targetList = channelNeedTheseTweets.get('tweets');
-  //             console.debug('update channel', channelNeedTheseTweets.id, tweets.length);
-  //             // TODO: cleanup old tweets
-  //             targetList.pushObjects(tweets);
-  //             channelNeedTheseTweets.save();
-  //           });
-  //         });
-  //       }
-  //     }
-  //   });
   }
 
   saveTokenToLocal(token, secret) {
@@ -110,8 +70,26 @@ class Twitter {
               });
   }
 
-  getHomeTimeLine(callback) {
-    return cb.__call("statuses_homeTimeline", {}, callback);
+  fetch(source) {
+    this.promises[source] = new Promise(function(resolve, reject) {
+      cb.__call(source, {}, function (reply, rate, err) {
+        if (err) {
+          reject(err.error);
+          return;
+        }
+        if (rate) {
+          console.log('twitter fetch rate exceeded!', rate);
+        }
+        if (reply) {
+          resolve(reply);
+        }
+      });
+    });
+    return this.promises[source];
+  }
+
+  get(source) {
+    return this.promises[source];
   }
 }
 

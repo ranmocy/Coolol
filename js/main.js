@@ -17,7 +17,7 @@ if (document.services != null) {
 document.services = {};
 
 import twitter from "js/twitter.js";
-twitter.start();
+// twitter.start();
 document.services.twitter = twitter;
 
 import $ from "js/utils.js";
@@ -30,13 +30,60 @@ $('button[name=verify]').addEventListener('click', function () {
 
 // config
 var editor = new JSONEditor($('.config-editor'), {mode: 'code'});
-var config = localStorage.getItem('config');
-console.log("Config loaded:", config);
-editor.set(JSON.parse(config));
+document.config = JSON.parse(localStorage.getItem('config'));
+console.log("Config loaded:", document.config);
+editor.set(document.config);
 
 $('button[name=save]').addEventListener('click', function () {
-  localStorage.setItem('config', JSON.stringify(editor.get()));
-  console.log("Config saved.", JSON.stringify(editor.get()));
+  document.config = editor.get();
+  localStorage.setItem('config', JSON.stringify(document.config));
+  console.log("Config saved.", JSON.stringify(document.config));
+});
+
+$('button[name=reset]').addEventListener('click', function () {
+  document.config = {
+    boards: [
+      {
+        // board1
+        channels: [
+          {
+            // b1-channel1
+            sources: ['statuses_homeTimeline']
+          },
+          {
+            // b1-channel2
+            sources: ['statuses_mentionsTimeline']
+          }
+        ]
+      }
+    ]
+  };
+  editor.set(document.config);
+  localStorage.setItem('config', JSON.stringify(document.config));
+  console.log("Config saved.", JSON.stringify(document.config));
+});
+
+// refresh
+$('button[name=refresh]').addEventListener('click', function () {
+  var channels = document.config.boards[0].channels;
+  var allSources = new Set();
+  channels.forEach(function (channel) {
+    channel.sources.forEach(function (source) {
+      allSources.add(source);
+    });
+  });
+  console.log(allSources);
+
+  allSources.forEach(function (source) {
+    document.services.twitter.fetch(source);
+  });
+
+  channels.forEach(function (channel) {
+    Promise.all(channel.sources.map((source) => document.services.twitter.get(source)))
+      .then(function () {
+        console.log('all promises:', arguments);
+      });
+  });
 });
 
 // var tweet = document.createElement('x-tweet');

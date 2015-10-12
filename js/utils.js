@@ -73,6 +73,13 @@ var $ = function () {
 
 $.findAll = document.querySelectorAll;
 
+$.removeAllChild = function(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+  return element;
+};
+
 $.get = function (url) {
   return $http(url).get();
 };

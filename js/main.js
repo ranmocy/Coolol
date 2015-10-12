@@ -47,13 +47,13 @@ $('button[name=reset]').addEventListener('click', function () {
         // board1
         channels: [
           {
-            // b1-channel1
+            name: 'b1-channel1',
             sources: ['statuses_homeTimeline']
           },
-          {
-            // b1-channel2
-            sources: ['statuses_mentionsTimeline']
-          }
+          // {
+          //   name: 'b1-channel2',
+          //   sources: ['statuses_mentionsTimeline']
+          // }
         ]
       }
     ]
@@ -78,14 +78,26 @@ $('button[name=refresh]').addEventListener('click', function () {
     document.services.twitter.fetch(source);
   });
 
+  var board = $('.board');
+  $.removeAllChild(board);
+
   channels.forEach(function (channel) {
-    Promise.all(channel.sources.map((source) => document.services.twitter.get(source)))
-      .then(function () {
-        console.log('all promises:', arguments);
+    var channelElem = document.createElement('x-channel');
+    channelElem.setTitle(channel.name);
+    board.appendChild(channelElem);
+
+    var allPromises = channel.sources.map((source) => document.services.twitter.get(source));
+    console.log('all Promises', allPromises);
+    Promise.all(allPromises)
+      .then(function (tweetsArray) {
+        // flatten [[tweetsForSource1], [tweetsForSource2], ...]
+        var allTweets = tweetsArray.reduce((all, current) => { return all.concat(current); }, []);
+        console.log('allTweets:', allTweets);
+        channelElem.setData(allTweets);
       });
   });
 });
 
 // var tweet = document.createElement('x-tweet');
-// tweet.set('title', 'Title here').set('text', 'body text');
+// tweet.set('name', 'Title here').set('text', 'body text');
 // document.body.appendChild(tweet);

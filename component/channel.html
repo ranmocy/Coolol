@@ -1,10 +1,11 @@
 <template>
   <style>
+    h3, div { border: 1px black solid; }
     h3 { color: orange; }
     div { color: purple; }
   </style>
 
-  <h3 id="title"></h3>
+  <h3 id="name"></h3>
   <div id="tweets"></div>
 </template>
 
@@ -20,16 +21,30 @@
         this.createShadowRoot();
         this.shadowRoot.appendChild(node);
         this.tweets = [];
+        this.name = this.shadowRoot.querySelector('#name');
         this.list = this.shadowRoot.querySelector('#tweets');
       }
 
+      setTitle(name) {
+        this.name.textContent = name;
+        return this;
+      }
+
       setData(tweets) {
+        // Remove all children
+        while (this.list.firstChild) {
+          this.list.removeChild(this.list.firstChild);
+        }
+
+        // update new data
         this.tweets = tweets;
         this.tweets.forEach(function(tweet) {
           var node = document.createElement('x-tweet');
           node.setData(tweet);
           this.list.appendChild(node);
         }, this);
+
+        return this;
       }
     }
 

@@ -74,11 +74,14 @@ class Twitter {
     this.promises[source] = new Promise(function(resolve, reject) {
       cb.__call(source, {}, function (reply, rate, err) {
         if (err) {
+          console.error('error in fetch', err);
           reject(err.error);
           return;
         }
-        if (rate) {
-          console.log('twitter fetch rate exceeded!', rate);
+        if (reply.httpstatus === 400) {
+          console.error('twitter fetch rate exceeded!', rate);
+        } else {
+          console.log('rate limit:', rate);
         }
         if (reply) {
           resolve(reply);

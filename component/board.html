@@ -1,10 +1,22 @@
 <template>
   <style>
     m-name, m-channels {
-      border: 1px black solid;
+      display: block;
     }
     m-name {
-      color: orange;
+      color: black;
+      font-size: 200%;
+    }
+    m-channels {
+      width: 100%;
+      height: 100%;
+      overflow-x: scroll;
+      overflow-y: hidden;
+    }
+    m-channels x-channel {
+      width: 300px;
+      display: block;
+      float: left;
     }
   </style>
 

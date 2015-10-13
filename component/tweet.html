@@ -1,15 +1,15 @@
 <template>
   <style>
     m-title, m-text {
-      border: 1px blue solid;
-    }
-    m-title {
-      color: red;
-      font-size: 200%;
       display: block;
     }
-    m-text {
+    m-title {
       color: green;
+    }
+    m-text {
+      color: black;
+      border-bottom: 1px #eee solid;
+      margin-bottom: 1em;
     }
   </style>
 
@@ -41,7 +41,7 @@
 
       setData(tweet) {
         console.log('tweet', tweet);
-        this.set('title', tweet.id);
+        this.set('title', `${tweet.user.name}(${tweet.user.screen_name})`);
         this.set('text', tweet.text);
         return this;
       }

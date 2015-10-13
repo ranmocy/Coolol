@@ -63,12 +63,16 @@ $('button[name=reset]').addEventListener('click', function () {
   console.log("Config saved.", JSON.stringify(document.config));
 });
 
+// load cached
 var board = $('x-board');
+var boardConfig = document.config.boards[0];
+var data = JSON.parse(localStorage.getItem('tweets'));
+if (data !== null) {
+  board.setData(boardConfig, data);
+}
 
 // refresh
 $('button[name=refresh]').addEventListener('click', function () {
-  var boardConfig = document.config.boards[0];
-
   var channels = boardConfig.channels;
   var allSources = new Set();
   channels.forEach(function (channel) {
@@ -94,6 +98,7 @@ $('button[name=refresh]').addEventListener('click', function () {
   Promise.all(allChannelsPromises)
     .then(function (data) {
       console.log('allTweets:', data);
+      localStorage.setItem('tweets', JSON.stringify(data));
       board.setData(boardConfig, data);
     });
 });

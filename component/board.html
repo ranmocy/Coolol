@@ -1,6 +1,6 @@
 <template>
   <style>
-    m-name, m-tweets {
+    m-name, m-channels {
       border: 1px black solid;
     }
     m-name {
@@ -9,7 +9,7 @@
   </style>
 
   <m-name></m-name>
-  <m-tweets></m-tweets>
+  <m-channels></m-channels>
 </template>
 
 <script type="text/javascript">
@@ -18,13 +18,13 @@
 
     var template = document.currentScript.ownerDocument.querySelector('template');
 
-    class Channel extends HTMLElement {
+    class Board extends HTMLElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
         this.data = null;
         this.nameElem = this.shadowRoot.querySelector('m-name');
-        this.tweetsElem = this.shadowRoot.querySelector('m-tweets');
+        this.channelsElem = this.shadowRoot.querySelector('m-channels');
       }
 
       setName(name) {
@@ -40,21 +40,21 @@
         this.setName(this.config.name);
 
         // Remove all children
-        while (this.tweetsElem.firstChild) {
-          this.tweetsElem.removeChild(this.tweetsElem.firstChild);
+        while (this.channelsElem.firstChild) {
+          this.channelsElem.removeChild(this.channelsElem.firstChild);
         }
 
         // update new data
-        // flatten [[tweetsForSource1], [tweetsForSource2], ...]
-        data.reduce((all, current) => { return all.concat(current); }, [])
-          .forEach(function(tweet) {
-            this.tweetsElem.appendChild(document.createElement('x-tweet').setData(tweet));
-          }, this);
+        this.config.channels.forEach(function (channelConfig, index) {
+          this.channelsElem.appendChild(
+            document.createElement('x-channel')
+            .setData(channelConfig, this.data[index]));
+        }, this);
 
         return this;
       }
     }
 
-    document.registerElement("x-channel", Channel);
+    document.registerElement("x-board", Board);
   })();
 </script>

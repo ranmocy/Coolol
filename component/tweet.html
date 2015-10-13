@@ -25,9 +25,9 @@
 
     class Tweet extends HTMLElement {
       createdCallback() {
-        var node = document.importNode(template.content, true);
-        this.createShadowRoot();
-        this.shadowRoot.appendChild(node);
+        this.createShadowRoot().appendChild(document.importNode(template.content, true));
+        this.titleElem = this.shadowRoot.querySelector('m-title');
+        this.textElem = this.shadowRoot.querySelector('m-text');
       }
 
       set(prop, value) {
@@ -43,6 +43,7 @@
         console.log('tweet', tweet);
         this.set('title', tweet.id);
         this.set('text', tweet.text);
+        return this;
       }
     }
 

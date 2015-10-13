@@ -44,16 +44,16 @@ $('button[name=reset]').addEventListener('click', function () {
   document.config = {
     boards: [
       {
-        // board1
+        name: 'board1',
         channels: [
           {
             name: 'b1-channel1',
             sources: ['statuses_homeTimeline']
           },
-          // {
-          //   name: 'b1-channel2',
-          //   sources: ['statuses_mentionsTimeline']
-          // }
+          {
+            name: 'b1-channel2',
+            sources: ['statuses_mentionsTimeline']
+          }
         ]
       }
     ]
@@ -63,9 +63,13 @@ $('button[name=reset]').addEventListener('click', function () {
   console.log("Config saved.", JSON.stringify(document.config));
 });
 
+var board = $('x-board');
+
 // refresh
 $('button[name=refresh]').addEventListener('click', function () {
-  var channels = document.config.boards[0].channels;
+  var boardConfig = document.config.boards[0];
+
+  var channels = boardConfig.channels;
   var allSources = new Set();
   channels.forEach(function (channel) {
     channel.sources.forEach(function (source) {
@@ -74,30 +78,22 @@ $('button[name=refresh]').addEventListener('click', function () {
   });
   console.log(allSources);
 
+  // fetch all sources
   allSources.forEach(function (source) {
     document.services.twitter.fetch(source);
   });
 
-  var board = $('.board');
-  $.removeAllChild(board);
+  // get all data
+  var allChannelsPromises = channels.reduce((all, channel) => {
+    var allSourcesPromises = channel.sources.map((source) => document.services.twitter.get(source));
+    all.push(Promise.all(allSourcesPromises));
+    return all;
+  }, []);
+  console.log('all Promises', allChannelsPromises);
 
-  channels.forEach(function (channel) {
-    var channelElem = document.createElement('x-channel');
-    channelElem.setTitle(channel.name);
-    board.appendChild(channelElem);
-
-    var allPromises = channel.sources.map((source) => document.services.twitter.get(source));
-    console.log('all Promises', allPromises);
-    Promise.all(allPromises)
-      .then(function (tweetsArray) {
-        // flatten [[tweetsForSource1], [tweetsForSource2], ...]
-        var allTweets = tweetsArray.reduce((all, current) => { return all.concat(current); }, []);
-        console.log('allTweets:', allTweets);
-        channelElem.setData(allTweets);
-      });
-  });
+  Promise.all(allChannelsPromises)
+    .then(function (data) {
+      console.log('allTweets:', data);
+      board.setData(boardConfig, data);
+    });
 });
-
-// var tweet = document.createElement('x-tweet');
-// tweet.set('name', 'Title here').set('text', 'body text');
-// document.body.appendChild(tweet);

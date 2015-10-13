@@ -3,6 +3,7 @@
     "document",
     "window",
     "System",
+    "$",
     "JSONEditor"
   ],
   "browser": true,

@@ -52,9 +52,7 @@
         this.setName(this.config.name);
 
         // Remove all children
-        while (this.channelsElem.firstChild) {
-          this.channelsElem.removeChild(this.channelsElem.firstChild);
-        }
+        $.removeAllChild(this.channelsElem);
 
         // update new data
         this.config.channels.forEach(function (channelConfig, index) {

@@ -17,10 +17,8 @@ if (document.services != null) {
 document.services = {};
 
 import twitter from "js/twitter.js";
-// twitter.start();
 document.services.twitter = twitter;
 
-import $ from "js/utils.js";
 $('button[name=auth]').addEventListener('click', function () {
   twitter.auth();
 });

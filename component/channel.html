@@ -41,9 +41,7 @@
         this.setName(this.config.name);
 
         // Remove all children
-        while (this.tweetsElem.firstChild) {
-          this.tweetsElem.removeChild(this.tweetsElem.firstChild);
-        }
+        $.removeAllChild(this.tweetsElem);
 
         // update new data
         // flatten [[tweetsForSource1], [tweetsForSource2], ...]

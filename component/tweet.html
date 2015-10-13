@@ -3,6 +3,9 @@
     m-title, m-text {
       display: block;
     }
+    m-status {
+      color: #888;
+    }
     m-title {
       color: green;
     }
@@ -13,6 +16,7 @@
     }
   </style>
 
+  <m-status></m-status>
   <m-title></m-title>
   <m-text></m-text>
 </template>
@@ -39,10 +43,24 @@
         return this.shadowRoot.querySelector(`m-${prop}`).textContent;
       }
 
+      setText(text) {
+        this.textElem.textContent = $.decodeEntities(text);
+        return this;
+      }
+
       setData(tweet) {
         console.log('tweet', tweet);
-        this.set('title', `${tweet.user.name}(${tweet.user.screen_name})`);
-        this.set('text', tweet.text);
+        if (tweet.retweeted_status) {
+          // it's a retweeted tweet
+          var retweet = tweet.retweeted_status;
+          this.set('status', `${tweet.user.name}(${tweet.user.screen_name}) retweeted`);
+          this.set('title', `${retweet.user.name}(${retweet.user.screen_name})`);
+          this.setText(retweet.text);
+        } else {
+          this.set('title', `${tweet.user.name}(${tweet.user.screen_name})`);
+          this.setText(tweet.text);
+        }
+
         return this;
       }
     }

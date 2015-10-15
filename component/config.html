@@ -1,0 +1,75 @@
+<template>
+  <style>
+    m-editor {
+      width: 400px;
+      height: 400px;
+    }
+  </style>
+
+  <m-editor></m-editor>
+  <button type="button" name="save">Save</button>
+  <button type="button" name="reset">Reset to default</button>
+</template>
+
+<script type="text/javascript">
+  (function () {
+    "use strict";
+
+    var template = document.currentScript.ownerDocument.querySelector('template');
+
+    var defaultConfig = {
+      boards: [
+        {
+          name: 'board1',
+          channels: [
+            {
+              name: 'b1-channel1',
+              sources: ['statuses_homeTimeline']
+            },
+            {
+              name: 'b1-channel2',
+              sources: ['statuses_mentionsTimeline']
+            }
+          ]
+        }
+      ]
+    };
+
+    class Config extends HTMLElement {
+      createdCallback() {
+        var $$ = this.shadowRoot.querySelector;
+
+        this.createShadowRoot().appendChild(document.importNode(template.content, true));
+        this.config = null;
+        this.saveButton = $$('button[name=save]');
+        this.resetButton = $$('button[name=reset]');
+        this.editorElem = $$('m-editor');
+
+        this.editor = new JSONEditor(this.editorElem, {mode: 'code'});
+        this.editor.set(document.config);
+
+        this.saveButton.addEventListener('click', this.save);
+        this.resetButton.addEventListener('click', this.reset);
+      }
+
+      load() {
+        document.config = JSON.parse(localStorage.getItem('config'));
+        this.editor.set(document.config);
+        console.log("Config loaded:", document.config);
+      }
+
+      save() {
+        document.config = this.editor.get();
+        localStorage.setItem('config', JSON.stringify(document.config));
+        console.log("Config saved.", JSON.stringify(document.config));
+      }
+
+      reset() {
+        this.editor.set(defaultConfig);
+        this.save();
+      }
+    }
+
+    document.registerElement("x-config", Config);
+  })();
+</script>

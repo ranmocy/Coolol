@@ -3,32 +3,41 @@
   <head>
     <meta charset="utf-8">
     <title>Coolol</title>
-    <script src="/js/utils.js"></script> // global utils
+
+    <!-- global utils -->
+    <script src="/js/utils.js"></script>
+    <script src="/jspm_packages/system.js"></script>
+    <script src="/config.js"></script>
+
+    <!-- Libararies -->
+    <link href="/vendor/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="/vendor/jsoneditor.min.js"></script>
+
+    <!-- custom elements -->
     <link rel="import" href="/component/tweet.html">
     <link rel="import" href="/component/channel.html">
     <link rel="import" href="/component/board.html">
-    <style media="screen">
-      .clear:after {
-        content: "";
-        display: table;
-        clear: both;
-      }
-    </style>
-    <script src="jspm_packages/system.js"></script>
-    <script src="config.js"></script>
+    <link rel="import" href="/component/config.html">
+
+    <!-- Main entrance -->
     <script type="text/javascript">
-      var main = function() { System.import('js/main.js'); };
+      var main = function() { System.import('/js/main.js'); };
       if (document.readyState === 'loading') {
         document.addEventListener("DOMContentLoaded", main);
       } else {
         main();
       }
     </script>
-    <link href="vendor/jsoneditor.min.css" rel="stylesheet" type="text/css">
-    <script src="vendor/jsoneditor.min.js"></script>
   </head>
   <body>
-    <h1>Coolol</h1>
+    <nav>
+      <h1 class="logo">Coolol</h1>
+      <button type="button" name="switch-board">Board</button>
+      <button type="button" name="switch-config">Setting</button>
+      <button type="button" name="switch-login">Login</button>
+    </nav>
+
+    <div id="main"></div>
 
     <div class="login">
       <button type="button" name="auth">Auth</button>
@@ -39,13 +48,6 @@
       <button type="button" name="verify">Verify</button>
     </div>
 
-    <div class="config">
-      <div class="config-editor" style="width: 400px; height: 400px;"></div>
-      <button type="button" name="save">Save</button>
-      <button type="button" name="reset">Reset to default</button>
-    </div>
-
-    <button type="button" name="refresh">Refresh</button>
     <x-board></x-board>
   </body>
 </html>

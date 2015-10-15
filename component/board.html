@@ -20,6 +20,7 @@
     }
   </style>
 
+  <button type="button" name="refresh">Refresh</button>
   <m-name></m-name>
   <m-channels></m-channels>
 </template>
@@ -35,8 +36,12 @@
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
         this.data = null;
+
         this.nameElem = this.shadowRoot.querySelector('m-name');
         this.channelsElem = this.shadowRoot.querySelector('m-channels');
+        this.refreshButton = this.shadowRoot.querySelector('button[name=refresh]');
+
+        this.refreshButton.addEventListener('click', this.refresh);
       }
 
       setName(name) {
@@ -44,8 +49,12 @@
         return this;
       }
 
-      setData(config, data) {
+      setConfig(config) {
         this.config = config;
+        return this;
+      }
+
+      setData(data) {
         this.data = data;
 
         // set name
@@ -62,6 +71,37 @@
         }, this);
 
         return this;
+      }
+
+      refresh() {
+        var channels = this.config.channels;
+        var allSources = new Set();
+        channels.forEach(function (channel) {
+          channel.sources.forEach(function (source) {
+            allSources.add(source);
+          });
+        });
+        console.log('allSources', allSources);
+
+        // fetch all sources
+        allSources.forEach(function (source) {
+          document.services.twitter.fetch(source);
+        });
+
+        // get all data
+        var allChannelsPromises = channels.reduce((all, channel) => {
+          var allSourcesPromises = channel.sources.map((source) => document.services.twitter.get(source));
+          all.push(Promise.all(allSourcesPromises));
+          return all;
+        }, []);
+        console.log('all Promises', allChannelsPromises);
+
+        Promise.all(allChannelsPromises)
+          .then(function (data) {
+            console.log('allTweets:', data);
+            localStorage.setItem('tweets', JSON.stringify(data));
+            this.setData(data);
+          });
       }
     }
 

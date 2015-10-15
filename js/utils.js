@@ -1,3 +1,5 @@
+(function () {
+
 // A-> $http function is implemented in order to follow the standard Adapter pattern
 function $http(url){
   'use strict';
@@ -108,4 +110,18 @@ $.decodeEntities = (function () {
       }
   }
   return decodeHTMLEntities;
+})();
+
+/* globals module, define */
+if (typeof module === "object" && module && typeof module.exports === "object") {
+    module.exports = $;
+} else {
+    // Otherwise expose to the global object as usual
+    if (typeof window === "object" && window) {
+      window.$ = $;
+    }
+    if (typeof define === "function") {
+    	define("$", [], function () { return $; });
+    }
+}
 })();

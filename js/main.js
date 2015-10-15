@@ -26,77 +26,27 @@ $('button[name=verify]').addEventListener('click', function () {
   twitter.verify($('input[name=pinCode]').value);
 });
 
-// config
-var editor = new JSONEditor($('.config-editor'), {mode: 'code'});
+
+// load Config
 document.config = JSON.parse(localStorage.getItem('config'));
 console.log("Config loaded:", document.config);
-editor.set(document.config);
 
-$('button[name=save]').addEventListener('click', function () {
-  document.config = editor.get();
-  localStorage.setItem('config', JSON.stringify(document.config));
-  console.log("Config saved.", JSON.stringify(document.config));
-});
 
-$('button[name=reset]').addEventListener('click', function () {
-  document.config = {
-    boards: [
-      {
-        name: 'board1',
-        channels: [
-          {
-            name: 'b1-channel1',
-            sources: ['statuses_homeTimeline']
-          },
-          {
-            name: 'b1-channel2',
-            sources: ['statuses_mentionsTimeline']
-          }
-        ]
-      }
-    ]
-  };
-  editor.set(document.config);
-  localStorage.setItem('config', JSON.stringify(document.config));
-  console.log("Config saved.", JSON.stringify(document.config));
-});
+var mainElem = $('#main');
+var switchToBoard = function () {
+  $.removeAllChild(mainElem);
+  var board = document.createElement('x-board');
+  mainElem.appendChild(board);
 
-// load cached
-var board = $('x-board');
-var boardConfig = document.config.boards[0];
-var data = JSON.parse(localStorage.getItem('tweets'));
-if (data !== null) {
-  board.setData(boardConfig, data);
-}
+  // load cached
+  var boardConfig = document.config.boards[0];
+  board.setConfig(boardConfig);
+  var data = JSON.parse(localStorage.getItem('tweets'));
+  if (data !== null) {
+    board.setData(data);
+  }
+};
+$('button[name=switch-board]').addEventListener('click', switchToBoard);
 
-// refresh
-$('button[name=refresh]').addEventListener('click', function () {
-  var channels = boardConfig.channels;
-  var allSources = new Set();
-  channels.forEach(function (channel) {
-    channel.sources.forEach(function (source) {
-      allSources.add(source);
-    });
-  });
-  console.log(allSources);
-
-  // fetch all sources
-  allSources.forEach(function (source) {
-    document.services.twitter.fetch(source);
-  });
-
-  // get all data
-  var allChannelsPromises = channels.reduce((all, channel) => {
-    var allSourcesPromises = channel.sources.map((source) => document.services.twitter.get(source));
-    all.push(Promise.all(allSourcesPromises));
-    return all;
-  }, []);
-  console.log('all Promises', allChannelsPromises);
-
-  Promise.all(allChannelsPromises)
-    .then(function (data) {
-      console.log('allTweets:', data);
-      localStorage.setItem('tweets', JSON.stringify(data));
-      board.setData(boardConfig, data);
-    });
-});
+// init view is board
+switchToBoard();

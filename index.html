@@ -13,11 +13,12 @@
     <script src="/vendor/jsoneditor.min.js"></script>
 
     <!-- custom elements -->
-    <link rel="import" href="/component/session.html">
     <link rel="import" href="/component/tweet.html">
     <link rel="import" href="/component/channel.html">
     <link rel="import" href="/component/board.html">
     <link rel="import" href="/component/config.html">
+    <link rel="import" href="/component/session.html">
+    <link rel="import" href="/component/app.html">
 
     <!-- Main entrance -->
     <script type="text/javascript">
@@ -30,13 +31,6 @@
     </script>
   </head>
   <body>
-    <nav>
-      <h1 class="logo">Coolol</h1>
-      <button type="button" name="switch-board">Board</button>
-      <button type="button" name="switch-config">Setting</button>
-      <button type="button" name="switch-session">Login</button>
-    </nav>
-
-    <div id="main"></div>
+    <x-app></x-app>
   </body>
 </html>

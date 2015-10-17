@@ -1,0 +1,69 @@
+<template>
+  <nav>
+    <h1 class="logo">Coolol</h1>
+    <button type="button" name="switch-board">Board</button>
+    <button type="button" name="switch-config">Setting</button>
+    <button type="button" name="switch-session">Login</button>
+  </nav>
+  <div id="main"></div>
+</template>
+
+<script type="text/javascript">
+  (function () {
+    "use strict";
+
+    var template = document.currentScript.ownerDocument.querySelector('template');
+
+    class App extends HTMLElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode(template.content, true));
+
+        this.$main = this.shadowRoot.querySelector('#main');
+        this.$switchBoard = this.shadowRoot.querySelector('button[name=switch-board]');
+        this.$switchConfig = this.shadowRoot.querySelector('button[name=switch-config]');
+        this.$switchSession = this.shadowRoot.querySelector('button[name=switch-session]');
+
+        this.$switchBoard.addEventListener('click', this.switchToBoard.bind(this));
+        this.$switchConfig.addEventListener('click', this.switchToConfig.bind(this));
+        this.$switchSession.addEventListener('click', this.switchToSession.bind(this));
+
+        // load Config
+        document.config = JSON.parse(localStorage.getItem('config'));
+        console.log("Config loaded:", document.config);
+
+        // init view
+        // this.switchToBoard();
+        // this.switchToConfig();
+        this.switchToSession();
+      }
+
+      switchToBoard() {
+        $.removeAllChild(this.$main);
+        var board = document.createElement('x-board');
+        this.$main.appendChild(board);
+
+        // load cached
+        var boardConfig = document.config.boards[0];
+        board.setConfig(boardConfig);
+        var data = JSON.parse(localStorage.getItem('tweets'));
+        if (data !== null) {
+          board.setData(data);
+        }
+      }
+
+      switchToConfig() {
+        $.removeAllChild(this.$main);
+        var config = document.createElement('x-config');
+        this.$main.appendChild(config);
+      }
+
+      switchToSession () {
+        $.removeAllChild(this.$main);
+        var $session = document.createElement('x-session');
+        this.$main.appendChild($session);
+      }
+    }
+
+    document.registerElement("x-app", App);
+  })();
+</script>

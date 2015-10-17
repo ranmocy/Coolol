@@ -1,24 +1,21 @@
 <template>
   <style>
-    m-title, m-text {
-      display: block;
-    }
-    m-status {
+    #m-status {
       color: #888;
     }
-    m-title {
+    #m-title {
       color: green;
     }
-    m-text {
+    #m-text {
       color: black;
       border-bottom: 1px #eee solid;
       margin-bottom: 1em;
     }
   </style>
 
-  <m-status></m-status>
-  <m-title></m-title>
-  <m-text></m-text>
+  <div id="m-status"></div>
+  <div id="m-title"></div>
+  <div id="m-text"></div>
 </template>
 
 <script type="text/javascript">
@@ -30,17 +27,17 @@
     class Tweet extends HTMLElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
-        this.titleElem = this.shadowRoot.querySelector('m-title');
-        this.textElem = this.shadowRoot.querySelector('m-text');
+        this.titleElem = this.shadowRoot.querySelector('#m-title');
+        this.textElem = this.shadowRoot.querySelector('#m-text');
       }
 
       set(prop, value) {
-        this.shadowRoot.querySelector(`m-${prop}`).textContent = value;
+        this.shadowRoot.querySelector(`#m-${prop}`).textContent = value;
         return this;
       }
 
       get(prop) {
-        return this.shadowRoot.querySelector(`m-${prop}`).textContent;
+        return this.shadowRoot.querySelector(`#m-${prop}`).textContent;
       }
 
       setText(text) {

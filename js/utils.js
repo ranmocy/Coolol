@@ -112,6 +112,8 @@ $.decodeEntities = (function () {
   return decodeHTMLEntities;
 })();
 
+$.isDefined = function (v) { return typeof v !== "undefined"; };
+
 /* globals module, define */
 if (typeof module === "object" && module && typeof module.exports === "object") {
     module.exports = $;

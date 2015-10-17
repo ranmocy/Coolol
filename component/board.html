@@ -1,28 +1,24 @@
 <template>
   <style>
-    m-name, m-channels {
-      display: block;
-    }
-    m-name {
+    #m-name {
       color: black;
       font-size: 200%;
     }
-    m-channels {
-      width: 100%;
+    #m-channels {
       height: 100%;
       overflow-x: scroll;
       overflow-y: hidden;
     }
-    m-channels x-channel {
+    #m-channels x-channel {
+      height: 100%;
       width: 300px;
-      display: block;
       float: left;
     }
   </style>
 
-  <button type="button" name="refresh">Refresh</button>
-  <m-name></m-name>
-  <m-channels></m-channels>
+  <button type="button" id="refresh">Refresh</button>
+  <div id="m-name"></div>
+  <div id="m-channels"></div>
 </template>
 
 <script type="text/javascript">
@@ -37,9 +33,9 @@
         this.config = null;
         this._data = null;
 
-        this.$name = this.shadowRoot.querySelector('m-name');
-        this.$channels = this.shadowRoot.querySelector('m-channels');
-        this.$refresh = this.shadowRoot.querySelector('button[name=refresh]');
+        this.$name = this.shadowRoot.querySelector('#m-name');
+        this.$channels = this.shadowRoot.querySelector('#m-channels');
+        this.$refresh = this.shadowRoot.querySelector('#refresh');
 
         this.$refresh.addEventListener('click', this.refresh.bind(this));
       }
@@ -64,11 +60,15 @@
         // Remove all children
         $.removeAllChild(this.$channels);
 
+        if (!data) {
+          return this;
+        }
+
         // update new data
-        this.config.channels.forEach(function (channelConfig, index) {
+        this.config.channels.forEach(function (channel_config, index) {
           this.$channels.appendChild(
             document.createElement('x-channel')
-            .setData(channelConfig, this._data[index]));
+              .setData(channel_config, this._data[index]));
         }, this);
 
         return this;

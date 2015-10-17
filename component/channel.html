@@ -1,17 +1,17 @@
 <template>
   <style>
-    m-name {
+    #m-name {
       color: orange;
-      display: block;
     }
-    m-tweets {
+    #m-tweets {
+      height: 100%;
       overflow-x: hidden;
       overflow-y: scroll;
     }
   </style>
 
-  <m-name></m-name>
-  <m-tweets></m-tweets>
+  <div id="m-name"></div>
+  <div id="m-tweets"></div>
 </template>
 
 <script type="text/javascript">
@@ -25,8 +25,8 @@
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
         this.data = null;
-        this.nameElem = this.shadowRoot.querySelector('m-name');
-        this.tweetsElem = this.shadowRoot.querySelector('m-tweets');
+        this.nameElem = this.shadowRoot.querySelector('#m-name');
+        this.tweetsElem = this.shadowRoot.querySelector('#m-tweets');
       }
 
       setName(name) {
@@ -44,11 +44,16 @@
         // Remove all children
         $.removeAllChild(this.tweetsElem);
 
+        if (!data) {
+          return this;
+        }
+
         // update new data
         // flatten [[tweetsForSource1], [tweetsForSource2], ...]
         data.reduce((all, current) => { return all.concat(current); }, [])
           .forEach(function(tweet) {
-            this.tweetsElem.appendChild(document.createElement('x-tweet').setData(tweet));
+            var $tweet = document.createElement('x-tweet').setData(tweet);
+            this.tweetsElem.appendChild($tweet);
           }, this);
 
         return this;

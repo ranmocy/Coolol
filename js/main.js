@@ -19,14 +19,6 @@ document.services = {};
 import twitter from "js/twitter.js";
 document.services.twitter = twitter;
 
-$('button[name=auth]').addEventListener('click', function () {
-  twitter.auth();
-});
-$('button[name=verify]').addEventListener('click', function () {
-  twitter.verify($('input[name=pinCode]').value);
-});
-
-
 // load Config
 document.config = JSON.parse(localStorage.getItem('config'));
 console.log("Config loaded:", document.config);
@@ -55,6 +47,14 @@ var switchToConfig = function () {
 };
 $('button[name=switch-config]').addEventListener('click', switchToConfig);
 
+var switchToSession = function () {
+  $.removeAllChild(mainElem);
+  var $session = document.createElement('x-session');
+  mainElem.appendChild($session);
+};
+$('button[name=switch-session]').addEventListener('click', switchToSession);
+
 // init view is board
-switchToBoard();
+// switchToBoard();
 // switchToConfig();
+switchToSession();

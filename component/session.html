@@ -1,0 +1,44 @@
+<template>
+  <div class="login">
+    <button type="button" name="auth">Auth</button>
+    <span>
+      pincode:
+      <input type="text" name="pinCode" value="">
+    </span>
+    <button type="button" name="verify">Verify</button>
+  </div>
+</template>
+
+<script type="text/javascript">
+  (function () {
+    "use strict";
+
+    var template = document.currentScript.ownerDocument.querySelector('template');
+
+    class Session extends HTMLElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode(template.content, true));
+        this.$auth = this.shadowRoot.querySelector('button[name=auth]');
+        this.$pinCode = this.shadowRoot.querySelector('input[name=pinCode]');
+        this.$verify = this.shadowRoot.querySelector('button[name=verify]');
+
+        this.$auth.addEventListener('click', this.auth.bind(this));
+        this.$verify.addEventListener('click', this.verify.bind(this));
+
+        this.twitter = document.services.twitter;
+      }
+
+      auth() {
+        this.twitter.auth();
+        return this;
+      }
+
+      verify() {
+        this.twitter.verify(this.$pinCode.value);
+        return this;
+      }
+    }
+
+    document.registerElement("x-session", Session);
+  })();
+</script>

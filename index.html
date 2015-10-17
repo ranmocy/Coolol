@@ -13,6 +13,7 @@
     <script src="/vendor/jsoneditor.min.js"></script>
 
     <!-- custom elements -->
+    <link rel="import" href="/component/session.html">
     <link rel="import" href="/component/tweet.html">
     <link rel="import" href="/component/channel.html">
     <link rel="import" href="/component/board.html">
@@ -33,18 +34,9 @@
       <h1 class="logo">Coolol</h1>
       <button type="button" name="switch-board">Board</button>
       <button type="button" name="switch-config">Setting</button>
-      <button type="button" name="switch-login">Login</button>
+      <button type="button" name="switch-session">Login</button>
     </nav>
 
     <div id="main"></div>
-
-    <div class="login">
-      <button type="button" name="auth">Auth</button>
-      <span>
-        pincode:
-        <input type="text" name="pinCode" value="">
-      </span>
-      <button type="button" name="verify">Verify</button>
-    </div>
   </body>
 </html>

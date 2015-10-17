@@ -35,39 +35,40 @@
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
-        this.data = null;
+        this._data = null;
 
-        this.nameElem = this.shadowRoot.querySelector('m-name');
-        this.channelsElem = this.shadowRoot.querySelector('m-channels');
-        this.refreshButton = this.shadowRoot.querySelector('button[name=refresh]');
+        this.$name = this.shadowRoot.querySelector('m-name');
+        this.$channels = this.shadowRoot.querySelector('m-channels');
+        this.$refresh = this.shadowRoot.querySelector('button[name=refresh]');
 
-        this.refreshButton.addEventListener('click', this.refresh);
+        this.$refresh.addEventListener('click', this.refresh.bind(this));
       }
 
       setName(name) {
-        this.nameElem.textContent = name;
+        this.$name.textContent = name;
         return this;
       }
 
       setConfig(config) {
+        console.log("board setConfig:", config);
         this.config = config;
         return this;
       }
 
       setData(data) {
-        this.data = data;
+        this._data = data;
 
         // set name
         this.setName(this.config.name);
 
         // Remove all children
-        $.removeAllChild(this.channelsElem);
+        $.removeAllChild(this.$channels);
 
         // update new data
         this.config.channels.forEach(function (channelConfig, index) {
-          this.channelsElem.appendChild(
+          this.$channels.appendChild(
             document.createElement('x-channel')
-            .setData(channelConfig, this.data[index]));
+            .setData(channelConfig, this._data[index]));
         }, this);
 
         return this;
@@ -96,11 +97,12 @@
         }, []);
         console.log('all Promises', allChannelsPromises);
 
+        var self = this;
         Promise.all(allChannelsPromises)
           .then(function (data) {
             console.log('allTweets:', data);
             localStorage.setItem('tweets', JSON.stringify(data));
-            this.setData(data);
+            self.setData(data);
           });
       }
     }

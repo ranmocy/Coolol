@@ -48,5 +48,13 @@ var switchToBoard = function () {
 };
 $('button[name=switch-board]').addEventListener('click', switchToBoard);
 
+var switchToConfig = function () {
+  $.removeAllChild(mainElem);
+  var config = document.createElement('x-config');
+  mainElem.appendChild(config);
+};
+$('button[name=switch-config]').addEventListener('click', switchToConfig);
+
 // init view is board
 switchToBoard();
+// switchToConfig();

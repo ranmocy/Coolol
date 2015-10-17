@@ -29,8 +29,25 @@
         main();
       }
     </script>
+    <style media="screen">
+      #background-loading {
+        position: fixed;
+        background: white;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999;
+      }
+      #background-loading h1 {
+        text-align: center;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    </style>
   </head>
   <body>
-    <x-app></x-app>
+    <div id="background-loading">
+      <h1>Loading...</h1>
+    </div>
   </body>
 </html>

@@ -18,3 +18,7 @@ document.services = {};
 
 import twitter from "js/twitter.js";
 document.services.twitter = twitter;
+
+import $ from "/js/utils.js";
+$.removeAllChild(document.body);
+document.body.appendChild(document.createElement('x-app'));

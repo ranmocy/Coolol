@@ -1,55 +1,42 @@
 # Coolol
 
-This README outlines the details of collaborating on this Ember application.
-A short introduction of this app could easily go here.
+Coolol is a fully customizable twitter client based on JavaScript ES6.
+It allows you to write a config like:
 
-## Prerequisites
+```json
+{
+  "boards": [
+    {
+      "name": "board1",
+      "channels": [
+        {
+          "name": "b1-channel1",
+          "sources": [
+            "statuses_homeTimeline",
+            "statuses_mentionsTimeline"
+          ]
+        },
+        {
+          "name": "b1-channel2",
+          "sources": [
+            "statuses_mentionsTimeline"
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
 
-You will need the following things properly installed on your computer.
+# Usage
 
-* [Git](http://git-scm.com/)
-* [Node.js](http://nodejs.org/) (with NPM)
-* [Bower](http://bower.io/)
-* [Ember CLI](http://www.ember-cli.com/)
-* [PhantomJS](http://phantomjs.org/)
+* `git clone https://github.com/ranmocy/Coolol.git`
+* `cd Coolol`
+* `python -m SimpleHTTPServer`
+* Open browser with url: `http://localhost:8080`
 
-## Installation
+## Dev
 
-* `git clone <repository-url>` this repository
-* `npm install -g bower`
-* `node --max_old_space_size=512 $(which npm) install -g ember-cli`
-* change into the new directory
-* `npm install`
-* `bower install`
-
-## Running / Development
-
-* `ember server`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
-
-### Code Generators
-
-Make use of the many generators for code, try `ember help generate` for more details
-
-### Running Tests
-
-* `ember test`
-* `ember test --server`
-
-### Building
-
-* `ember build` (development)
-* `ember build --environment production` (production)
-
-### Deploying
-
-Specify what it takes to deploy your app.
-
-## Further Reading / Useful Links
-
-* [ember.js](http://emberjs.com/)
-* [ember-cli](http://www.ember-cli.com/)
-* Development Browser Extensions
-  * [ember inspector for chrome](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi)
-  * [ember inspector for firefox](https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/)
-
+* `git clone https://github.com/ranmocy/Coolol.git`
+* `npm install -g jspm`
+* `jspm init`

@@ -6,16 +6,23 @@
     #m-title {
       color: green;
     }
-    #m-text {
+    #m-body {
       color: black;
       border-bottom: 1px #eee solid;
       margin-bottom: 1em;
+    }
+    #m-quoted {
+      margin-left: 2em;
     }
   </style>
 
   <div id="m-status"></div>
   <div id="m-title"></div>
-  <div id="m-text"></div>
+  <div id="m-body">
+    <div id="m-text"></div>
+    <div id="m-reply"></div>
+    <div id="m-quoted"></div>
+  </div>
 </template>
 
 <script type="text/javascript">
@@ -29,15 +36,12 @@
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.titleElem = this.shadowRoot.querySelector('#m-title');
         this.textElem = this.shadowRoot.querySelector('#m-text');
-      }
 
-      set(prop, value) {
-        this.shadowRoot.querySelector(`#m-${prop}`).textContent = value;
-        return this;
+        this.tweet = null;
       }
 
       get(prop) {
-        return this.shadowRoot.querySelector(`#m-${prop}`).textContent;
+        return this.shadowRoot.querySelector(`#m-${prop}`);
       }
 
       setText(text) {
@@ -46,15 +50,23 @@
       }
 
       setData(tweet) {
+        this.tweet = tweet;
         console.log('tweet', tweet);
         if (tweet.retweeted_status) {
           // it's a retweeted tweet
           var retweet = tweet.retweeted_status;
-          this.set('status', `${tweet.user.name}(${tweet.user.screen_name}) retweeted`);
-          this.set('title', `${retweet.user.name}(${retweet.user.screen_name})`);
+          this.get('status').textContent = `${tweet.user.name}(${tweet.user.screen_name}) retweeted`;
+          this.get('title').textContent = `${retweet.user.name}(${retweet.user.screen_name})`;
           this.setText(retweet.text);
+        } else if (tweet.is_quote_status) {
+          // it's a quoted tweet
+          this.get('title').textContent = `${tweet.user.name}(${tweet.user.screen_name})`;
+          this.setText(tweet.text);
+          var original_tweet = document.createElement('x-tweet');
+          original_tweet.setData(tweet.quoted_status);
+          this.get('quoted').appendChild(original_tweet);
         } else {
-          this.set('title', `${tweet.user.name}(${tweet.user.screen_name})`);
+          this.get('title').textContent = `${tweet.user.name}(${tweet.user.screen_name})`;
           this.setText(tweet.text);
         }
 

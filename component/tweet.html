@@ -1,4 +1,4 @@
-<template>
+<template id="tweet">
   <style>
     :host {
       display: block;
@@ -9,36 +9,52 @@
     #m-status {
       color: #888;
     }
-    #m-title {
+    #m-creator {
       color: green;
     }
     #m-body {
       color: black;
     }
+    .m-quoted, .m-reply {
+      border: 1px #eee solid;
+    }
   </style>
 
   <div id="container">
     <div id="m-status"></div>
-    <div id="m-title"></div>
+    <div id="m-creator"></div>
     <div id="m-body">
       <div id="m-text"></div>
-      <div id="m-reply"></div>
-      <div id="m-quoted"></div>
     </div>
   </div>
+</template>
+
+<template id="creator">
+  <style media="screen">
+    .avatar {
+      height: 16px;
+    }
+  </style>
+
+  <img class="avatar" />
+  <span class="name"></span>
+  <span class="handle">
+    (<span class="screen-name"></span>)
+  </span>
 </template>
 
 <script type="text/javascript">
   (function () {
     "use strict";
 
-    var template = document.currentScript.ownerDocument.querySelector('template');
+    var template = document.currentScript.ownerDocument.querySelector('template#tweet');
+    var $$$creator = document.currentScript.ownerDocument.querySelector('template#creator');
+    $$$creator.find = $$$creator.content.querySelector.bind($$$creator.content);
 
     class Tweet extends HTMLElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
-        this.titleElem = this.shadowRoot.querySelector('#m-title');
-        this.textElem = this.shadowRoot.querySelector('#m-text');
+        this.$text = this.shadowRoot.querySelector('#m-text');
 
         this.tweet = null;
       }
@@ -47,29 +63,43 @@
         return this.shadowRoot.querySelector(`#m-${prop}`);
       }
 
+      setCreator(user) {
+        $$$creator.find('.avatar').src = user.profile_image_url_https;
+        $$$creator.find('.name').textContent = user.name;
+        $$$creator.find('.screen-name').textContent = user.screen_name;
+
+        var $container = this.get('creator');
+        $.removeAllChild($container);
+        $container.appendChild(document.importNode($$$creator.content, true));
+        return this;
+      }
+
       setText(text) {
-        this.textElem.textContent = $.decodeEntities(text);
+        this.$text.textContent = $.decodeEntities(text);
         return this;
       }
 
       setData(tweet) {
         this.tweet = tweet;
         console.log('tweet', tweet);
-        if (tweet.retweeted_status) {
+        if (false && tweet.reply_to) {
+          // it's a reply tweet
+        } else if (tweet.retweeted_status) {
           // it's a retweeted tweet
           var retweet = tweet.retweeted_status;
           this.get('status').textContent = `${tweet.user.name}(${tweet.user.screen_name}) retweeted`;
-          this.get('title').textContent = `${retweet.user.name}(${retweet.user.screen_name})`;
+          this.setCreator(retweet.user);
           this.setText(retweet.text);
         } else if (tweet.is_quote_status) {
           // it's a quoted tweet
-          this.get('title').textContent = `${tweet.user.name}(${tweet.user.screen_name})`;
+          this.setCreator(tweet.user);
           this.setText(tweet.text);
           var original_tweet = document.createElement('x-tweet');
+          original_tweet.className = "m-quoted";
           original_tweet.setData(tweet.quoted_status);
-          this.get('quoted').appendChild(original_tweet);
+          this.get('body').appendChild(original_tweet);
         } else {
-          this.get('title').textContent = `${tweet.user.name}(${tweet.user.screen_name})`;
+          this.setCreator(tweet.user);
           this.setText(tweet.text);
         }
 

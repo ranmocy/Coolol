@@ -1,5 +1,8 @@
 {
   "jspm": {
+    "dependencies": {
+      "twitter-text": "npm:twitter-text@^1.13.2"
+    },
     "devDependencies": {
       "babel": "npm:babel-core@^5.8.24",
       "babel-runtime": "npm:babel-runtime@^5.8.24",

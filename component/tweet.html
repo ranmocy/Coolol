@@ -18,6 +18,11 @@
     .m-quoted, .m-reply {
       border: 1px #eee solid;
     }
+    #m-body a{
+      /*color: #4C91DB;*/
+      color: #377ac3;
+      text-decoration: none;
+    }
   </style>
 
   <div id="container">
@@ -75,7 +80,11 @@
       }
 
       setText(text) {
-        this.$text.textContent = $.decodeEntities(text);
+        var obj = this.tweet.entities;
+        var entities = Object.keys(obj).reduce((all, key) => {
+          return all.concat(obj[key]);
+        }, []);
+        this.$text.innerHTML = twttr.txt.autoLink(text, {urlEntities: entities});
         return this;
       }
 

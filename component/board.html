@@ -1,23 +1,27 @@
 <template>
   <style>
-    #m-name {
-      color: black;
-      font-size: 200%;
+    :host {
+      display: block;
+      height: 100%;
+      width: 100%;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      white-space: nowrap; /* key to horizontal scrolling */
     }
     #m-channels {
       height: 100%;
-      overflow-x: scroll;
-      overflow-y: hidden;
     }
-    #m-channels x-channel {
+    .m-channel {
+      display: inline-block; /* key to horizontal */
       height: 100%;
       width: 300px;
-      float: left;
+      white-space: normal; /* reset for children */
+      border-left: 1px #eee solid;
+    }
+    .m-channel:last-child {
+      border-right: 1px #eee solid;
     }
   </style>
-
-  <button type="button" id="refresh">Refresh</button>
-  <div id="m-name"></div>
   <div id="m-channels"></div>
 </template>
 
@@ -33,16 +37,7 @@
         this.config = null;
         this._data = null;
 
-        this.$name = this.shadowRoot.querySelector('#m-name');
         this.$channels = this.shadowRoot.querySelector('#m-channels');
-        this.$refresh = this.shadowRoot.querySelector('#refresh');
-
-        this.$refresh.addEventListener('click', this.refresh.bind(this));
-      }
-
-      setName(name) {
-        this.$name.textContent = name;
-        return this;
       }
 
       setConfig(config) {
@@ -54,9 +49,6 @@
       setData(data) {
         this._data = data;
 
-        // set name
-        this.setName(this.config.name);
-
         // Remove all children
         $.removeAllChild(this.$channels);
 
@@ -66,9 +58,12 @@
 
         // update new data
         this.config.channels.forEach(function (channel_config, index) {
-          this.$channels.appendChild(
-            document.createElement('x-channel')
-              .setData(channel_config, this._data[index]));
+          var $channel = document.createElement('x-channel').setData(channel_config, this._data[index]);
+          var $channel_container = document.createElement('div');
+          $channel_container.className = "m-channel";
+          $channel_container.appendChild($channel);
+          this.$channels.appendChild($channel_container);
+          // this.$channels.appendChild($channel);
         }, this);
 
         return this;
@@ -100,6 +95,7 @@
         var self = this;
         Promise.all(allChannelsPromises)
           .then(function (data) {
+            // cache up
             console.log('allTweets:', data);
             localStorage.setItem('tweets', JSON.stringify(data));
             self.setData(data);

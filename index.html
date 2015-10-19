@@ -5,9 +5,10 @@
     <title>Coolol</title>
 
     <!-- global utils -->
-    <script src="/js/utils.js"></script>
     <script src="/jspm_packages/system.js"></script>
     <script src="/config.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/twitter.js"></script>
 
     <!-- Libararies -->
     <script src="/vendor/jsoneditor.min.js"></script>
@@ -21,14 +22,6 @@
     <link rel="import" href="/component/app.html">
 
     <!-- Main entrance -->
-    <script type="text/javascript">
-      var main = function() { System.import('/js/main.js'); };
-      if (document.readyState === 'loading') {
-        document.addEventListener("DOMContentLoaded", main);
-      } else {
-        main();
-      }
-    </script>
     <style media="screen">
       body {
         margin: 0;
@@ -51,6 +44,26 @@
         transform: translateY(-50%);
       }
     </style>
+    <script type="text/javascript">
+      var main = function() {
+        // Test HTML5 local storage
+        if(typeof(Storage) === "undefined") {
+          throw "Can't read from storage!";
+        }
+        // Test HTML template support
+        if (!('content' in document.createElement('template'))) {
+          throw "Can't use HTML template!";
+        }
+        // start app
+        $.removeAllChild(document.body);
+        document.body.appendChild(document.createElement('x-app'));
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener("DOMContentLoaded", main);
+      } else {
+        main();
+      }
+    </script>
   </head>
   <body>
     <div id="background-loading">

@@ -1,16 +1,31 @@
 <template>
   <style>
-    #m-name {
+    :host {
+      display: block;
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+    #m-header {
       color: orange;
+      height: 24px;
+      line-height: 24px;
+      text-align: center;
+      border-bottom: 1px #eee solid;
     }
     #m-tweets {
-      height: 100%;
+      position: absolute;
+      top: 24px;
+      bottom: 0;
       overflow-x: hidden;
       overflow-y: scroll;
     }
+    #m-tweets x-tweet {
+      border-bottom: 1px #eee solid;
+    }
   </style>
 
-  <div id="m-name"></div>
+  <div id="m-header"></div>
   <div id="m-tweets"></div>
 </template>
 
@@ -25,12 +40,12 @@
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
         this.data = null;
-        this.nameElem = this.shadowRoot.querySelector('#m-name');
-        this.tweetsElem = this.shadowRoot.querySelector('#m-tweets');
+        this.$header = this.shadowRoot.querySelector('#m-header');
+        this.$tweets = this.shadowRoot.querySelector('#m-tweets');
       }
 
       setName(name) {
-        this.nameElem.textContent = name;
+        this.$header.textContent = name;
         return this;
       }
 
@@ -38,11 +53,11 @@
         this.config = config;
         this.data = data;
 
-        // set name
+        // set header
         this.setName(this.config.name);
 
         // Remove all children
-        $.removeAllChild(this.tweetsElem);
+        $.removeAllChild(this.$tweets);
 
         if (!data) {
           return this;
@@ -50,11 +65,20 @@
 
         // update new data
         // flatten [[tweetsForSource1], [tweetsForSource2], ...]
-        data.reduce((all, current) => { return all.concat(current); }, [])
-          .forEach(function(tweet) {
-            var $tweet = document.createElement('x-tweet').setData(tweet);
-            this.tweetsElem.appendChild($tweet);
-          }, this);
+        data
+          .reduce((all, current) => {
+            return all.concat(current);
+          }, [])
+          .map((tweet) => {
+            tweet.created_at = new Date(tweet.created_at);
+            return tweet;
+          })
+          .sort((a, b) => {
+            return b.created_at - a.created_at;
+          })
+          .forEach((tweet) => {
+            this.$tweets.appendChild(document.createElement('x-tweet').setData(tweet));
+          });
 
         return this;
       }

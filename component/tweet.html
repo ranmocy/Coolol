@@ -1,5 +1,11 @@
 <template>
   <style>
+    :host {
+      display: block;
+    }
+    #container {
+      padding: 0.5em 1em;
+    }
     #m-status {
       color: #888;
     }
@@ -8,20 +14,17 @@
     }
     #m-body {
       color: black;
-      border-bottom: 1px #eee solid;
-      margin-bottom: 1em;
-    }
-    #m-quoted {
-      margin-left: 2em;
     }
   </style>
 
-  <div id="m-status"></div>
-  <div id="m-title"></div>
-  <div id="m-body">
-    <div id="m-text"></div>
-    <div id="m-reply"></div>
-    <div id="m-quoted"></div>
+  <div id="container">
+    <div id="m-status"></div>
+    <div id="m-title"></div>
+    <div id="m-body">
+      <div id="m-text"></div>
+      <div id="m-reply"></div>
+      <div id="m-quoted"></div>
+    </div>
   </div>
 </template>
 
@@ -74,6 +77,7 @@
       }
     }
 
+    // Tweet.extends = 'div';
     document.registerElement("x-tweet", Tweet);
   })();
 </script>

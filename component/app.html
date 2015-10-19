@@ -1,12 +1,31 @@
 <template>
   <style media="screen">
+    :host {
+      display: block;
+      position: relative;
+      height: 100vh;
+      width: 100vw;
+    }
+    nav {
+      height: 30px;
+      padding: 10px 20px;
+      border-bottom: 1px #eee solid;
+    }
+    #logo {
+      line-height: 30px;
+      font-size: 30px;
+      font-weight: bold;
+    }
     #main {
-      height: 100%;
+      position: absolute;
+      top: 50px;
+      bottom: 0;
       width: 100%;
     }
   </style>
   <nav>
-    <h1 class="logo">Coolol</h1>
+    <span id="logo">Coolol</span>
+    <button type="button" id="refresh-board">Refresh</button>
     <button type="button" id="switch-board">Board</button>
     <button type="button" id="switch-config">Setting</button>
     <button type="button" id="switch-session">Login</button>
@@ -25,6 +44,7 @@
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
 
         this.$main = this.shadowRoot.querySelector('#main');
+        this.$refresh_board = this.shadowRoot.querySelector('#refresh-board');
         this.$switchBoard = this.shadowRoot.querySelector('#switch-board');
         this.$switchConfig = this.shadowRoot.querySelector('#switch-config');
         this.$switchSession = this.shadowRoot.querySelector('#switch-session');
@@ -47,6 +67,8 @@
         $.removeAllChild(this.$main);
         var board = document.createElement('x-board');
         this.$main.appendChild(board);
+        this.$refresh_board.hidden = false;
+        this.$refresh_board.addEventListener('click', board.refresh.bind(board));
 
         // load cached
         var boardConfig = document.config.boards[0];
@@ -61,12 +83,14 @@
         $.removeAllChild(this.$main);
         var config = document.createElement('x-config');
         this.$main.appendChild(config);
+        this.$refresh_board.hidden = true;
       }
 
       switchToSession () {
         $.removeAllChild(this.$main);
         var $session = document.createElement('x-session');
         this.$main.appendChild($session);
+        this.$refresh_board.hidden = true;
       }
     }
 

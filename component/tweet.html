@@ -36,7 +36,7 @@
       overflow-y: hidden;
     }
     #m-media img {
-      height: 150px;
+      height: 200px;
       /*width: 800px;*/
       margin-left: 1em;
     }
@@ -133,8 +133,19 @@
           // it's a reply tweet
         } else if (tweet.retweeted_status) {
           // it's a retweeted tweet
+          var user = tweet.user;
+          $$$creator.find('.avatar').src = user.profile_image_url_https;
+          $$$creator.find('.name').textContent = user.name;
+          $$$creator.find('.screen-name').textContent = user.screen_name;
+
+          var $container = this.get('status');
+          $.removeAllChild($container);
+          $container.appendChild(document.importNode($$$creator.content, true));
+          var $span = document.createElement('span');
+          $span.textContent = " retweeted";
+          $container.appendChild($span);
+
           var retweet = tweet.retweeted_status;
-          this.get('status').textContent = `${tweet.user.name}(${tweet.user.screen_name}) retweeted`;
           this.setTweet(retweet);
         } else if (tweet.is_quote_status) {
           // it's a quoted tweet

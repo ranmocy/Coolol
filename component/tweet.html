@@ -23,6 +23,23 @@
       color: #377ac3;
       text-decoration: none;
     }
+
+    .avatar {
+      height: 16px;
+    }
+
+    /* media */
+    #m-media {
+      white-space: nowrap;
+      width: 400px;
+      overflow-x: scroll;
+      overflow-y: hidden;
+    }
+    #m-media img {
+      height: 150px;
+      /*width: 800px;*/
+      margin-left: 1em;
+    }
   </style>
 
   <div id="container">
@@ -30,17 +47,12 @@
     <div id="m-creator"></div>
     <div id="m-body">
       <div id="m-text"></div>
+      <div id="m-media"></div>
     </div>
   </div>
 </template>
 
 <template id="creator">
-  <style media="screen">
-    .avatar {
-      height: 16px;
-    }
-  </style>
-
   <img class="avatar" />
   <span class="name"></span>
   <span class="handle">
@@ -48,18 +60,20 @@
   </span>
 </template>
 
+
 <script type="text/javascript">
   (function () {
     "use strict";
 
-    var template = document.currentScript.ownerDocument.querySelector('template#tweet');
+    var $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet');
     var $$$creator = document.currentScript.ownerDocument.querySelector('template#creator');
     $$$creator.find = $$$creator.content.querySelector.bind($$$creator.content);
 
     class Tweet extends HTMLElement {
       createdCallback() {
-        this.createShadowRoot().appendChild(document.importNode(template.content, true));
+        this.createShadowRoot().appendChild(document.importNode($$$tweet.content, true));
         this.$text = this.shadowRoot.querySelector('#m-text');
+        this.$media = this.shadowRoot.querySelector('#m-media');
 
         this.tweet = null;
       }
@@ -88,6 +102,30 @@
         return this;
       }
 
+      setMedia(entities, extended_entities) {
+        var media = [];
+        if (extended_entities && extended_entities.media) {
+          media = extended_entities.media;
+        } else if (entities && entities.media) {
+          media = entities.media;
+        }
+        console.log(media);
+        $.removeAllChild(this.$media);
+        media.forEach(function (medium) {
+          var $img = document.createElement('img');
+          $img.src = medium.media_url_https;
+          this.$media.appendChild($img);
+        }, this);
+        return this;
+      }
+
+      setTweet(tweet) {
+        this.setCreator(tweet.user);
+        this.setText(tweet.text);
+        this.setMedia(tweet.entities, tweet.extended_entities);
+        return this;
+      }
+
       setData(tweet) {
         this.tweet = tweet;
         console.log('tweet', tweet);
@@ -97,19 +135,17 @@
           // it's a retweeted tweet
           var retweet = tweet.retweeted_status;
           this.get('status').textContent = `${tweet.user.name}(${tweet.user.screen_name}) retweeted`;
-          this.setCreator(retweet.user);
-          this.setText(retweet.text);
+          this.setTweet(retweet);
         } else if (tweet.is_quote_status) {
           // it's a quoted tweet
-          this.setCreator(tweet.user);
-          this.setText(tweet.text);
+          this.setTweet(tweet);
+
           var original_tweet = document.createElement('x-tweet');
           original_tweet.className = "m-quoted";
           original_tweet.setData(tweet.quoted_status);
           this.get('body').appendChild(original_tweet);
         } else {
-          this.setCreator(tweet.user);
-          this.setText(tweet.text);
+          this.setTweet(tweet);
         }
 
         return this;

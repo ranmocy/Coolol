@@ -10,11 +10,29 @@
       height: 30px;
       padding: 10px 20px;
       border-bottom: 1px #eee solid;
+      background-color: #333;
     }
     #logo {
       line-height: 30px;
       font-size: 30px;
       font-weight: bold;
+      color: #eee;
+    }
+    #control-panel {
+      float: right;
+      height: 30px;
+      line-height: 30px;
+    }
+    #control-panel a {
+      display: inline-block;
+      height: 30px;
+      padding: 0 0.5em;
+      font-family: sans-serif;
+      text-decoration: none;
+      color: #eee;
+    }
+    #control-panel a:hover {
+      color: white;
     }
     #main {
       position: absolute;
@@ -25,10 +43,12 @@
   </style>
   <nav>
     <span id="logo">Coolol</span>
-    <button type="button" id="refresh-board">Refresh</button>
-    <button type="button" id="switch-board">Board</button>
-    <button type="button" id="switch-config">Setting</button>
-    <button type="button" id="switch-session">Login</button>
+    <span id="control-panel">
+      <a href="#" id="refresh-board">Refresh</a>
+      <a href="#" id="switch-board">Board</a>
+      <a href="#" id="switch-config">Setting</a>
+      <a href="#" id="switch-session">Login</a>
+    </span>
   </nav>
   <div id="main"></div>
 </template>
@@ -49,9 +69,18 @@
         this.$switchConfig = this.shadowRoot.querySelector('#switch-config');
         this.$switchSession = this.shadowRoot.querySelector('#switch-session');
 
-        this.$switchBoard.addEventListener('click', this.switchToBoard.bind(this));
-        this.$switchConfig.addEventListener('click', this.switchToConfig.bind(this));
-        this.$switchSession.addEventListener('click', this.switchToSession.bind(this));
+        this.$switchBoard.addEventListener('click', (event) => {
+          event.preventDefault();
+          this.switchToBoard();
+        });
+        this.$switchConfig.addEventListener('click', (event) => {
+          event.preventDefault();
+          this.switchToConfig();
+        });
+        this.$switchSession.addEventListener('click', (event) => {
+          event.preventDefault();
+          this.switchToSession();
+        });
 
         // load Config
         document.config = JSON.parse(localStorage.getItem('config'));

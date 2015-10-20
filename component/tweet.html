@@ -99,6 +99,9 @@
           return all.concat(obj[key]);
         }, []);
         this.$text.innerHTML = twttr.txt.autoLink(text, {urlEntities: entities});
+        this.$text.querySelectorAll('a').forEach(function (node) {
+          node.target = '_blank';
+        });
         return this;
       }
 
@@ -109,7 +112,7 @@
         } else if (entities && entities.media) {
           media = entities.media;
         }
-        console.log(media);
+        console.log('media', media);
         $.removeAllChild(this.$media);
         media.forEach(function (medium) {
           var $img = document.createElement('img');

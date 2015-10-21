@@ -23,7 +23,7 @@
       height: 30px;
       line-height: 30px;
     }
-    #control-panel a {
+    nav a {
       display: inline-block;
       height: 30px;
       padding: 0 0.5em;
@@ -31,7 +31,7 @@
       text-decoration: none;
       color: #555;
     }
-    #control-panel a:hover {
+    nav a:hover {
       color: #4C91DB;
       border-bottom: 3px solid #4C91DB;
     }
@@ -46,6 +46,7 @@
     <span id="logo">Coolol</span>
     <span id="control-panel">
       <a href="#" id="refresh-board">Refresh</a>
+      <a href="#" id="compose">Compose</a>
       <a href="#" id="switch-board">Board</a>
       <a href="#" id="switch-config">Setting</a>
       <a href="#" id="switch-session">Login</a>
@@ -66,19 +67,27 @@
 
         this.$main = this.shadowRoot.querySelector('#main');
         this.$refresh_board = this.shadowRoot.querySelector('#refresh-board');
-        this.$switchBoard = this.shadowRoot.querySelector('#switch-board');
-        this.$switchConfig = this.shadowRoot.querySelector('#switch-config');
-        this.$switchSession = this.shadowRoot.querySelector('#switch-session');
+        this.$open_compose = this.shadowRoot.querySelector('#compose');
+        this.$switch_board = this.shadowRoot.querySelector('#switch-board');
+        this.$switch_config = this.shadowRoot.querySelector('#switch-config');
+        this.$switch_session = this.shadowRoot.querySelector('#switch-session');
+        this.$compose = document.createElement('x-compose');
+        this.$compose.show();
+        this.shadowRoot.insertBefore(this.$compose, this.shadowRoot.firstChild);
 
-        this.$switchBoard.addEventListener('click', (event) => {
+        this.$open_compose.addEventListener('click', (event) => {
+          event.preventDefault();
+          this.$compose.show();
+        });
+        this.$switch_board.addEventListener('click', (event) => {
           event.preventDefault();
           this.switchToBoard();
         });
-        this.$switchConfig.addEventListener('click', (event) => {
+        this.$switch_config.addEventListener('click', (event) => {
           event.preventDefault();
           this.switchToConfig();
         });
-        this.$switchSession.addEventListener('click', (event) => {
+        this.$switch_session.addEventListener('click', (event) => {
           event.preventDefault();
           this.switchToSession();
         });

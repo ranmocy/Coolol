@@ -1,0 +1,67 @@
+<template id="compose">
+  <style media="screen">
+    :host {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+    #background {
+      display: inline-block; /* HACK: fix top margin */
+      height: 100%;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    #container {
+      position: relative;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 50%;
+      width: 50%;
+      min-height: 300px;
+      min-width: 400px;
+      background-color: white;
+    }
+  </style>
+
+  <div id="background">
+    <div id="container">
+
+    </div>
+  </div>
+</template>
+
+<script type="text/javascript">
+  (function () {
+    "use strict";
+
+    var $$$compose = document.currentScript.ownerDocument.querySelector('template#compose');
+
+    class Compose extends HTMLElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$compose.content, true));
+        this.host = this.shadowRoot.host;
+        this.$background = this.shadowRoot.querySelector('#background');
+        this.$background.addEventListener('click', (event) => {
+          event.preventDefault();
+          this.hide();
+        });
+      }
+
+      show() {
+        this.host.style.display = 'block';
+      }
+
+      hide() {
+        this.host.style.display = 'none';
+      }
+    }
+
+    document.registerElement('x-compose', Compose);
+  })();
+</script>

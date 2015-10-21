@@ -3,27 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>Coolol</title>
-
-    <!-- global utils -->
-    <script src="/jspm_packages/system.js"></script>
-    <script src="/config.js"></script>
-    <script src="/js/utils.js"></script>
-    <script src="/js/twitter.js"></script>
-
-    <!-- Libararies -->
-    <script src="/vendor/jsoneditor.min.js"></script>
-    <script src="/jspm_packages/npm/twitter-text@1.13.2/twitter-text.js"></script>
-
-    <!-- custom elements -->
-    <link rel="import" href="/component/tweet.html">
-    <link rel="import" href="/component/channel.html">
-    <link rel="import" href="/component/board.html">
-    <link rel="import" href="/component/compose.html">
-    <link rel="import" href="/component/config.html">
-    <link rel="import" href="/component/session.html">
-    <link rel="import" href="/component/app.html">
-
-    <!-- Main entrance -->
     <style media="screen">
       body {
         margin: 0;
@@ -46,6 +25,31 @@
         transform: translateY(-50%);
       }
     </style>
+  </head>
+  <body>
+    <div id="background-loading">
+      <h1>Loading...</h1>
+    </div>
+
+    <!-- global utils -->
+    <script src="/jspm_packages/system.js"></script>
+    <script src="/config.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/twitter.js"></script>
+
+    <!-- Libararies -->
+    <script src="/vendor/jsoneditor.min.js"></script>
+    <script src="/jspm_packages/npm/twitter-text@1.13.2/twitter-text.js"></script>
+
+    <!-- custom elements -->
+    <link rel="import" href="/component/tweet.html">
+    <link rel="import" href="/component/channel.html">
+    <link rel="import" href="/component/board.html">
+    <link rel="import" href="/component/compose.html">
+    <link rel="import" href="/component/config.html">
+    <link rel="import" href="/component/session.html">
+    <link rel="import" href="/component/app.html">
+
     <script type="text/javascript">
       var main = function() {
         // Test HTML5 local storage
@@ -66,10 +70,5 @@
         main();
       }
     </script>
-  </head>
-  <body>
-    <div id="background-loading">
-      <h1>Loading...</h1>
-    </div>
   </body>
 </html>

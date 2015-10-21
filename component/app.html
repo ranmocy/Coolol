@@ -72,7 +72,6 @@
         this.$switch_config = this.shadowRoot.querySelector('#switch-config');
         this.$switch_session = this.shadowRoot.querySelector('#switch-session');
         this.$compose = document.createElement('x-compose');
-        this.$compose.show();
         this.shadowRoot.insertBefore(this.$compose, this.shadowRoot.firstChild);
 
         this.$open_compose.addEventListener('click', (event) => {
@@ -97,9 +96,9 @@
         console.log("Config loaded:", document.config);
 
         // init view
-        this.switchToBoard();
+        // this.switchToBoard();
         // this.switchToConfig();
-        // this.switchToSession();
+        this.switchToSession();
       }
 
       switchToBoard() {
@@ -107,7 +106,7 @@
         var board = document.createElement('x-board');
         this.$main.appendChild(board);
         this.$refresh_board.addEventListener('click', board.refresh.bind(board));
-        this.showRefreshButton(true);
+        this.beInBoardView(true);
 
         // load cached
         var boardConfig = document.config.boards[0];
@@ -122,20 +121,22 @@
         $.removeAllChild(this.$main);
         var config = document.createElement('x-config');
         this.$main.appendChild(config);
-        this.showRefreshButton(false);
+        this.beInBoardView(false);
       }
 
       switchToSession () {
         $.removeAllChild(this.$main);
         var $session = document.createElement('x-session');
         this.$main.appendChild($session);
-        this.showRefreshButton(false);
+        this.beInBoardView(false);
       }
 
-      showRefreshButton(toShow) {
+      beInBoardView(toShow) {
         if (toShow) {
+          this.$open_compose.style.visibility = "visible";
           this.$refresh_board.style.visibility = "visible";
         } else {
+          this.$open_compose.style.visibility = "hidden";
           this.$refresh_board.style.visibility = "hidden";
         }
       }

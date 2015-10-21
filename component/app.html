@@ -96,8 +96,8 @@
         $.removeAllChild(this.$main);
         var board = document.createElement('x-board');
         this.$main.appendChild(board);
-        this.$refresh_board.hidden = false;
         this.$refresh_board.addEventListener('click', board.refresh.bind(board));
+        this.showRefreshButton(true);
 
         // load cached
         var boardConfig = document.config.boards[0];
@@ -112,14 +112,22 @@
         $.removeAllChild(this.$main);
         var config = document.createElement('x-config');
         this.$main.appendChild(config);
-        this.$refresh_board.hidden = true;
+        this.showRefreshButton(false);
       }
 
       switchToSession () {
         $.removeAllChild(this.$main);
         var $session = document.createElement('x-session');
         this.$main.appendChild($session);
-        this.$refresh_board.hidden = true;
+        this.showRefreshButton(false);
+      }
+
+      showRefreshButton(toShow) {
+        if (toShow) {
+          this.$refresh_board.style.visibility = "visible";
+        } else {
+          this.$refresh_board.style.visibility = "hidden";
+        }
       }
     }
 

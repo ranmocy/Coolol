@@ -42,11 +42,13 @@
       width: 100%;
     }
   </style>
+
+  <x-compose></x-compose>
   <nav>
     <span id="logo">Coolol</span>
     <span id="control-panel">
       <a href="#" id="refresh-board">Refresh</a>
-      <a href="#" id="compose">Compose</a>
+      <a href="#" id="open-compose">Compose</a>
       <a href="#" id="switch-board">Board</a>
       <a href="#" id="switch-config">Setting</a>
       <a href="#" id="switch-session">Login</a>
@@ -65,14 +67,14 @@
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
 
+        this.$compose = this.shadowRoot.querySelector('x-compose');
         this.$main = this.shadowRoot.querySelector('#main');
+
         this.$refresh_board = this.shadowRoot.querySelector('#refresh-board');
-        this.$open_compose = this.shadowRoot.querySelector('#compose');
+        this.$open_compose = this.shadowRoot.querySelector('#open-compose');
         this.$switch_board = this.shadowRoot.querySelector('#switch-board');
         this.$switch_config = this.shadowRoot.querySelector('#switch-config');
         this.$switch_session = this.shadowRoot.querySelector('#switch-session');
-        this.$compose = document.createElement('x-compose');
-        this.shadowRoot.insertBefore(this.$compose, this.shadowRoot.firstChild);
 
         this.$open_compose.addEventListener('click', (event) => {
           event.preventDefault();

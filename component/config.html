@@ -23,25 +23,22 @@
     var template = document.currentScript.ownerDocument.querySelector('template');
 
     var defaultConfig = {
-      boards: [
-        {
-          name: 'board1',
-          channels: [
-            {
-              name: 'Home',
-              sources: ['statuses_homeTimeline']
-            },
-            {
-              name: 'Mentions',
-              sources: ['statuses_mentionsTimeline']
-            },
-            {
-              name: 'Mix sources',
-              sources: ['statuses_homeTimeline', 'statuses_mentionsTimeline']
-            }
-          ]
-        }
-      ]
+      MY_TWITTER_ID: {
+        channels: [
+          {
+            name: 'Home',
+            sources: ['statuses_homeTimeline']
+          },
+          {
+            name: 'Mentions',
+            sources: ['statuses_mentionsTimeline']
+          },
+          {
+            name: 'Mix sources',
+            sources: ['statuses_homeTimeline', 'statuses_mentionsTimeline']
+          }
+        ]
+      }
     };
 
     class Config extends HTMLElement {
@@ -59,15 +56,15 @@
       }
 
       loadConfig() {
-        document.config = JSON.parse(localStorage.getItem('config'));
-        this.editor.set(document.config);
-        console.log("Config loaded:", document.config);
+        var config = document.store.getConfig();
+        this.editor.set(config);
+        console.log("Config loaded:", config);
       }
 
       saveConfig() {
-        document.config = this.editor.get();
-        localStorage.setItem('config', JSON.stringify(document.config));
-        console.log("Config saved.", JSON.stringify(document.config));
+        var config = this.editor.get();
+        document.store.saveConfig(config);
+        console.log("Config saved.", JSON.stringify(config));
       }
 
       resetConfig() {

@@ -11,6 +11,7 @@
       padding: 10px 20px;
       border-bottom: 1px #aaa solid;
       background-color: #fefefe;
+      box-shadow: #eee 0px 2px 2px;
     }
     #logo {
       line-height: 30px;
@@ -51,7 +52,7 @@
       <a href="#" id="open-compose">Compose</a>
       <a href="#" id="switch-board">Board</a>
       <a href="#" id="switch-config">Setting</a>
-      <a href="#" id="switch-session">Login</a>
+      <a href="#" id="switch-session">Accounts</a>
     </span>
   </nav>
   <div id="main"></div>
@@ -93,17 +94,13 @@
           this.switchToSession();
         });
 
-        // load Config
-        document.config = JSON.parse(localStorage.getItem('config'));
-        console.log("Config loaded:", document.config);
-
         // init view
-        // this.switchToBoard();
+        // this.switchToBoard('ranmocy');
         // this.switchToConfig();
         this.switchToSession();
       }
 
-      switchToBoard() {
+      switchToBoard(account) {
         $.removeAllChild(this.$main);
         var board = document.createElement('x-board');
         this.$main.appendChild(board);
@@ -111,7 +108,7 @@
         this.beInBoardView(true);
 
         // load cached
-        var boardConfig = document.config.boards[0];
+        var boardConfig = document.store.getConfig()[account];
         board.setConfig(boardConfig);
         var data = JSON.parse(localStorage.getItem('tweets'));
         if (data !== null) {

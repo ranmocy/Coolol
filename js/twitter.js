@@ -1,4 +1,4 @@
-System.import('vendor/codebird.js').then(function (Codebird) {
+(function () {
   "use strict";
 
   var consumerKey = "SCEdx4ZEOO68QDCTC7FFUQ";
@@ -115,4 +115,4 @@ System.import('vendor/codebird.js').then(function (Codebird) {
         define("twitter", [], function () { return twitter; });
       }
   }
-});
+})();

@@ -5,6 +5,7 @@
     "System",
     "$",
     "JSONEditor",
+    "Codebird",
     "twttr"
   ],
   "browser": true,

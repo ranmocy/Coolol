@@ -1,3 +1,5 @@
+<link rel="import" href="dropdown.html" charset="utf-8">
+
 <template>
   <style media="screen">
     :host {
@@ -52,7 +54,11 @@
       <a href="#" id="open-compose">Compose</a>
       <a href="#" id="switch-board">Board</a>
       <a href="#" id="switch-config">Setting</a>
-      <a href="#" id="switch-session">Accounts</a>
+      <x-dropdown>
+        <a href="#" class="dropdown-target" id="switch-session">Accounts</a>
+        <ul class="dropdown-content" id="account-list"></ul>
+        <a href="#" class="dropdown-content-footer" id="account-manage">Manage accounts</a>
+      </x-dropdown>
     </span>
   </nav>
   <div id="main"></div>
@@ -76,6 +82,7 @@
         this.$switch_board = this.shadowRoot.querySelector('#switch-board');
         this.$switch_config = this.shadowRoot.querySelector('#switch-config');
         this.$switch_session = this.shadowRoot.querySelector('#switch-session');
+        this.$account_list = this.shadowRoot.querySelector('#account-list');
 
         this.$open_compose.addEventListener('click', (event) => {
           event.preventDefault();
@@ -94,10 +101,22 @@
           this.switchToSession();
         });
 
+        this.updateAccountList();
+
         // init view
         // this.switchToBoard('ranmocy');
         // this.switchToConfig();
         this.switchToSession();
+      }
+
+      updateAccountList() {
+        $.removeAllChild(this.$account_list);
+        var accounts = document.store.getAccounts();
+        Object.keys(accounts).forEach((account) => {
+          var $li = document.createElement('li');
+          $li.textContent = account.screen_name;
+          this.$account_list.appendChild($li);
+        });
       }
 
       switchToBoard(account) {

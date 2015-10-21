@@ -1,0 +1,37 @@
+<template id="dropdown">
+  <style media="screen">
+    /*:host .dropdown-content {
+      display: none;
+    }
+    :host:hover .dropdown-content {
+      display: block;
+    }*/
+    .dropdown-content {
+      width: 100%;
+    }
+  </style>
+
+  <content select=".dropdown-target"></content>
+  <div class="dropdown-content">
+    <content select=".dropdown-content-header"></content>
+    <content select=".dropdown-content"></content>
+    <content select=".dropdown-content-footer"></content>
+  </div>
+</template>
+
+<script type="text/javascript">
+  (function () {
+    "use strict";
+
+    var $$$template = document.currentScript.ownerDocument.querySelector('template');
+
+    class Dropdown extends HTMLElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$template.content, true));
+
+      }
+    }
+
+    document.registerElement('x-dropdown', Dropdown);
+  })();
+</script>

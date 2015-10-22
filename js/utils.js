@@ -1,5 +1,20 @@
 (function () {
 
+/* DOM */
+var $ = function () {
+  return document.querySelector.apply(document, arguments);
+};
+
+$.findAll = document.querySelectorAll;
+
+$.removeAllChild = function(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+  return element;
+};
+
+/* AJAX */
 // A-> $http function is implemented in order to follow the standard Adapter pattern
 function $http(url){
   'use strict';
@@ -69,21 +84,21 @@ function $http(url){
   };
 }
 
-var $ = function () {
-  return document.querySelector.apply(document, arguments);
-};
-
-$.findAll = document.querySelectorAll;
-
-$.removeAllChild = function(element) {
-  while (element.firstChild) {
-    element.removeChild(element.firstChild);
-  }
-  return element;
-};
-
 $.get = function (url) {
   return $http(url).get();
+};
+
+
+/* Object */
+$.isDefined = function (v) { return typeof v !== "undefined"; };
+
+
+/* String */
+$.capitalize = function (s) {
+  return s[0].toUpperCase() + s.substr(1);
+};
+$.camelize = function (s) {
+  return s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
 };
 
 $.decodeEntities = (function () {
@@ -112,11 +127,13 @@ $.decodeEntities = (function () {
   return decodeHTMLEntities;
 })();
 
-$.isDefined = function (v) { return typeof v !== "undefined"; };
-
 
 /* Core extentions */
 NodeList.prototype.forEach = Array.prototype.forEach;
+
+HTMLElement.prototype.trigger = function (eventName, parameters) {
+  this.dispatchEvent(new CustomEvent(eventName, parameters));
+};
 
 
 /* globals module, define */

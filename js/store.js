@@ -4,25 +4,27 @@
   var CONFIG_FIELD = 'config';
   var ACCOUNTS_FIELD = 'accounts';
 
+  var cache = {};
+  // var callbacks = {};
+
   class Store {
     constructor() {
-      this.cache = {};
     }
 
     getJSON(name, defaultValue) {
-      if (this.cache[name]) {
-        return this.cache[name];
+      if (cache[name]) {
+        return cache[name];
       }
       var data = JSON.parse(localStorage.getItem(name));
       if (!data) {
         data = defaultValue;
       }
-      this.cache[name] = data;
+      cache[name] = data;
       return data;
     }
 
     saveJSON(name, value) {
-      this.cache[name] = value;
+      cache[name] = value;
       localStorage.setItem(name, JSON.stringify(value));
       return value;
     }

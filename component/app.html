@@ -9,14 +9,15 @@
       width: 100vw;
     }
     nav {
-      height: 30px;
-      padding: 10px 20px;
-      border-bottom: 1px #aaa solid;
+      height: 50px;
+      padding: 0 20px;
       background-color: #fefefe;
-      box-shadow: #eee 0px 2px 2px;
+      box-shadow: #eee 0px 3px 5px;
+      position: relative;
+      z-index: 100;
     }
     #logo {
-      line-height: 30px;
+      line-height: 50px;
       font-size: 30px;
       font-weight: bold;
       color: #424d54;
@@ -26,17 +27,21 @@
       height: 30px;
       line-height: 30px;
     }
-    nav a {
+    a.menu {
       display: inline-block;
-      height: 30px;
+      line-height: 48px;
       padding: 0 0.5em;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;;
       text-decoration: none;
       color: #555;
+      border-bottom: 3px solid rgba(0, 0, 0, 0);;
     }
-    nav a:hover {
+    a.menu:hover {
       color: #4C91DB;
       border-bottom: 3px solid #4C91DB;
+    }
+    .dropdown-content {
+      min-width: 150px;
     }
     #main {
       position: absolute;
@@ -50,12 +55,12 @@
   <nav>
     <span id="logo">Coolol</span>
     <span id="control-panel">
-      <a href="#" id="refresh-board">Refresh</a>
-      <a href="#" id="open-compose">Compose</a>
-      <a href="#" id="switch-board">Board</a>
-      <a href="#" id="switch-config">Setting</a>
-      <x-dropdown>
-        <a href="#" class="dropdown-target" id="switch-session">Accounts</a>
+      <a href="#" class="menu" id="refresh-board">Refresh</a>
+      <a href="#" class="menu" id="open-compose">Compose</a>
+      <a href="#" class="menu" id="switch-board">Board</a>
+      <a href="#" class="menu" id="switch-config">Setting</a>
+      <x-dropdown class="drop-right">
+        <a href="#" class="menu dropdown-target" id="switch-session">Accounts</a>
         <ul class="dropdown-content" id="account-list"></ul>
         <a href="#" class="dropdown-content-footer" id="account-manage">Manage accounts</a>
       </x-dropdown>

@@ -1,18 +1,37 @@
 <template id="dropdown">
   <style media="screen">
-    /*:host .dropdown-content {
+    /*:host .container {
       display: none;
     }
-    :host:hover .dropdown-content {
+    :host:hover .container {
       display: block;
     }*/
-    .dropdown-content {
-      width: 100%;
+    :host {
+      display: inline-block;
+      position: relative;
+    }
+    .container {
+      position: absolute;
+      z-index: 500;
+      top: 100%;
+      background: white;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 0, 0, 0.15);;
+      box-shadow: rgba(0, 0, 0, 0.18) 0 3px 3px;
+    }
+    :host(.drop-left) .container {
+      left: 0;
+    }
+    :host(.drop-right) .container {
+      right: 0;
+    }
+    content a {
+      text-decoration: none;
     }
   </style>
 
   <content select=".dropdown-target"></content>
-  <div class="dropdown-content">
+  <div class="container">
     <content select=".dropdown-content-header"></content>
     <content select=".dropdown-content"></content>
     <content select=".dropdown-content-footer"></content>

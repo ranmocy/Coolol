@@ -12,3 +12,4 @@ git add -f jspm_packages
 git commit -m 'add deps'
 git push -f
 git checkout $MAIN_BRANCH
+jspm install

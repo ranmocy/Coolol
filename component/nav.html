@@ -149,13 +149,14 @@
           var account = accounts[screen_name];
           var $li = document.importNode($$$account, true);
           $li.querySelector('a').href = `#${account.screen_name}`;
-          $li.querySelector('.avatar').src = account.profile_image_url;
+          if (account.profile_image_url) {
+            $li.querySelector('.avatar').src = account.profile_image_url;
+          }
           $li.querySelector('.name').textContent = account.name;
-          $li.querySelector('.account-item').appendChild('text');
           $li.querySelector('.account-item').addEventListener('click', function (event) {
             event.preventDefault();
             console.log('li click', account.screen_name, screen_name);
-            // this.trigger('switchBoard', account);
+            this.trigger('switchBoard', account);
           });
           console.log('list account', $li, account.screen_name);
           this.$account_list.appendChild($li);

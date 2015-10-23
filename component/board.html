@@ -60,6 +60,12 @@
 
       setConfig(config) {
         console.log("board setConfig:", config);
+
+        if (!config) {
+          console.log('board trigger', 'switchConfig');
+          this.trigger('switchConfig');
+          return;
+        }
         this.config = config;
 
         // load caches

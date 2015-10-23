@@ -132,7 +132,27 @@ $.decodeEntities = (function () {
 NodeList.prototype.forEach = Array.prototype.forEach;
 
 HTMLElement.prototype.trigger = function (eventName, parameters) {
+  console.log('trigger', eventName, parameters);
   this.dispatchEvent(new CustomEvent(eventName, {detail: parameters}));
+};
+
+HTMLElement.prototype.handle = function (eventName, callback, popup) {
+  this.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    if ($.isDefined(popup) && popup) {
+      console.log('handle propagate up');
+    } else {
+      event.stopPropagation();
+    }
+    console.log('handle', eventName, event.detail);
+    callback(event);
+  });
+};
+
+HTMLElement.prototype.handleActions = function (actions) {
+  actions.forEach((actionName) => {
+    this.handle(actionName, (event) => { this[actionName].call(this, event.detail); });
+  });
 };
 
 

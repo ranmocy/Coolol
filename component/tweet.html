@@ -110,7 +110,7 @@
         } else if (entities && entities.media) {
           media = entities.media;
         }
-        console.log('media', media);
+        // console.log('media', media);
         $.removeAllChild(this.$media);
         media.forEach(function (medium) {
           var $img = document.createElement('img');
@@ -129,7 +129,7 @@
 
       setData(tweet) {
         this.tweet = tweet;
-        console.log('tweet', tweet);
+        // console.log('tweet', tweet);
         if (false && tweet.reply_to) {
           // it's a reply tweet
         } else if (tweet.retweeted_status) {

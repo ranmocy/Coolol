@@ -39,12 +39,7 @@
         this.$nav = this.shadowRoot.querySelector('x-nav');
         this.$main = this.shadowRoot.querySelector('#main');
 
-        ['openCompose', 'switchBoard', 'switchConfig', 'switchSession'].forEach((actionName) => {
-          this.addEventListener(actionName, (function (event) {
-            console.log('listen', actionName, event.detail);
-            this[actionName].call(this, event.detail);
-          }).bind(this));
-        });
+        this.handleActions(['openCompose', 'switchBoard', 'switchConfig', 'switchSession']);
 
         // TODO: enable this
         // document.store.updateAllUsers();
@@ -58,7 +53,6 @@
         } else {
           this.switchSession();
         }
-        // this.switchConfig();
       }
 
       openCompose() {
@@ -69,12 +63,13 @@
         console.log('switchBoard', account);
         $.removeAllChild(this.$main);
         var board = document.createElement('x-board');
-        board.setAccount(account);
         this.$main.appendChild(board);
         this.$nav.beInBoardView(true, board);
+        board.setAccount(account);
       }
 
       switchConfig() {
+        console.log('switchConfig');
         $.removeAllChild(this.$main);
         var config = document.createElement('x-config');
         this.$main.appendChild(config);
@@ -82,6 +77,7 @@
       }
 
       switchSession () {
+        console.log('switchSession');
         $.removeAllChild(this.$main);
         var $session = document.createElement('x-session');
         this.$main.appendChild($session);

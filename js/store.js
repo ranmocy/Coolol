@@ -65,6 +65,20 @@
     }
 
     /*
+    Client is not saved to local storage
+    */
+    getTwitterClient(account) {
+      if (!account || !account.token || !account.token_secret) {
+        console.error('getTwitterClient', account);
+        throw "getTwitterClient: account/token/token_secret is null!";
+      }
+      if (!cache.twitter_clients || !cache.twitter_clients[account.screen_name]) {
+        this.saveAccount(account, new Twitter(account.token, account.token_secret));
+      }
+      return cache.twitter_clients[account.screen_name];
+    }
+
+    /*
     Accounts = {
       <screen_name>: {
         'screen_name': '@NAME',
@@ -79,19 +93,8 @@
       return accounts;
     }
 
-    getTwitterClient(account) {
-      if (!account || !account.token || !account.token_secret) {
-        console.error('getTwitterClient', account);
-        throw "getTwitterClient: account/token/token_secret is null!";
-      }
-      if (!cache.twitter_clients || !cache.twitter_clients[account.screen_name]) {
-        this.saveAccount(account, new Twitter(account.token, account.token_secret));
-      }
-      return cache.twitter_clients[account.screen_name];
-    }
-
-    updateUserInfo(account) {
-      console.log('updateUserInfo');
+    updateAccount(account) {
+      console.log('updateAccount');
       document.store.getTwitterClient(account).fetch('users_show', {
         user_id: account.user_id,
         screen_name: account.screen_name,
@@ -103,12 +106,12 @@
       });
     }
 
-    updateAllUsers() {
+    updateAllAccounts() {
+      console.log('updateAllAccounts', accounts);
       var accounts = this.getAccounts();
       for (var screen_name in accounts) {
-        this.updateUserInfo(accounts[screen_name]);
+        this.updateAccount(accounts[screen_name]);
       }
-      console.log('updateAllUsers', accounts);
     }
 
     deleteAccount(account) {

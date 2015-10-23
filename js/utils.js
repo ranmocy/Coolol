@@ -137,6 +137,15 @@ $.decodeEntities = (function () {
 /* Core extentions */
 NodeList.prototype.forEach = Array.prototype.forEach;
 
+HTMLElement.prototype.detach = function () {
+  var parent = this.parentNode;
+  if (!parent) {
+    return;
+  }
+  parent.removeChild(this);
+  return this;
+};
+
 HTMLElement.prototype.trigger = function (eventName, parameters) {
   console.log('trigger', eventName, parameters);
   this.dispatchEvent(new CustomEvent(eventName, {detail: parameters}));

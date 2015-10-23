@@ -60,6 +60,19 @@
       border: 1px solid rgba(0, 0, 0, 0.15);;
       box-shadow: rgba(0, 0, 0, 0.18) 0 3px 3px;
     }
+
+    #account-list {
+      list-style-type: none;
+      margin: 5px 0;
+      padding: 0 10px;
+      cursor: pointer;
+    }
+    .account-item:hover {
+      background-color: #eee;
+    }
+    .account-item .avatar {
+      height: 16px;
+    }
   </style>
 
   <nav>
@@ -80,15 +93,23 @@
   </nav>
 </template>
 
+<template id="account">
+  <li class="account-item">
+    <img class="avatar" />
+    <span class="name"></span>
+  </li>
+</template>
+
 <script type="text/javascript">
   (function () {
     "use strict";
 
-    var template = document.currentScript.ownerDocument.querySelector('template');
+    var $$$nav = document.currentScript.ownerDocument.querySelector('template#nav').content;
+    var $$$account = document.currentScript.ownerDocument.querySelector('template#account').content;
 
     class Nav extends HTMLElement {
       createdCallback() {
-        this.createShadowRoot().appendChild(document.importNode(template.content, true));
+        this.createShadowRoot().appendChild(document.importNode($$$nav, true));
 
         this.$refresh_board = this.shadowRoot.querySelector('#refresh-board');
         this.$open_compose = this.shadowRoot.querySelector('#open-compose');
@@ -124,11 +145,19 @@
       updateAccountList() {
         $.removeAllChild(this.$account_list);
         var accounts = document.store.getAccounts();
-        Object.keys(accounts).forEach((account) => {
-          var $li = document.createElement('li');
-          $li.textContent = account.screen_name;
+        for (var screen_name in accounts) {
+          var account = accounts[screen_name];
+          var $li = document.importNode($$$account, true);
+          $li.querySelector('.avatar').src = account.profile_image_url;
+          $li.querySelector('.name').textContent = account.name;
+          $li.querySelector('.account-item').addEventListener('click', (event) => {
+            event.preventDefault();
+            console.log('li click');
+            this.trigger('switchBoard', account);
+          });
+          console.log($li);
           this.$account_list.appendChild($li);
-        });
+        }
       }
     }
 

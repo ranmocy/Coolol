@@ -92,6 +92,12 @@ $.get = function (url) {
 /* Object */
 $.isDefined = function (v) { return typeof v !== "undefined"; };
 
+$.forEachKeyValue = function (obj, callback) {
+  Object.keys(obj).forEach((key) => {
+    callback(key, obj[key]);
+  });
+  return obj;
+};
 
 /* String */
 $.capitalize = function (s) {

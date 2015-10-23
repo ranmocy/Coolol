@@ -148,9 +148,8 @@
 
       updateAccountList() {
         $.removeAllChild(this.$account_list);
-        var accounts = document.store.getAccounts();
-        for (var screen_name in accounts) {
-          var account = accounts[screen_name];
+        $.forEachKeyValue(document.store.getAccounts(), (screen_name, account) => {
+          console.log('list account item', screen_name);
           var $li = document.importNode($$$account, true);
           $li.querySelector('a').href = `#${account.screen_name}`;
           if (account.profile_image_url) {
@@ -158,12 +157,11 @@
           }
           $li.querySelector('.name').textContent = account.name;
           $li.querySelector('.account-item').handle('click', () => {
-            console.log('li click', account.screen_name, screen_name);
+            console.log('li click', screen_name);
             this.trigger('switchBoard', account);
           });
-          console.log('list account item', $li, account.screen_name);
           this.$account_list.appendChild($li);
-        }
+        });
       }
     }
 

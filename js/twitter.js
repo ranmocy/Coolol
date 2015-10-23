@@ -5,13 +5,11 @@
   var consumerSecret = "2IBoGkVrpwOo7UZhjkYYekw0ciXG1WHpsqQtUqZCSw";
   var REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 mins
 
-  var cb = new Codebird();
-  cb.setConsumerKey(consumerKey, consumerSecret);
-
   class Twitter {
-    constructor() {
-      // Read saved token
-      this.setToken(localStorage.getItem('oauth_token'), localStorage.getItem('oauth_token_secret'));
+    constructor(token, token_secret) {
+      this.client = new Codebird();
+      this.client.setConsumerKey(consumerKey, consumerSecret);
+      this.setToken(token, token_secret);
       this.promises = {};
     }
 
@@ -37,18 +35,18 @@
 
     setToken(token, secret) {
       console.debug('Set token: ', token, secret);
-      cb.setToken(token, secret);
+      this.client.setToken(token, secret);
     }
 
     auth(callback) {
-      cb.__call("oauth_requestToken",
+      this.client.__call("oauth_requestToken",
                 {oauth_callback: "oob"},
-                function (reply) {
+                (reply) => {
                   // This is the request token, not final accessToken.
-                  cb.setToken(reply.oauth_token, reply.oauth_token_secret);
+                  this.client.setToken(reply.oauth_token, reply.oauth_token_secret);
 
                   // gets the authorize screen URL
-                  cb.__call("oauth_authorize",
+                  this.client.__call("oauth_authorize",
                             {},
                             function (auth_url) {
                               if (callback) {
@@ -60,20 +58,21 @@
                 });
     }
 
-    verify(pinCode) {
-      var service = this;
-      cb.__call("oauth_accessToken",
+    verify(pinCode, callback) {
+      this.client.__call("oauth_accessToken",
                 {oauth_verifier: pinCode},
-                function (reply) {
+                (reply) => {
                   // store the authenticated token, which may be different from the request token (!)
-                  service.setToken(reply.oauth_token, reply.oauth_token_secret);
-                  service.saveTokenToLocal(reply.oauth_token, reply.oauth_token_secret);
+                  this.setToken(reply.oauth_token, reply.oauth_token_secret);
+                  if (callback) {
+                    callback(reply.oauth_token, reply.oauth_token_secret);
+                  }
                 });
     }
 
     fetch(source) {
       this.promises[source] = new Promise(function(resolve, reject) {
-        cb.__call(source, {}, function (reply, rate, err) {
+        this.client.__call(source, {}, function (reply, rate, err) {
           if (err) {
             console.error('error in fetch', err);
             reject(err.error);
@@ -97,22 +96,16 @@
     }
   }
 
-  var twitter = new Twitter();
-  if (!document.services) {
-    document.services = {};
-  }
-  document.services.twitter = twitter;
-
   /* globals module, define */
   if (typeof module === "object" && module && typeof module.exports === "object") {
-      module.exports = twitter;
+      module.exports = Twitter;
   } else {
       // Otherwise expose to the global object as usual
       if (typeof window === "object" && window) {
-        window.twitter = twitter;
+        window.Twitter = Twitter;
       }
       if (typeof define === "function") {
-        define("twitter", [], function () { return twitter; });
+        define("twitter", [], function () { return Twitter; });
       }
   }
 })();

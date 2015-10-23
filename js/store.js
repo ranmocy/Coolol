@@ -45,6 +45,23 @@
     saveAccounts(accounts) {
       return this.saveJSON(ACCOUNTS_FIELD, accounts);
     }
+
+    getTwitterClient(account) {
+      if (!account || !account.token || !account.token_secret) {
+        throw "getTwitterClient: account/token/token_secret is null!";
+      }
+      if (!cache.twitter_clients || !cache.twitter_clients[account.screen_name]) {
+        this.saveTwitterClient(account, new Twitter(account.token, account.token_secret));
+      }
+      return cache.twitter_clients[account.screen_name];
+    }
+
+    saveTwitterClient(account, client) {
+      if (!cache.twitter_clients) {
+        cache.twitter_clients = {};
+      }
+      cache.twitter_clients[account.screen_name] = client;
+    }
   }
 
   document.store = new Store();

@@ -6,6 +6,7 @@
     "$",
     "JSONEditor",
     "Codebird",
+    "Twitter",
     "twttr"
   ],
   "browser": true,

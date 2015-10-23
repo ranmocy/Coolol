@@ -1,4 +1,12 @@
-<template>
+<template id="session">
+  <style media="screen">
+    :host {
+      display: block;
+      width: 500px;
+      margin: 50px auto;
+    }
+  </style>
+  <ul id="accounts"></ul>
   <div class="login">
     <button type="button" name="auth">Auth</button>
     <span>
@@ -9,30 +17,47 @@
   </div>
 </template>
 
+<template id="account">
+  <li class="name"></li>
+</template>
+
 <script type="text/javascript">
   (function () {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template');
+    var $$$template = document.currentScript.ownerDocument.querySelector('template#session').content;
+    var $$$account = document.currentScript.ownerDocument.querySelector('template#account').content;
 
     class Session extends HTMLElement {
       createdCallback() {
-        this.createShadowRoot().appendChild(document.importNode($$$template.content, true));
+        this.createShadowRoot().appendChild(document.importNode($$$template, true));
+
+        this.$accounts = this.shadowRoot.querySelector('#accounts');
         this.$auth = this.shadowRoot.querySelector('button[name=auth]');
         this.$pinCode = this.shadowRoot.querySelector('input[name=pinCode]');
         this.$verify = this.shadowRoot.querySelector('button[name=verify]');
 
         this.$auth.addEventListener('click', this.auth.bind(this));
         this.$verify.addEventListener('click', this.verify.bind(this));
+
+        document.store.getAccounts().forEach((account) => {
+          console.log(account);
+          $$$account.querySelector('.name').textContent = account.screen_name;
+          $accounts.appendChild($$$account);
+        });
       }
 
       auth() {
-        document.services.twitter.auth();
+        this.current_client = new Twitter();
+        this.current_client.auth();
         return this;
       }
 
       verify() {
-        document.services.twitter.verify(this.$pinCode.value);
+        this.current_client.verify(this.$pinCode.value, (token, token_secret) => {
+          var account = {screen_name: 'TBD', token, token_secret};
+          document.store.saveTwitterClient(account, this.current_client);
+        });
         return this;
       }
     }

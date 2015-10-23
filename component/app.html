@@ -40,7 +40,10 @@
         this.$main = this.shadowRoot.querySelector('#main');
 
         ['openCompose', 'switchBoard', 'switchConfig', 'switchSession'].forEach((actionName) => {
-          this.addEventListener(actionName, () => {this[actionName]();});
+          this.addEventListener(actionName, (function (event) {
+            console.log('listen', actionName, event.detail);
+            this[actionName].call(this, event.detail);
+          }).bind(this));
         });
 
         // TODO: enable this
@@ -57,6 +60,7 @@
       }
 
       switchBoard(account) {
+        console.log('switchBoard', account);
         $.removeAllChild(this.$main);
         var board = document.createElement('x-board');
         this.$main.appendChild(board);

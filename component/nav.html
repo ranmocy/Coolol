@@ -80,7 +80,6 @@
     <span class="control-panel">
       <a href="#" class="menu" id="refresh-board">Refresh</a>
       <a href="#" class="menu" id="open-compose">Compose</a>
-      <a href="#" class="menu" id="switch-board">Board</a>
       <a href="#" class="menu" id="switch-config">Setting</a>
       <span class="account-list-dropdown">
         <a href="#" class="menu dropdown-target" id="switch-session">Accounts</a>
@@ -113,13 +112,12 @@
 
         this.$refresh_board = this.shadowRoot.querySelector('#refresh-board');
         this.$open_compose = this.shadowRoot.querySelector('#open-compose');
-        this.$switch_board = this.shadowRoot.querySelector('#switch-board');
         this.$switch_config = this.shadowRoot.querySelector('#switch-config');
         this.$switch_session = this.shadowRoot.querySelector('#account-manage');
 
         this.$account_list = this.shadowRoot.querySelector('#account-list');
 
-        ['open_compose', 'switch_board', 'switch_config', 'switch_session']
+        ['open_compose', 'switch_config', 'switch_session']
         .forEach((buttonName) => {
           this[`$${buttonName}`].addEventListener('click', (event) => {
             event.preventDefault();
@@ -129,6 +127,7 @@
         });
 
         this.updateAccountList();
+        document.store.registerAccounts(this.updateAccountList.bind(this));
       }
 
       beInBoardView(toShow, board) {

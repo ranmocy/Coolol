@@ -132,7 +132,7 @@ $.decodeEntities = (function () {
 NodeList.prototype.forEach = Array.prototype.forEach;
 
 HTMLElement.prototype.trigger = function (eventName, parameters) {
-  this.dispatchEvent(new CustomEvent(eventName, parameters));
+  this.dispatchEvent(new CustomEvent(eventName, {detail: parameters}));
 };
 
 

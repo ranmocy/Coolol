@@ -41,6 +41,21 @@
       return value;
     }
 
+
+    /*
+    Config = {
+      <screen_name>: {
+        channels: [
+          {
+            'name': <NAME>,
+            'sources': [
+              <SOURCE>
+            ]
+          }
+        ]
+      }
+    }
+    */
     getConfig() {
       return this.getJSON(CONFIG_FIELD, {});
     }

@@ -50,9 +50,15 @@
         // document.store.updateAllUsers();
 
         // init view
-        // this.switchBoard('ranmocy');
+        var accounts = document.store.getAccounts();
+        var screen_names = Object.keys(accounts);
+        if ($.isDefined(screen_names) && screen_names && screen_names.length > 0) {
+          var account = accounts[screen_names[0]];
+          this.switchBoard(account);
+        } else {
+          this.switchSession();
+        }
         // this.switchConfig();
-        this.switchSession();
       }
 
       openCompose() {
@@ -63,16 +69,9 @@
         console.log('switchBoard', account);
         $.removeAllChild(this.$main);
         var board = document.createElement('x-board');
+        board.setAccount(account);
         this.$main.appendChild(board);
         this.$nav.beInBoardView(true, board);
-
-        // load cached
-        var boardConfig = document.store.getConfig()[account];
-        board.setConfig(boardConfig);
-        var data = JSON.parse(localStorage.getItem('tweets'));
-        if (data !== null) {
-          board.setData(data);
-        }
       }
 
       switchConfig() {

@@ -36,15 +36,33 @@
     class Board extends HTMLElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
+        this.account = null;
         this.config = null;
         this._data = null;
 
         this.$channels = this.shadowRoot.querySelector('#m-channels');
       }
 
+      setAccount(account) {
+        this.account = account;
+        // set Config
+        this.setConfig(document.store.getConfig()[account.screen_name]);
+        return this;
+      }
+
       setConfig(config) {
         console.log("board setConfig:", config);
         this.config = config;
+
+        // load caches
+        // var data = JSON.parse(localStorage.getItem('tweets'));
+        var data = null;
+        if (data === null) {
+          this.refresh();
+        } else {
+          this.setData(data);
+        }
+
         return this;
       }
 
@@ -82,13 +100,14 @@
         console.log('allSources', allSources);
 
         // fetch all sources
+        var client = document.store.getTwitterClient(this.account);
         allSources.forEach((source) => {
-          document.services.twitter.fetch(source);
+          client.fetch(source);
         });
 
         // get all data
         var allChannelsPromises = channels.reduce((all, channel) => {
-          var allSourcesPromises = channel.sources.map((source) => document.services.twitter.get(source));
+          var allSourcesPromises = channel.sources.map((source) => client.get(source));
           all.push(Promise.all(allSourcesPromises));
           return all;
         }, []);

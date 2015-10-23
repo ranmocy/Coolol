@@ -1,6 +1,6 @@
 <link rel="import" href="/component/channel.html">
 
-<template>
+<template id="board">
   <style>
     :host {
       display: block;
@@ -27,15 +27,23 @@
   <div id="m-channels"></div>
 </template>
 
+<template id="channel">
+  <div class="m-channel">
+    <x-channel></x-channel>
+  </div>
+</template>
+
+
 <script type="text/javascript">
   (function () {
     "use strict";
 
-    var template = document.currentScript.ownerDocument.querySelector('template');
+    var $$$board = document.currentScript.ownerDocument.querySelector('template#board').content;
+    var $$$channel = document.currentScript.ownerDocument.querySelector('template#channel').content;
 
     class Board extends HTMLElement {
       createdCallback() {
-        this.createShadowRoot().appendChild(document.importNode(template.content, true));
+        this.createShadowRoot().appendChild(document.importNode($$$board, true));
         this.account = null;
         this.config = null;
         this._data = null;
@@ -55,8 +63,7 @@
         this.config = config;
 
         // load caches
-        // var data = JSON.parse(localStorage.getItem('tweets'));
-        var data = null;
+        var data = JSON.parse(localStorage.getItem('tweets'));
         if (data === null) {
           this.refresh();
         } else {
@@ -78,12 +85,9 @@
 
         // update new data
         this.config.channels.forEach(function (channel_config, index) {
-          var $channel = document.createElement('x-channel').setData(channel_config, this._data[index]);
-          var $channel_container = document.createElement('div');
-          $channel_container.className = "m-channel";
-          $channel_container.appendChild($channel);
+          var $channel_container = document.importNode($$$channel, true);
+          $channel_container.querySelector('x-channel').setData(channel_config, this._data[index]);
           this.$channels.appendChild($channel_container);
-          // this.$channels.appendChild($channel);
         }, this);
 
         return this;

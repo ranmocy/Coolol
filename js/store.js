@@ -2,6 +2,8 @@
   "use strict";
 
   var CONFIG_FIELD = 'config';
+  var CLIENT_FIELD = 'client';
+  var TWEETS_FIELD = 'tweets';
   var ACCOUNTS_FIELD = 'accounts';
 
   var cache = {};
@@ -72,10 +74,61 @@
         console.error('getTwitterClient', account);
         throw "getTwitterClient: account/token/token_secret is null!";
       }
-      if (!cache.twitter_clients || !cache.twitter_clients[account.screen_name]) {
-        this.saveAccount(account, new Twitter(account.token, account.token_secret));
+      if (!cache[CLIENT_FIELD]) {
+        cache[CLIENT_FIELD] = {};
       }
-      return cache.twitter_clients[account.screen_name];
+      var client = new Twitter(account.token, account.token_secret);
+      cache[CLIENT_FIELD][account.screen_name] = client;
+      return client;
+    }
+
+    saveTwitterClient(account, client) {
+      if (!cache[CLIENT_FIELD]) {
+        cache[CLIENT_FIELD] = {};
+      }
+      cache[CLIENT_FIELD][account.screen_name] = client;
+      return client;
+    }
+
+    deleteTwitterClient(account) {
+      if (!cache[CLIENT_FIELD]) {
+        cache[CLIENT_FIELD] = {};
+      }
+      console.log('delete client', account.screen_name);
+      var client = cache[CLIENT_FIELD][account.screen_name];
+      if ($.isDefined(client)) {
+        delete cache[CLIENT_FIELD][account.screen_name];
+      }
+      return client;
+    }
+
+    /*
+    Tweets = {
+      <screen_name>: [<Tweet>]
+    }
+    */
+    getTweets(account) {
+      var tweets = this.getJSON(TWEETS_FIELD, {})[account.screen_name];
+      if ($.isDefined(tweets) && tweets) {
+        return tweets;
+      }
+      return [];
+    }
+
+    saveTweets(account, tweets) {
+      var all_tweets = this.getJSON(TWEETS_FIELD, {});
+      all_tweets[account.screen_name] = tweets;
+      this.saveJSON(TWEETS_FIELD, all_tweets);
+      return tweets;
+    }
+
+    deleteTweets(account) {
+      var all_tweets = this.getJSON(TWEETS_FIELD, {});
+      var tweets = all_tweets[account.screen_name];
+      if ($.isDefined(tweets)) {
+        delete all_tweets[account.screen_name];
+      }
+      return tweets;
     }
 
     /*
@@ -95,13 +148,13 @@
 
     updateAccount(account) {
       console.log('updateAccount');
-      document.store.getTwitterClient(account).fetch('users_show', {
+      this.getTwitterClient(account).fetch('users_show', {
         user_id: account.user_id,
         screen_name: account.screen_name,
       }).then((reply) => {
         console.log('get user info', reply);
         account = Object.assign({}, account, reply);
-        document.store.saveAccount(account, this.current_client);
+        this.saveAccount(account);
         console.log('save account', account);
       });
     }
@@ -115,29 +168,23 @@
     }
 
     deleteAccount(account) {
-      if (cache.twitter_clients && cache.twitter_clients[account.screen_name]) {
-        console.log('delete client', account);
-        delete cache.twitter_clients[account.screen_name];
-      }
-      console.log('delete account', account);
+      console.log('delete account', account.screen_name);
+      // TODO: delete config
+      this.deleteTwitterClient(account);
+      this.deleteTweets(account);
+
       var accounts = this.getAccounts();
       delete accounts[account.screen_name];
-      this.saveAccounts(accounts);
+      this.saveJSON(ACCOUNTS_FIELD, accounts);
+      return account;
     }
 
     saveAccount(account, client) {
-      if (!cache.twitter_clients) {
-        cache.twitter_clients = {};
-      }
-      cache.twitter_clients[account.screen_name] = client;
+      console.log('saveAccount', account);
       var accounts = this.getAccounts();
       accounts[account.screen_name] = account;
-      this.saveAccounts(accounts);
-    }
-
-    saveAccounts(accounts) {
-      console.log('saveAccounts', accounts);
-      return this.saveJSON(ACCOUNTS_FIELD, accounts);
+      this.saveJSON(ACCOUNTS_FIELD, accounts);
+      return account;
     }
 
     registerAccounts(callback) {

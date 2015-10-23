@@ -69,17 +69,18 @@
         this.config = config;
 
         // load caches
-        var data = JSON.parse(localStorage.getItem('tweets'));
-        if (data === null) {
-          this.refresh();
-        } else {
+        var data = document.store.getTweets(this.account);
+        if (data.length > 0) {
           this.setData(data);
+        } else {
+          this.refresh();
         }
 
         return this;
       }
 
       setData(data) {
+        console.log('board setData', data);
         this._data = data;
 
         // Remove all children
@@ -127,7 +128,7 @@
           .then((data) => {
             // cache up
             console.log('allTweets:', data);
-            localStorage.setItem('tweets', JSON.stringify(data));
+            document.store.saveTweets(this.account, data);
             this.setData(data);
           });
       }

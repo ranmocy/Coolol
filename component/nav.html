@@ -1,5 +1,3 @@
-<link rel="import" href="dropdown.html" charset="utf-8">
-
 <template id="nav">
   <style media="screen">
     nav {
@@ -10,47 +8,74 @@
       position: relative;
       z-index: 100;
     }
-    #logo {
+    .logo {
       line-height: 50px;
       font-size: 30px;
       font-weight: bold;
       color: #424d54;
     }
-    #control-panel {
+    .control-panel {
       float: right;
       height: 30px;
       line-height: 30px;
     }
-    a.menu {
+    a {
       display: inline-block;
-      line-height: 48px;
-      padding: 0 0.5em;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;;
       text-decoration: none;
+      white-space: nowrap;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;;
       color: #555;
+      padding: 0 0.5em;
+    }
+    a:hover {
+      color: #4C91DB;
+    }
+    a.menu {
+      line-height: 48px;
       border-bottom: 3px solid rgba(0, 0, 0, 0);;
     }
     a.menu:hover {
-      color: #4C91DB;
       border-bottom: 3px solid #4C91DB;
     }
-    .dropdown-content {
+
+    /* Accounts */
+    .account-list-dropdown .account-list-container {
+      display: none;
+    }
+    .account-list-dropdown:hover .account-list-container {
+      display: block;
+    }
+    .account-list-dropdown {
+      display: inline-block;
+      position: relative;
+    }
+    .account-list-container {
+      position: absolute;
+      z-index: 500;
+      top: 100%;
+      right: 0;
       min-width: 150px;
+      background: white;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 0, 0, 0.15);;
+      box-shadow: rgba(0, 0, 0, 0.18) 0 3px 3px;
     }
   </style>
 
   <nav>
-    <span id="logo">Coolol</span>
-    <span id="control-panel">
+    <span class="logo">Coolol</span>
+    <span class="control-panel">
       <a href="#" class="menu" id="refresh-board">Refresh</a>
       <a href="#" class="menu" id="open-compose">Compose</a>
       <a href="#" class="menu" id="switch-board">Board</a>
       <a href="#" class="menu" id="switch-config">Setting</a>
-      <x-dropdown class="drop-right">
+      <span class="account-list-dropdown">
         <a href="#" class="menu dropdown-target" id="switch-session">Accounts</a>
-        <ul class="dropdown-content" id="account-list"></ul>
-        <a href="#" class="dropdown-content-footer" id="account-manage">Manage accounts</a>
-      </x-dropdown>
+        <div class="account-list-container">
+          <ul id="account-list"></ul>
+          <a href="#" id="account-manage">Manage accounts</a>
+        </div>
+      </span>
     </span>
   </nav>
 </template>
@@ -69,14 +94,15 @@
         this.$open_compose = this.shadowRoot.querySelector('#open-compose');
         this.$switch_board = this.shadowRoot.querySelector('#switch-board');
         this.$switch_config = this.shadowRoot.querySelector('#switch-config');
-        this.$switch_session = this.shadowRoot.querySelector('#switch-session');
+        this.$switch_session = this.shadowRoot.querySelector('#account-manage');
+
         this.$account_list = this.shadowRoot.querySelector('#account-list');
 
         ['open_compose', 'switch_board', 'switch_config', 'switch_session']
         .forEach((buttonName) => {
           this[`$${buttonName}`].addEventListener('click', (event) => {
             event.preventDefault();
-            console.log('trigger', $.camelize(buttonName));
+            console.log('nav trigger', $.camelize(buttonName));
             this.trigger($.camelize(buttonName));
           });
         });

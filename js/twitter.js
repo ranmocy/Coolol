@@ -62,10 +62,11 @@
       this.client.__call("oauth_accessToken",
                 {oauth_verifier: pinCode},
                 (reply) => {
+                  console.log('twitter.verify', reply);
                   // store the authenticated token, which may be different from the request token (!)
                   this.setToken(reply.oauth_token, reply.oauth_token_secret);
                   if (callback) {
-                    callback(reply.oauth_token, reply.oauth_token_secret);
+                    callback(reply);
                   }
                 });
     }

@@ -9,6 +9,10 @@
   <ul id="accounts"></ul>
   <div class="login">
     <button type="button" name="auth">Auth</button>
+    <div class="auth-info">
+      Open url to authorize:
+      <a href="" id="auth-url" target="_blank"></a>
+    </div>
     <span>
       pincode:
       <input type="text" name="pinCode" value="">
@@ -18,7 +22,10 @@
 </template>
 
 <template id="account">
-  <li class="name"></li>
+  <li class="account">
+    <span class="name"></span>
+    <button type="button" name="delete">Delete</button>
+  </li>
 </template>
 
 <script type="text/javascript">
@@ -34,29 +41,51 @@
 
         this.$accounts = this.shadowRoot.querySelector('#accounts');
         this.$auth = this.shadowRoot.querySelector('button[name=auth]');
+        this.$auth_url = this.shadowRoot.querySelector('#auth-url');
         this.$pinCode = this.shadowRoot.querySelector('input[name=pinCode]');
         this.$verify = this.shadowRoot.querySelector('button[name=verify]');
 
         this.$auth.addEventListener('click', this.auth.bind(this));
         this.$verify.addEventListener('click', this.verify.bind(this));
 
-        document.store.getAccounts().forEach((account) => {
+        this.refresh();
+        document.store.registerAccounts(this.refresh.bind(this));
+      }
+
+      refresh() {
+        var accounts = document.store.getAccounts();
+        for (var screen_name in accounts) {
+          var account = accounts[screen_name];
           console.log(account);
           $$$account.querySelector('.name').textContent = account.screen_name;
-          $accounts.appendChild($$$account);
-        });
+          $$$account.querySelector('button[name=delete]').addEventListener('click', (event) => {
+            event.preventDefault();
+            document.store.deleteAccount(account);
+          });
+          this.$accounts.appendChild($$$account);
+        }
       }
 
       auth() {
         this.current_client = new Twitter();
-        this.current_client.auth();
+        this.current_client.auth((auth_url) => {
+          this.$auth_url.textContent = auth_url;
+          this.$auth_url.href = auth_url;
+          window.codebird_auth = window.open(auth_url);
+        });
         return this;
       }
 
       verify() {
-        this.current_client.verify(this.$pinCode.value, (token, token_secret) => {
-          var account = {screen_name: 'TBD', token, token_secret};
-          document.store.saveTwitterClient(account, this.current_client);
+        this.current_client.verify(this.$pinCode.value, (reply) => {
+          var account = {
+            user_id: reply.user_id,
+            screen_name: reply.screen_name,
+            token: reply.oauth_token,
+            token_secret: reply.oauth_token_secret
+          };
+          document.store.saveAccount(account, this.current_client);
+          console.log('save account', account);
         });
         return this;
       }

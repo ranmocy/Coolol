@@ -5,27 +5,39 @@
   var ACCOUNTS_FIELD = 'accounts';
 
   var cache = {};
-  // var callbacks = {};
+  var callbacks = {};
 
   class Store {
-    constructor() {
+    register(field, callback) {
+      if (!callbacks[field]) {
+        callbacks[field] = [];
+      }
+      callbacks[field].push(callback);
+      console.log('store register callback', field, callbacks);
     }
 
-    getJSON(name, defaultValue) {
-      if (cache[name]) {
-        return cache[name];
+    getJSON(field, defaultValue) {
+      if (cache[field]) {
+        return cache[field];
       }
-      var data = JSON.parse(localStorage.getItem(name));
+      var data = JSON.parse(localStorage.getItem(field));
       if (!data) {
         data = defaultValue;
       }
-      cache[name] = data;
+      cache[field] = data;
       return data;
     }
 
-    saveJSON(name, value) {
-      cache[name] = value;
-      localStorage.setItem(name, JSON.stringify(value));
+    saveJSON(field, value) {
+      cache[field] = value;
+      localStorage.setItem(field, JSON.stringify(value));
+      console.log('saveJSON', field, value, callbacks);
+      if (callbacks[field]) {
+        console.log('store trigger callbacks', field);
+        callbacks[field].forEach((callback) => {
+          callback(value);
+        });
+      }
       return value;
     }
 
@@ -37,13 +49,19 @@
       return this.saveJSON(CONFIG_FIELD, config);
     }
 
-    getAccounts() {
-      var accounts = this.getJSON(ACCOUNTS_FIELD, []);
-      return accounts;
+    /*
+    Accounts = {
+      <screen_name>: {
+        'screen_name': '@NAME',
+        'token': 'TOKEN',
+        'token_secret': 'TOKEN_SECRET'
+      }
     }
-
-    saveAccounts(accounts) {
-      return this.saveJSON(ACCOUNTS_FIELD, accounts);
+    */
+    getAccounts() {
+      var accounts = this.getJSON(ACCOUNTS_FIELD, {});
+      console.log('getAccounts', accounts);
+      return accounts;
     }
 
     getTwitterClient(account) {
@@ -56,11 +74,32 @@
       return cache.twitter_clients[account.screen_name];
     }
 
-    saveTwitterClient(account, client) {
+    deleteAccount(account) {
+      if (cache.twitter_clients && cache.twitter_clients[account.screen_name]) {
+        delete cache.twitter_clients[account.screen_name];
+      }
+      var accounts = this.getAccounts();
+      delete accounts[account.screen_name];
+      this.saveAccounts(accounts);
+    }
+
+    saveAccount(account, client) {
       if (!cache.twitter_clients) {
         cache.twitter_clients = {};
       }
       cache.twitter_clients[account.screen_name] = client;
+      var accounts = this.getAccounts();
+      accounts[account.screen_name] = account;
+      this.saveAccounts(accounts);
+    }
+
+    saveAccounts(accounts) {
+      console.log('saveAccounts', accounts);
+      return this.saveJSON(ACCOUNTS_FIELD, accounts);
+    }
+
+    registerAccounts(callback) {
+      return this.register(ACCOUNTS_FIELD, callback);
     }
   }
 

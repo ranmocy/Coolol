@@ -70,9 +70,15 @@
                 });
     }
 
-    fetch(source) {
-      this.promises[source] = new Promise((resolve, reject) => {
-        this.client.__call(source, {}, (reply, rate, err) => {
+    fetch(source, params) {
+      var key = source;
+      if (params) {
+        key = key + JSON.stringify(params);
+      } else {
+        params = {};
+      }
+      this.promises[key] = new Promise((resolve, reject) => {
+        this.client.__call(source, params, (reply, rate, err) => {
           if (err) {
             console.error('error in fetch', err);
             reject(err.error);
@@ -83,12 +89,17 @@
           } else {
             console.log('rate limit:', rate);
           }
+          if (reply.errors) {
+            console.error('error in fetch reply:', reply.errors);
+            reject(reply.errors);
+            return;
+          }
           if (reply) {
             resolve(reply);
           }
         });
       });
-      return this.promises[source];
+      return this.promises[key];
     }
 
     get(source) {

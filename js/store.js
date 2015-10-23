@@ -76,8 +76,10 @@
 
     deleteAccount(account) {
       if (cache.twitter_clients && cache.twitter_clients[account.screen_name]) {
+        console.log('delete client', account);
         delete cache.twitter_clients[account.screen_name];
       }
+      console.log('delete account', account);
       var accounts = this.getAccounts();
       delete accounts[account.screen_name];
       this.saveAccounts(accounts);

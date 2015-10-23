@@ -74,15 +74,15 @@
       refresh() {
         var channels = this.config.channels;
         var allSources = new Set();
-        channels.forEach(function (channel) {
-          channel.sources.forEach(function (source) {
+        channels.forEach((channel) => {
+          channel.sources.forEach((source) => {
             allSources.add(source);
           });
         });
         console.log('allSources', allSources);
 
         // fetch all sources
-        allSources.forEach(function (source) {
+        allSources.forEach((source) => {
           document.services.twitter.fetch(source);
         });
 
@@ -94,13 +94,12 @@
         }, []);
         console.log('all Promises', allChannelsPromises);
 
-        var self = this;
         Promise.all(allChannelsPromises)
-          .then(function (data) {
+          .then((data) => {
             // cache up
             console.log('allTweets:', data);
             localStorage.setItem('tweets', JSON.stringify(data));
-            self.setData(data);
+            this.setData(data);
           });
       }
     }

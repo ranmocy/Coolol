@@ -15,9 +15,8 @@
 
     start() {
       // Refresh channels every 60s
-      var self = this;
-      var task_factory = function() {
-        self.refresh();
+      var task_factory = () => {
+        this.refresh();
         setTimeout(task_factory, REFRESH_INTERVAL_MS);
       };
       console.debug('twitter.start');
@@ -48,7 +47,7 @@
                   // gets the authorize screen URL
                   this.client.__call("oauth_authorize",
                             {},
-                            function (auth_url) {
+                            (auth_url) => {
                               if (callback) {
                                 callback(auth_url);
                               } else {
@@ -72,8 +71,8 @@
     }
 
     fetch(source) {
-      this.promises[source] = new Promise(function(resolve, reject) {
-        this.client.__call(source, {}, function (reply, rate, err) {
+      this.promises[source] = new Promise((resolve, reject) => {
+        this.client.__call(source, {}, (reply, rate, err) => {
           if (err) {
             console.error('error in fetch', err);
             reject(err.error);

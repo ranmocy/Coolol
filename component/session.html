@@ -32,12 +32,12 @@
   (function () {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#session').content;
-    var $$$account = document.currentScript.ownerDocument.querySelector('template#account').content;
+    var $$$session = document.currentScript.ownerDocument.querySelector('template#session');
+    var $$$account = document.currentScript.ownerDocument.querySelector('template#account');
 
     class Session extends HTMLElement {
       createdCallback() {
-        this.createShadowRoot().appendChild(document.importNode($$$template, true));
+        this.createShadowRoot().appendChild(document.importNode($$$session.content, true));
 
         this.$accounts = this.shadowRoot.querySelector('#accounts');
         this.$auth = this.shadowRoot.querySelector('button[name=auth]');
@@ -53,16 +53,18 @@
       }
 
       refresh() {
+        $.removeAllChild(this.$accounts);
         var accounts = document.store.getAccounts();
         for (var screen_name in accounts) {
           var account = accounts[screen_name];
           console.log(account);
-          $$$account.querySelector('.name').textContent = account.screen_name;
-          $$$account.querySelector('button[name=delete]').addEventListener('click', (event) => {
+          var node = document.importNode($$$account.content, true);
+          node.querySelector('.name').textContent = account.screen_name;
+          node.querySelector('button[name=delete]').addEventListener('click', (event) => {
             event.preventDefault();
             document.store.deleteAccount(account);
           });
-          this.$accounts.appendChild($$$account);
+          this.$accounts.appendChild(node);
         }
       }
 
@@ -78,6 +80,10 @@
 
       verify() {
         this.current_client.verify(this.$pinCode.value, (reply) => {
+          if (!reply || !reply.user_id) {
+            console.error('verify account failed!', reply);
+            return;
+          }
           var account = {
             user_id: reply.user_id,
             screen_name: reply.screen_name,

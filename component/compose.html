@@ -47,10 +47,7 @@
         this.createShadowRoot().appendChild(document.importNode($$$compose.content, true));
         this.host = this.shadowRoot.host;
         this.$background = this.shadowRoot.querySelector('#background');
-        this.$background.addEventListener('click', (event) => {
-          event.preventDefault();
-          this.hide();
-        });
+        this.$background.handle('click', () => { this.hide(); });
 
         this.hide();
       }

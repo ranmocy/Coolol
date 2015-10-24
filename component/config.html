@@ -47,8 +47,8 @@
         this.resetButton = this.shadowRoot.querySelector('button[name=reset]');
         this.editorElem = this.shadowRoot.querySelector('.editor');
 
-        this.saveButton.addEventListener('click', this.saveConfig.bind(this));
-        this.resetButton.addEventListener('click', this.resetConfig.bind(this));
+        this.saveButton.handle('click', this.saveConfig.bind(this));
+        this.resetButton.handle('click', this.resetConfig.bind(this));
 
         this.editor = new JSONEditor(this.editorElem, {mode: 'code'});
         this.account = null;

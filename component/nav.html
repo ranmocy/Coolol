@@ -81,8 +81,8 @@
   <nav>
     <span class="logo">Coolol</span>
     <span class="control-panel">
-      <a href="#" class="menu" id="refresh-board">Refresh</a>
       <a href="#" class="menu" id="open-compose">Compose</a>
+      <a href="#" class="menu" id="refresh-board">Refresh</a>
       <a href="#" class="menu" id="switch-config">Setting</a>
       <span class="account-list-dropdown">
         <a href="#" class="menu dropdown-target" id="switch-session">Accounts</a>
@@ -122,10 +122,8 @@
 
         this.$account_list = this.shadowRoot.querySelector('#account-list');
 
-        ['open_compose', 'switch_session']
-        .forEach((buttonName) => {
-          this[`$${buttonName}`].addEventListener('click', (event) => {
-            event.preventDefault();
+        ['open_compose', 'switch_session'].forEach((buttonName) => {
+          this[`$${buttonName}`].handle('click', () => {
             console.log('nav trigger', $.camelize(buttonName));
             this.trigger($.camelize(buttonName));
           });
@@ -140,10 +138,8 @@
         if ($.isDefined(board) && $.isDefined(account)) {
           this.$open_compose.style.visibility = "visible";
           this.$refresh_board.style.visibility = "visible";
-          this.$refresh_board.addEventListener('click', board.refresh.bind(board));
-          this.$switch_config.handle('click', () => {
-            this.trigger('switchConfig', account);
-          });
+          this.$refresh_board.handle('click', () => { board.refresh(); });
+          this.$switch_config.handle('click', () => { this.trigger('switchConfig', account); });
         } else {
           this.$open_compose.style.visibility = "hidden";
           this.$refresh_board.style.visibility = "hidden";

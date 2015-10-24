@@ -46,8 +46,8 @@
         this.$pinCode = this.shadowRoot.querySelector('input[name=pinCode]');
         this.$verify = this.shadowRoot.querySelector('button[name=verify]');
 
-        this.$auth.addEventListener('click', this.auth.bind(this));
-        this.$verify.addEventListener('click', this.verify.bind(this));
+        this.$auth.handle('click', this.auth.bind(this));
+        this.$verify.handle('click', this.verify.bind(this));
 
         this.refresh();
         document.store.registerAccounts(this.refresh.bind(this));
@@ -62,8 +62,7 @@
           var node = document.importNode($$$account, true);
           node.querySelector('.avatar').src = account.profile_image_url;
           node.querySelector('.name').textContent = account.screen_name;
-          node.querySelector('button[name=delete]').addEventListener('click', (event) => {
-            event.preventDefault();
+          node.querySelector('button[name=delete]').handle('click', () => {
             document.store.deleteAccount(account);
           });
           this.$accounts.appendChild(node);

@@ -119,27 +119,32 @@
         this.$open_compose = this.shadowRoot.querySelector('#open-compose');
         this.$switch_config = this.shadowRoot.querySelector('#switch-config');
         this.$switch_session = this.shadowRoot.querySelector('#account-manage');
-
         this.$account_list = this.shadowRoot.querySelector('#account-list');
 
-        ['open_compose', 'switch_session'].forEach((buttonName) => {
-          this[`$${buttonName}`].handle('click', () => {
-            console.log('nav trigger', $.camelize(buttonName));
-            this.trigger($.camelize(buttonName));
-          });
-        });
+        this.$open_compose.handle('click', () => { this.trigger('openCompose'); });
+        this.$switch_session.handle('click', () => { this.trigger('switchSession'); });
+
+        this.account = null;
+        this.board = null;
 
         this.updateAccountList();
         document.store.registerAccounts(this.updateAccountList.bind(this));
       }
 
-      setBoard(board, account) {
+      setAccount(account, board) {
         console.log('setBoard', arguments);
-        if ($.isDefined(board) && $.isDefined(account)) {
+        this.account = account;
+        this.board = board;
+        if ($.isDefined(account)) {
+          this.$switch_config.style.visibility = 'visible';
+          this.$switch_config.handle('click', () => { this.trigger('switchConfig', account); });
+        } else {
+          this.$switch_config.style.visibility = 'hidden';
+        }
+        if ($.isDefined(account) && $.isDefined(board)) {
           this.$open_compose.style.visibility = "visible";
           this.$refresh_board.style.visibility = "visible";
           this.$refresh_board.handle('click', () => { board.refresh(); });
-          this.$switch_config.handle('click', () => { this.trigger('switchConfig', account); });
         } else {
           this.$open_compose.style.visibility = "hidden";
           this.$refresh_board.style.visibility = "hidden";

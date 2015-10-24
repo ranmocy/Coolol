@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  var CONFIG_FIELD = 'config';
-  var CLIENT_FIELD = 'client';
+  var CONFIG_FIELD = 'configs';
+  var CLIENT_FIELD = 'clients';
   var TWEETS_FIELD = 'tweets';
   var ACCOUNTS_FIELD = 'accounts';
 
@@ -58,13 +58,30 @@
       }
     }
     */
-    getConfig() {
-      return this.getJSON(CONFIG_FIELD, {});
+    getConfig(account) {
+      var config = this.getJSON(CONFIG_FIELD, {})[account.screen_name];
+      if ($.isDefined(config) && config) {
+        return config;
+      }
+      return {};
     }
 
-    saveConfig(config) {
-      return this.saveJSON(CONFIG_FIELD, config);
+    saveConfig(account, config) {
+      var configs = this.getJSON(CONFIG_FIELD, {});
+      configs[account.screen_name] = config;
+      this.saveJSON(CONFIG_FIELD, configs);
+      return config;
     }
+
+    deleteConfig(account) {
+      var configs = this.getJSON(CONFIG_FIELD, {});
+      var config = configs[account.screen_name];
+      if ($.isDefined(config)) {
+        delete configs[account.screen_name];
+      }
+      return config;
+    }
+
 
     /*
     Client is not saved to local storage
@@ -102,6 +119,7 @@
       return client;
     }
 
+
     /*
     Tweets = {
       <screen_name>: [<Tweet>]
@@ -130,6 +148,7 @@
       }
       return tweets;
     }
+
 
     /*
     Accounts = {
@@ -169,7 +188,7 @@
 
     deleteAccount(account) {
       console.log('delete account', account.screen_name);
-      // TODO: delete config
+      this.deleteConfig(account);
       this.deleteTwitterClient(account);
       this.deleteTweets(account);
 
@@ -179,7 +198,7 @@
       return account;
     }
 
-    saveAccount(account, client) {
+    saveAccount(account) {
       console.log('saveAccount', account);
       var accounts = this.getAccounts();
       accounts[account.screen_name] = account;

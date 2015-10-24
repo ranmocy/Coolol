@@ -64,16 +64,17 @@
         $.removeAllChild(this.$main);
         var board = document.createElement('x-board');
         this.$main.appendChild(board);
-        this.$nav.beInBoardView(true, board);
+        this.$nav.beInBoardView(true, account, board);
         board.setAccount(account);
       }
 
-      switchConfig() {
+      switchConfig(account) {
         console.log('switchConfig');
         $.removeAllChild(this.$main);
         var config = document.createElement('x-config');
         this.$main.appendChild(config);
         this.$nav.beInBoardView(false);
+        config.setAccount(account);
       }
 
       switchSession () {

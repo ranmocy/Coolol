@@ -54,16 +54,16 @@
       setAccount(account) {
         this.account = account;
         // set Config
-        this.setConfig(document.store.getConfig()[account.screen_name]);
+        this.setConfig(document.store.getConfig(account));
         return this;
       }
 
       setConfig(config) {
         console.log("board setConfig:", config);
 
-        if (!config) {
+        if (!$.isDefined(config) || Object.keys(config).length === 0) {
           console.log('board trigger', 'switchConfig');
-          this.trigger('switchConfig');
+          this.trigger('switchConfig', this.account);
           return;
         }
         this.config = config;

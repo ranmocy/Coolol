@@ -44,20 +44,13 @@
     class Board extends HTMLElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$board, true));
-        this.account = null;
-        this.config = null;
+        this.$channels = this.shadowRoot.querySelector('#m-channels');
+
+        this.config = document.store.getConfig(document.account);
         this._data = null;
 
-        this.$channels = this.shadowRoot.querySelector('#m-channels');
-      }
-
-      setAccount(account, config) {
-        console.log("board setAccount:", account.screen_name, config);
-        this.account = account;
-        this.config = config;
-
         // load caches
-        var data = document.store.getTweets(this.account);
+        var data = document.store.getTweets(document.account);
         if (data.length > 0) {
           this.setData(data);
         } else {
@@ -99,7 +92,7 @@
         console.log('allSources', allSources);
 
         // fetch all sources
-        var client = document.store.getTwitterClient(this.account);
+        var client = document.store.getTwitterClient(document.account);
         allSources.forEach((source) => {
           client.fetch(source);
         });
@@ -116,7 +109,7 @@
           .then((data) => {
             // cache up
             console.log('allTweets:', data);
-            document.store.saveTweets(this.account, data);
+            document.store.saveTweets(document.account, data);
             this.setData(data);
           });
       }

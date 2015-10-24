@@ -51,29 +51,26 @@
         this.resetButton.handle('click', this.resetConfig.bind(this));
 
         this.editor = new JSONEditor(this.editorElem, {mode: 'code'});
-        this.account = null;
-      }
-
-      setAccount(account) {
-        this.account = account;
         this.loadConfig();
       }
 
       loadConfig() {
-        var config = document.store.getConfig(this.account);
+        var config = document.store.getConfig(document.account);
         this.editor.set(config);
         console.log("Config loaded:", config);
       }
 
       saveConfig() {
         var config = this.editor.get();
-        document.store.saveConfig(this.account, config);
+        document.store.saveConfig(document.account, config);
         console.log("Config saved.", JSON.stringify(config));
+        this.trigger('switchBoard');
       }
 
       resetConfig() {
         this.editor.set(defaultConfig);
-        this.saveConfig();
+        document.store.saveConfig(document.account, defaultConfig);
+        console.log("Config reseted.");
       }
     }
 

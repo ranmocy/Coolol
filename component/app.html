@@ -45,6 +45,7 @@
         // document.store.updateAllAccounts();
 
         // init view
+        document.account = null;
         var accounts = document.store.getAccounts();
         var screen_names = Object.keys(accounts);
         if ($.isDefined(screen_names) && screen_names && screen_names.length > 0) {
@@ -55,40 +56,40 @@
         }
       }
 
-      openCompose() {
-        this.$compose.show();
+      openCompose(args) {
+        this.$compose.show(args);
       }
 
       switchBoard(account) {
         console.log('switchBoard', account.screen_name);
+        document.account = account;
         var config = document.store.getConfig(account);
         if (!$.isDefined(config) || Object.keys(config).length === 0) {
           console.log('switchBoard: log is empty, switch to config');
-          this.switchConfig(account);
+          this.switchConfig();
         } else {
           $.removeAllChild(this.$main);
           var board = document.createElement('x-board');
           this.$main.appendChild(board);
-          this.$nav.setAccount(account, board);
-          board.setAccount(account, config);
+          this.$nav.updateNav(board);
         }
       }
 
-      switchConfig(account) {
+      switchConfig() {
         console.log('switchConfig');
         $.removeAllChild(this.$main);
         var config = document.createElement('x-config');
         this.$main.appendChild(config);
-        this.$nav.setAccount(account);
-        config.setAccount(account);
+        this.$nav.updateNav();
       }
 
       switchSession () {
         console.log('switchSession');
+        document.account = null;
         $.removeAllChild(this.$main);
         var $session = document.createElement('x-session');
         this.$main.appendChild($session);
-        this.$nav.setAccount();
+        this.$nav.updateNav();
       }
     }
 

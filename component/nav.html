@@ -124,24 +124,19 @@
         this.$open_compose.handle('click', () => { this.trigger('openCompose'); });
         this.$switch_session.handle('click', () => { this.trigger('switchSession'); });
 
-        this.account = null;
-        this.board = null;
-
         this.updateAccountList();
         document.store.registerAccounts(this.updateAccountList.bind(this));
       }
 
-      setAccount(account, board) {
-        console.log('setBoard', arguments);
-        this.account = account;
-        this.board = board;
-        if ($.isDefined(account)) {
+      updateNav(board) {
+        console.log('setBoard', board);
+        if (document.account !== null) {
           this.$switch_config.style.visibility = 'visible';
-          this.$switch_config.handle('click', () => { this.trigger('switchConfig', account); });
+          this.$switch_config.handle('click', () => { this.trigger('switchConfig'); });
         } else {
           this.$switch_config.style.visibility = 'hidden';
         }
-        if ($.isDefined(account) && $.isDefined(board)) {
+        if (document.account !== null && $.isDefined(board)) {
           this.$open_compose.style.visibility = "visible";
           this.$refresh_board.style.visibility = "visible";
           this.$refresh_board.handle('click', () => { board.refresh(); });

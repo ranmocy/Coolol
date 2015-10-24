@@ -122,10 +122,6 @@
 
         this.$account_list = this.shadowRoot.querySelector('#account-list');
 
-        this.$switch_config.handle('click', () => {
-          this.trigger('switchConfig', null);
-        });
-
         ['open_compose', 'switch_session']
         .forEach((buttonName) => {
           this[`$${buttonName}`].addEventListener('click', (event) => {
@@ -139,9 +135,9 @@
         document.store.registerAccounts(this.updateAccountList.bind(this));
       }
 
-      beInBoardView(toShow, account, board) {
-        console.log('beInBoardView', arguments);
-        if (toShow) {
+      setBoard(board, account) {
+        console.log('setBoard', arguments);
+        if ($.isDefined(board) && $.isDefined(account)) {
           this.$open_compose.style.visibility = "visible";
           this.$refresh_board.style.visibility = "visible";
           this.$refresh_board.addEventListener('click', board.refresh.bind(board));

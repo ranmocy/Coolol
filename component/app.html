@@ -64,7 +64,7 @@
         $.removeAllChild(this.$main);
         var board = document.createElement('x-board');
         this.$main.appendChild(board);
-        this.$nav.beInBoardView(true, account, board);
+        this.$nav.setBoard(board, account);
         board.setAccount(account);
       }
 
@@ -73,7 +73,7 @@
         $.removeAllChild(this.$main);
         var config = document.createElement('x-config');
         this.$main.appendChild(config);
-        this.$nav.beInBoardView(false);
+        this.$nav.setBoard();
         config.setAccount(account);
       }
 
@@ -82,7 +82,7 @@
         $.removeAllChild(this.$main);
         var $session = document.createElement('x-session');
         this.$main.appendChild($session);
-        this.$nav.beInBoardView(false);
+        this.$nav.setBoard();
       }
     }
 

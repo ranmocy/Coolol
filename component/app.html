@@ -60,12 +60,18 @@
       }
 
       switchBoard(account) {
-        console.log('switchBoard', account);
-        $.removeAllChild(this.$main);
-        var board = document.createElement('x-board');
-        this.$main.appendChild(board);
-        this.$nav.setAccount(account, board);
-        board.setAccount(account);
+        console.log('switchBoard', account.screen_name);
+        var config = document.store.getConfig(account);
+        if (!$.isDefined(config) || Object.keys(config).length === 0) {
+          console.log('switchBoard: log is empty, switch to config');
+          this.switchConfig(account);
+        } else {
+          $.removeAllChild(this.$main);
+          var board = document.createElement('x-board');
+          this.$main.appendChild(board);
+          this.$nav.setAccount(account, board);
+          board.setAccount(account, config);
+        }
       }
 
       switchConfig(account) {

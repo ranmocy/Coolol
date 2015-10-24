@@ -51,21 +51,9 @@
         this.$channels = this.shadowRoot.querySelector('#m-channels');
       }
 
-      setAccount(account) {
+      setAccount(account, config) {
+        console.log("board setAccount:", account.screen_name, config);
         this.account = account;
-        // set Config
-        this.setConfig(document.store.getConfig(account));
-        return this;
-      }
-
-      setConfig(config) {
-        console.log("board setConfig:", config);
-
-        if (!$.isDefined(config) || Object.keys(config).length === 0) {
-          console.log('board trigger', 'switchConfig');
-          this.trigger('switchConfig', this.account);
-          return;
-        }
         this.config = config;
 
         // load caches

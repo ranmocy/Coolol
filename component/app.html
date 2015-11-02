@@ -46,7 +46,7 @@
 
         // init view
         document.account = null;
-        var accounts = document.store.getAccounts();
+        var accounts = document.store.getAllAccounts();
         var screen_names = Object.keys(accounts);
         if ($.isDefined(screen_names) && screen_names && screen_names.length > 0) {
           var account = accounts[screen_names[0]];

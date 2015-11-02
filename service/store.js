@@ -1,30 +1,82 @@
 (function () {
   "use strict";
 
-  var CONFIG_FIELD = 'configs';
   var CLIENT_FIELD = 'clients';
-  var TWEETS_FIELD = 'tweets';
-  var ACCOUNTS_FIELD = 'accounts';
 
   var cache = {};
   var callbacks = {};
 
   class Store {
+    // Add get method for field
+    static addAccessTo(field_name, default_value) {
+      var capitalized = $.capitalize(field_name);
+      var field = field_name + 's';
+
+      var getAllMethodName = `getAll${capitalized}s`;
+      var getMethodName = `get${capitalized}`;
+      var saveMethodName = `save${capitalized}`;
+      var deleteMethodName = `delete${capitalized}`;
+      var registerMethodName = `register${capitalized}s`;
+
+      // read
+      this.prototype[getAllMethodName] = function () {
+        // the default value of whole field is always {}, because they are all saved in account space
+        var values = this.getJSON(field, {});
+        console.log(`[store] ${getAllMethodName}:`, values);
+        return values;
+      };
+      this.prototype[getMethodName] = function (account) {
+        var value = this[getAllMethodName]()[account.screen_name];
+        console.log(`[store] ${getMethodName}:`, account.screen_name, value);
+        if ($.isDefined(value) && value) {
+          return value;
+        }
+        return default_value;
+      };
+
+      // write
+      this.prototype[saveMethodName] = function(account, new_value) {
+        var values = this[getAllMethodName]();
+        console.log(`[store] ${saveMethodName}:`, account.screen_name, new_value);
+        values[account.screen_name] = new_value;
+        this.saveJSON(field, values);
+        return new_value;
+      };
+
+      // delete
+      this.prototype[deleteMethodName] = function(account) {
+        var values = this[getAllMethodName]();
+        var value = values[account.screen_name];
+        console.log(`[store] ${deleteMethodName}:`, account.screen_name, value);
+        if ($.isDefined(value)) {
+          delete values[account.screen_name];
+        }
+        return value;
+      };
+
+      // register
+      this.prototype[registerMethodName] = function (callback) {
+        return this.register(field, callback);
+      };
+
+      return field_name;
+    }
+
     register(field, callback) {
       if (!callbacks[field]) {
         callbacks[field] = [];
       }
       callbacks[field].push(callback);
-      console.log('store register callback', field, callbacks);
+      console.log('[store] register:', field, callbacks);
     }
 
-    getJSON(field, defaultValue) {
+    getJSON(field, default_value) {
       if (cache[field]) {
         return cache[field];
       }
       var data = JSON.parse(localStorage.getItem(field));
       if (!data) {
-        data = defaultValue;
+        data = default_value;
       }
       cache[field] = data;
       return data;
@@ -33,9 +85,9 @@
     saveJSON(field, value) {
       cache[field] = value;
       localStorage.setItem(field, JSON.stringify(value));
-      console.log('saveJSON', field, value, callbacks);
+      console.log('[store] saveJSON:', field, value, callbacks);
       if (callbacks[field]) {
-        console.log('store trigger callbacks', field);
+        console.log('[store] trigger callbacks', field);
         callbacks[field].forEach((callback) => {
           callback(value);
         });
@@ -45,51 +97,12 @@
 
 
     /*
-    Config = {
-      <screen_name>: {
-        channels: [
-          {
-            'name': <NAME>,
-            'sources': [
-              <SOURCE>
-            ]
-          }
-        ]
-      }
-    }
-    */
-    getConfig(account) {
-      var config = this.getJSON(CONFIG_FIELD, {})[account.screen_name];
-      if ($.isDefined(config) && config) {
-        return config;
-      }
-      return {};
-    }
-
-    saveConfig(account, config) {
-      var configs = this.getJSON(CONFIG_FIELD, {});
-      configs[account.screen_name] = config;
-      this.saveJSON(CONFIG_FIELD, configs);
-      return config;
-    }
-
-    deleteConfig(account) {
-      var configs = this.getJSON(CONFIG_FIELD, {});
-      var config = configs[account.screen_name];
-      if ($.isDefined(config)) {
-        delete configs[account.screen_name];
-      }
-      return config;
-    }
-
-
-    /*
     Client is not saved to local storage
     */
     getTwitterClient(account) {
       if (!account || !account.token || !account.token_secret) {
-        console.error('getTwitterClient', account);
-        throw "getTwitterClient: account/token/token_secret is null!";
+        console.error('[store] getTwitterClient:', account);
+        throw "[store] getTwitterClient: account/token/token_secret is null!";
       }
       if (!cache[CLIENT_FIELD]) {
         cache[CLIENT_FIELD] = {};
@@ -111,7 +124,7 @@
       if (!cache[CLIENT_FIELD]) {
         cache[CLIENT_FIELD] = {};
       }
-      console.log('delete client', account.screen_name);
+      console.log('[store] delete client:', account.screen_name);
       var client = cache[CLIENT_FIELD][account.screen_name];
       if ($.isDefined(client)) {
         delete cache[CLIENT_FIELD][account.screen_name];
@@ -119,97 +132,62 @@
       return client;
     }
 
-
-    /*
-    Tweets = {
-      <screen_name>: [<Tweet>]
-    }
-    */
-    getTweets(account) {
-      var tweets = this.getJSON(TWEETS_FIELD, {})[account.screen_name];
-      if ($.isDefined(tweets) && tweets) {
-        return tweets;
-      }
-      return [];
-    }
-
-    saveTweets(account, tweets) {
-      var all_tweets = this.getJSON(TWEETS_FIELD, {});
-      all_tweets[account.screen_name] = tweets;
-      this.saveJSON(TWEETS_FIELD, all_tweets);
-      return tweets;
-    }
-
-    deleteTweets(account) {
-      var all_tweets = this.getJSON(TWEETS_FIELD, {});
-      var tweets = all_tweets[account.screen_name];
-      if ($.isDefined(tweets)) {
-        delete all_tweets[account.screen_name];
-      }
-      return tweets;
-    }
-
-
-    /*
-    Accounts = {
-      <screen_name>: {
-        'screen_name': '@NAME',
-        'token': 'TOKEN',
-        'token_secret': 'TOKEN_SECRET'
-      }
-    }
-    */
-    getAccounts() {
-      var accounts = this.getJSON(ACCOUNTS_FIELD, {});
-      console.log('getAccounts', accounts);
-      return accounts;
-    }
-
+    /* Account */
     updateAccount(account) {
-      console.log('updateAccount');
+      console.log('[store] updateAccount:');
       this.getTwitterClient(account).fetch('users_show', {
         user_id: account.user_id,
         screen_name: account.screen_name,
       }).then((reply) => {
         console.log('get user info', reply);
-        account = Object.assign({}, account, reply);
+        account = Object.assign(account, reply);
         this.saveAccount(account);
         console.log('save account', account);
       });
     }
 
     updateAllAccounts() {
-      console.log('updateAllAccounts', accounts);
-      var accounts = this.getAccounts();
+      console.log('[store] updateAllAccounts:', accounts);
+      var accounts = this.getAllAccounts();
       for (var screen_name in accounts) {
         this.updateAccount(accounts[screen_name]);
       }
     }
+  }
 
-    deleteAccount(account) {
-      console.log('delete account', account.screen_name);
-      this.deleteConfig(account);
-      this.deleteTwitterClient(account);
-      this.deleteTweets(account);
-
-      var accounts = this.getAccounts();
-      delete accounts[account.screen_name];
-      this.saveJSON(ACCOUNTS_FIELD, accounts);
-      return account;
-    }
-
-    saveAccount(account) {
-      console.log('saveAccount', account);
-      var accounts = this.getAccounts();
-      accounts[account.screen_name] = account;
-      this.saveJSON(ACCOUNTS_FIELD, accounts);
-      return account;
-    }
-
-    registerAccounts(callback) {
-      return this.register(ACCOUNTS_FIELD, callback);
+  /*
+  Config = {
+    <screen_name>: {
+      channels: [
+        {
+          'name': <NAME>,
+          'sources': [
+            <SOURCE>
+          ]
+        }
+      ]
     }
   }
+  */
+  Store.addAccessTo('config', {});
+
+  /*
+  Tweets = {
+    <screen_name>: [<Tweet>]
+  }
+  */
+  Store.addAccessTo('tweets', []);
+
+  /*
+  Accounts = {
+    <screen_name>: {
+      'screen_name': '@NAME',
+      'token': 'TOKEN',
+      'token_secret': 'TOKEN_SECRET'
+    }
+  }
+  */
+  Store.addAccessTo('account', {});
 
   document.store = new Store();
 })();

@@ -148,7 +148,7 @@
 
       updateAccountList() {
         $.removeAllChild(this.$account_list);
-        $.forEachKeyValue(document.store.getAccounts(), (screen_name, account) => {
+        $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.log('list account item', screen_name);
           var $li = document.importNode($$$account, true);
           $li.querySelector('a').href = `#${account.screen_name}`;

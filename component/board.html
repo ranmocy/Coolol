@@ -51,6 +51,7 @@
 
         // load caches
         var data = document.store.getTweets(document.account);
+        console.log('board loadData', data);
         if (data.length > 0) {
           this.setData(data);
         } else {
@@ -62,6 +63,8 @@
 
       setData(data) {
         console.log('board setData', data);
+        // cache up
+        document.store.saveTweets(document.account, data);
         this._data = data;
 
         // Remove all children
@@ -107,9 +110,6 @@
 
         Promise.all(allChannelsPromises)
           .then((data) => {
-            // cache up
-            console.log('allTweets:', data);
-            document.store.saveTweets(document.account, data);
             this.setData(data);
           });
       }

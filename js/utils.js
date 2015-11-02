@@ -160,7 +160,9 @@ HTMLElement.prototype.handle = function (eventName, callback, popup) {
       event.stopPropagation();
     }
     console.log('handle', eventName, event.detail);
-    callback(event);
+    if (callback) {
+      callback(event);
+    }
   });
 };
 

@@ -61,7 +61,7 @@
       }
 
       switchBoard(account) {
-        console.log('switchBoard', account.screen_name);
+        console.log('switchBoard', account && account.screen_name);
         document.account = account;
         var config = document.store.getConfig(account);
         if (!$.isDefined(config) || Object.keys(config).length === 0) {

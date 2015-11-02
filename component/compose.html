@@ -9,13 +9,11 @@
       z-index: 1000;
     }
     #background {
-      display: inline-block; /* HACK: fix top margin */
       height: 100%;
       width: 100%;
       background-color: rgba(0, 0, 0, 0.8);
       position: relative;
     }
-
     #container {
       position: relative;
       top: 50%;
@@ -25,13 +23,40 @@
       width: 50%;
       min-height: 300px;
       min-width: 400px;
-      background-color: white;
+      background-color: #ddd;
+    }
+    #header {
+      text-align: center;
+      height: 40px;
+      border-bottom: 1px #888 solid;
+      background-color: #fefefe;
+    }
+    #title {
+      line-height: 40px;
+    }
+    #close {
+      position: absolute;
+      right: 0;
+      line-height: 40px;
+      height: 40px;
+      width: 40px;
+      cursor: pointer;
+    }
+    #text {
+      margin: 1em auto;
+      display: block;
+      width: 90%;
     }
   </style>
 
   <div id="background">
     <div id="container">
-
+      <div id="header">
+        <span id="title">Compose</span>
+        <span id="close">X</span>
+      </div>
+      <textarea id="text" rows="8" cols="40"></textarea>
+      <button type="button" id="submit">Tweet</button>
     </div>
   </div>
 </template>
@@ -47,9 +72,18 @@
         this.createShadowRoot().appendChild(document.importNode($$$compose.content, true));
         this.host = this.shadowRoot.host;
         this.$background = this.shadowRoot.querySelector('#background');
-        this.$background.handle('click', () => { this.hide(); });
+        this.$container = this.shadowRoot.querySelector('#container');
+        this.$close = this.shadowRoot.querySelector('#close');
+        this.$text = this.shadowRoot.querySelector('#text');
 
-        this.hide();
+        this.$background.handle('click', this.hide.bind(this));
+        this.$container.handle('click', null); // stop popup to background
+        this.$close.handle('click', () => {
+          this.$text.value = '';
+          this.hide();
+        });
+
+        this.show();
       }
 
       show() {

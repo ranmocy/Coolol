@@ -106,11 +106,11 @@
       return this.promises[source];
     }
 
-    post(status) {
+    post(params) {
       return new Promise((resolve, reject) => {
         this.client.__call(
           "statuses_update",
-          {status: status},
+          params,
           (reply, rate, err) => {
             if (err) {
               console.error('error in post', err);

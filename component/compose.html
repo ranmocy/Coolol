@@ -95,6 +95,8 @@
         });
         this.$submit.handle('click', this.submit.bind(this));
 
+        this.params = {};
+
         this.hide();
       }
 
@@ -109,7 +111,9 @@
       submit() {
         var client = document.store.getTwitterClient(document.account);
         this.$submit.disabled = true;
-        client.post(this.$text.value).then((reply) => {
+        this.params.status = this.$text.value;
+        console.log('[compose] submit:', this.params);
+        client.post(this.params).then((reply) => {
           console.log('[compose] posted:', reply);
           this.$submit.disabled = false;
           this.$text.value = '';
@@ -122,8 +126,12 @@
       }
 
       replyTweet(tweet) {
-        // TODO:
+        console.log('[compose] replyTweet', tweet);
         this.$reply_to.textContent = `Reply to ${tweet.user.screen_name}: ${tweet.text}`;
+        this.$text.value = `@${tweet.user.screen_name} `;
+        this.params = {
+          in_reply_to_status_id: tweet.id_str,
+        };
         this.show();
       }
 

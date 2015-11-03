@@ -6,7 +6,7 @@
     #container {
       padding: 0.5em 1em;
     }
-    #m-status {
+    #m-reply, #m-retweeted {
       color: #888;
     }
     #m-creator {
@@ -14,9 +14,6 @@
     }
     #m-body {
       color: black;
-    }
-    .m-quoted, .m-reply {
-      border: 1px #eee solid;
     }
     #m-body a{
       color: #377ac3;
@@ -41,13 +38,31 @@
   </style>
 
   <div id="container">
-    <div id="m-status"></div>
+    <div id="m-retweeted"></div>
+    <div id="m-reply"></div>
     <div id="m-creator"></div>
     <div id="m-body">
       <div id="m-text"></div>
       <div id="m-media"></div>
     </div>
   </div>
+</template>
+
+<template id="reply">
+  <span class="reply-to">In reply to:</span>
+  <span class="name"></span>
+  <span class="handle">
+    (<span class="screen-name"></span>)
+  </span>
+</template>
+
+<template id="retweeted">
+  <img class="avatar" />
+  <span class="name"></span>
+  <span class="handle">
+    (<span class="screen-name"></span>)
+  </span>
+  <span> retweeted</span>
 </template>
 
 <template id="creator">
@@ -64,6 +79,10 @@
     "use strict";
 
     var $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet');
+    var $$$retweeted = document.currentScript.ownerDocument.querySelector('template#retweeted');
+    $$$retweeted.find = $$$retweeted.content.querySelector.bind($$$retweeted.content);
+    var $$$reply = document.currentScript.ownerDocument.querySelector('template#reply');
+    $$$reply.find = $$$reply.content.querySelector.bind($$$reply.content);
     var $$$creator = document.currentScript.ownerDocument.querySelector('template#creator');
     $$$creator.find = $$$creator.content.querySelector.bind($$$creator.content);
 
@@ -78,6 +97,26 @@
 
       get(prop) {
         return this.shadowRoot.querySelector(`#m-${prop}`);
+      }
+
+      setReplyTo(tweet) {
+        $$$reply.find('.screen-name').textContent = tweet.in_reply_to_screen_name;
+
+        var $container = this.get('reply');
+        $.removeAllChild($container);
+        $container.appendChild(document.importNode($$$reply.content, true));
+        return this;
+      }
+
+      setRetweeted(user) {
+        $$$retweeted.find('.avatar').src = user.profile_image_url_https;
+        $$$retweeted.find('.name').textContent = user.name;
+        $$$retweeted.find('.screen-name').textContent = user.screen_name;
+
+        var $container = this.get('retweeted');
+        $.removeAllChild($container);
+        $container.appendChild(document.importNode($$$retweeted.content, true));
+        return this;
       }
 
       setCreator(user) {
@@ -130,24 +169,14 @@
       setData(tweet) {
         this.tweet = tweet;
         // console.log('tweet', tweet);
-        if (false && tweet.reply_to) {
+        if (tweet.in_reply_to_screen_name) {
           // it's a reply tweet
+          this.setTweet(tweet);
+          this.setReplyTo(tweet);
         } else if (tweet.retweeted_status) {
           // it's a retweeted tweet
-          var user = tweet.user;
-          $$$creator.find('.avatar').src = user.profile_image_url_https;
-          $$$creator.find('.name').textContent = user.name;
-          $$$creator.find('.screen-name').textContent = user.screen_name;
-
-          var $container = this.get('status');
-          $.removeAllChild($container);
-          $container.appendChild(document.importNode($$$creator.content, true));
-          var $span = document.createElement('span');
-          $span.textContent = " retweeted";
-          $container.appendChild($span);
-
-          var retweet = tweet.retweeted_status;
-          this.setTweet(retweet);
+          this.setTweet(tweet.retweeted_status);
+          this.setRetweeted(tweet.user);
         } else if (tweet.is_quote_status) {
           // it's a quoted tweet
           this.setTweet(tweet);

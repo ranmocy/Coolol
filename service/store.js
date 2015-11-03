@@ -2,6 +2,7 @@
   "use strict";
 
   var CLIENT_FIELD = 'clients';
+  var LAST_ACTIVE_ACCOUNT_FIELD = 'last_account';
 
   var cache = {};
   var callbacks = {};
@@ -152,6 +153,15 @@
       for (var screen_name in accounts) {
         this.updateAccount(accounts[screen_name]);
       }
+    }
+
+    getLastActiveAccount() {
+      return this.getJSON(LAST_ACTIVE_ACCOUNT_FIELD, '');
+    }
+
+    saveLastActiveAccount(account) {
+      this.saveJSON(LAST_ACTIVE_ACCOUNT_FIELD, account.screen_name);
+      return account;
     }
   }
 

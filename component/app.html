@@ -49,8 +49,12 @@
         var accounts = document.store.getAllAccounts();
         var screen_names = Object.keys(accounts);
         if ($.isDefined(screen_names) && screen_names && screen_names.length > 0) {
-          var account = accounts[screen_names[0]];
-          this.switchBoard(account);
+          var screen_name = document.store.getLastActiveAccount();
+          if (!(screen_name in accounts)) {
+            console.log('[init] last active account is not valid', screen_name, screen_names);
+            screen_name = screen_names[0];
+          }
+          this.switchBoard(accounts[screen_name]);
         } else {
           this.switchSession();
         }
@@ -63,6 +67,7 @@
       switchBoard(account) {
         console.log('switchBoard', account && account.screen_name);
         document.account = account;
+        document.store.saveLastActiveAccount(account);
         var config = document.store.getConfig(account);
         if (!$.isDefined(config) || Object.keys(config).length === 0) {
           console.log('switchBoard: log is empty, switch to config');

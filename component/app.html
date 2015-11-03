@@ -39,7 +39,9 @@
         this.$nav = this.shadowRoot.querySelector('x-nav');
         this.$main = this.shadowRoot.querySelector('#main');
 
-        this.handleActions(['openCompose', 'switchBoard', 'switchConfig', 'switchSession']);
+        this.handleActions([
+          'openCompose', 'refreshBoard', 'prependTweet',
+          'switchBoard', 'switchConfig', 'switchSession']);
 
         // TODO: enable this
         // document.store.updateAllAccounts();
@@ -62,6 +64,14 @@
 
       openCompose(args) {
         this.$compose.show(args);
+      }
+
+      prependTweet(tweet) {
+        this.$main.querySelector('x-board').prependTweet(tweet);
+      }
+
+      refreshBoard() {
+        this.$main.querySelector('x-board').refresh();
       }
 
       switchBoard(account) {

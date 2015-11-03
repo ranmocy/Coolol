@@ -80,6 +80,7 @@
         this.$container = this.shadowRoot.querySelector('#container');
         this.$close = this.shadowRoot.querySelector('#close');
         this.$text = this.shadowRoot.querySelector('#text');
+        this.$submit = this.shadowRoot.querySelector('#submit');
 
         this.$background.handle('click', this.hide.bind(this));
         this.$container.handle('click', null); // stop popup to background
@@ -87,8 +88,9 @@
           this.$text.value = '';
           this.hide();
         });
+        this.$submit.handle('click', this.submit.bind(this));
 
-        this.show();
+        this.hide();
       }
 
       show() {
@@ -97,6 +99,21 @@
 
       hide() {
         this.$host.style.display = 'none';
+      }
+
+      submit() {
+        var client = document.store.getTwitterClient(document.account);
+        this.$submit.disabled = true;
+        client.post(this.$text.value).then((reply) => {
+          console.log('[compose] posted:', reply);
+          this.$submit.disabled = false;
+          this.$text.value = '';
+          this.hide();
+          this.trigger('refreshBoard', reply);
+        }).catch((err) => {
+          console.error('[compose] post failed:', err);
+          this.$submit.disabled = false;
+        });
       }
     }
 

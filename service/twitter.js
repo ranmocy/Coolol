@@ -105,6 +105,34 @@
     get(source) {
       return this.promises[source];
     }
+
+    post(status) {
+      return new Promise((resolve, reject) => {
+        this.client.__call(
+          "statuses_update",
+          {status: status},
+          (reply, rate, err) => {
+            if (err) {
+              console.error('error in post', err);
+              reject(err.error);
+              return;
+            }
+            if (reply.httpstatus === 400) {
+              console.error('twitter post rate exceeded!', rate);
+            } else {
+              console.log('rate limit:', rate);
+            }
+            if (reply.errors) {
+              console.error('error in post reply:', reply.errors);
+              reject(reply.errors);
+              return;
+            }
+            if (reply) {
+              resolve(reply);
+            }
+          });
+      });
+    }
   }
 
   /* globals module, define */

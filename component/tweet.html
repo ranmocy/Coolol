@@ -20,6 +20,18 @@
       text-decoration: none;
     }
 
+    #m-control {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      position: absolute;
+      right: 0;
+    }
+    #m-control li.control-button {
+      display: inline-block;
+      cursor: pointer;
+    }
+
     .avatar {
       height: 16px;
     }
@@ -38,6 +50,11 @@
   </style>
 
   <div id="container">
+    <ul id="m-control">
+      <li class="control-button" id="m-reply-button">Reply</li>
+      <li class="control-button" id="m-retweet-button">Retweet</li>
+      <li class="control-button" id="m-fav-button">Fav</li>
+    </ul>
     <div id="m-retweeted"></div>
     <div id="m-reply"></div>
     <div id="m-creator"></div>
@@ -89,8 +106,15 @@
     class Tweet extends HTMLElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$tweet.content, true));
-        this.$text = this.shadowRoot.querySelector('#m-text');
-        this.$media = this.shadowRoot.querySelector('#m-media');
+        this.$text = this.get('text');
+        this.$media = this.get('media');
+        this.$reply = this.get('reply-button');
+        this.$retweet = this.get('retweet-button');
+        this.$fav = this.get('fav-button');
+
+        this.$reply.handle('click', () => { this.trigger('replyTweet', this.tweet); });
+        this.$retweet.handle('click', () => { this.trigger('retweetTweet', this.tweet); });
+        this.$fav.handle('click', () => { /* TODO: */ });
 
         this.tweet = null;
       }

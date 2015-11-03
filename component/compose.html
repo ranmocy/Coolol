@@ -31,6 +31,10 @@
       border-bottom: solid 1px rgba(76, 145, 219, .25);
       background-color: #fefefe;
     }
+    #body {
+      padding: 1em;
+    }
+
     #title {
       line-height: 40px;
     }
@@ -41,9 +45,6 @@
       height: 40px;
       width: 40px;
       cursor: pointer;
-    }
-    form#tweet {
-      margin: 1em;
     }
     textarea#text {
       resize: none;
@@ -58,10 +59,13 @@
         <span id="title">Compose</span>
         <span id="close">X</span>
       </div>
-      <form id="tweet" action="#" method="post">
-        <textarea id="text" rows="8" cols="40"></textarea>
-        <button type="button" id="submit">Tweet</button>
-      </form>
+      <div id="body">
+        <div id="reply-to"></div>
+        <form id="tweet" action="#" method="post">
+          <textarea id="text" rows="8" cols="40"></textarea>
+          <button type="button" id="submit">Tweet</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -79,6 +83,7 @@
         this.$background = this.shadowRoot.querySelector('#background');
         this.$container = this.shadowRoot.querySelector('#container');
         this.$close = this.shadowRoot.querySelector('#close');
+        this.$reply_to = this.shadowRoot.querySelector('#reply-to');
         this.$text = this.shadowRoot.querySelector('#text');
         this.$submit = this.shadowRoot.querySelector('#submit');
 
@@ -114,6 +119,16 @@
           console.error('[compose] post failed:', err);
           this.$submit.disabled = false;
         });
+      }
+
+      replyTweet(tweet) {
+        // TODO:
+        this.$reply_to.textContent = `Reply to ${tweet.user.screen_name}: ${tweet.text}`;
+        this.show();
+      }
+
+      retweetTweet(tweet) {
+        // TODO:
       }
     }
 

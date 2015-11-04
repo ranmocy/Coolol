@@ -40,7 +40,7 @@
         this.$main = this.shadowRoot.querySelector('#main');
 
         this.handleActions([
-          'openCompose', 'replyTweet', 'retweetTweet',
+          'openCompose', 'openComposeForReply', 'openComposeForRetweet',
           'refreshBoard', 'switchBoard', 'switchConfig', 'switchSession']);
 
         // TODO: enable this
@@ -66,12 +66,12 @@
         this.$compose.show(args);
       }
 
-      replyTweet(tweet) {
-        this.$compose.replyTweet(tweet);
+      openComposeForReply(tweet) {
+        this.$compose.openComposeForReply(tweet);
       }
 
-      retweetTweet(tweet) {
-        this.$compose.retweetTweet(tweet);
+      openComposeForRetweet(tweet) {
+        this.$compose.openComposeForRetweet(tweet);
       }
 
       refreshBoard() {

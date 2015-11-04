@@ -116,6 +116,25 @@
         this.quoted_status = null;
       }
 
+      openComposeForReply(tweet) {
+        console.log('[compose] openComposeForReply:', tweet);
+        this.$reply_to.textContent = `Reply to ${tweet.user.screen_name}: ${tweet.text}`;
+        this.$text.value = `@${tweet.user.screen_name} `;
+        this.params = {
+          in_reply_to_status_id: tweet.id_str, // use id_str instead of id
+        };
+        this.show();
+      }
+
+      openComposeForRetweet(tweet) {
+        console.log('[compose] openComposeForRetweet:', tweet);
+        this.$reply_to.textContent = `Retweet from ${tweet.user.screen_name}: ${tweet.text}`;
+        this.$text.value = '';
+        this.quoted_status = tweet;
+        this.params = {};
+        this.show();
+      }
+
       submit() {
         var client = document.store.getTwitterClient(document.account);
         this.$submit.disabled = true;
@@ -136,25 +155,6 @@
           console.error('[compose] post failed:', err);
           this.$submit.disabled = false;
         });
-      }
-
-      replyTweet(tweet) {
-        console.log('[compose] replyTweet:', tweet);
-        this.$reply_to.textContent = `Reply to ${tweet.user.screen_name}: ${tweet.text}`;
-        this.$text.value = `@${tweet.user.screen_name} `;
-        this.params = {
-          in_reply_to_status_id: tweet.id_str, // use id_str instead of id
-        };
-        this.show();
-      }
-
-      retweetTweet(tweet) {
-        console.log('[compose] retweetTweet:', tweet);
-        this.$reply_to.textContent = `Retweet from ${tweet.user.screen_name}: ${tweet.text}`;
-        this.$text.value = '';
-        this.quoted_status = tweet;
-        this.params = {};
-        this.show();
       }
     }
 

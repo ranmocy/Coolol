@@ -117,8 +117,8 @@
 
         this.$container.handle('mouseenter', () => { this.$control.style.display = 'block'; });
         this.$container.handle('mouseleave', () => { this.$control.style.display = 'none'; });
-        this.$reply.handle('click', () => { this.trigger('replyTweet', this.tweet); });
-        this.$retweet.handle('click', () => { this.trigger('retweetTweet', this.tweet); });
+        this.$reply.handle('click', () => { this.trigger('openComposeForReply', this.tweet); });
+        this.$retweet.handle('click', () => { this.trigger('openComposeForRetweet', this.tweet); });
         this.$fav.handle('click', () => { /* TODO: */ });
 
         this.tweet = null;

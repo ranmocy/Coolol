@@ -119,13 +119,23 @@
         this.$container.handle('mouseleave', () => { this.$control.style.display = 'none'; });
         this.$reply.handle('click', () => { this.trigger('openComposeForReply', this.tweet); });
         this.$retweet.handle('click', () => { this.trigger('openComposeForRetweet', this.tweet); });
-        this.$fav.handle('click', () => { /* TODO: */ });
+        this.$fav.handle('click', this.favorite.bind(this));
 
         this.tweet = null;
       }
 
       get(prop) {
         return this.shadowRoot.querySelector(`#m-${prop}`);
+      }
+
+      favorite() {
+        document.store.getTwitterClient(document.account)
+        .post("favorites_create", {id: this.tweet.id_str})
+        .then((reply) => {
+          console.log('[tweet] favorite:', reply);
+        }).catch((err) => {
+          console.error('[tweet] favorite failed:', err);
+        });
       }
 
       setReplyTo(tweet) {

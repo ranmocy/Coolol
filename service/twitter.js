@@ -102,35 +102,36 @@
       return this.promises[key];
     }
 
-    get(source) {
-      return this.promises[source];
+    get(source, params) {
+      var key = source;
+      if (params) {
+        key = key + JSON.stringify(params);
+      }
+      return this.promises[key];
     }
 
-    post(params) {
+    post(source, params) {
       return new Promise((resolve, reject) => {
-        this.client.__call(
-          "statuses_update",
-          params,
-          (reply, rate, err) => {
-            if (err) {
-              console.error('error in post', err);
-              reject(err.error);
-              return;
-            }
-            if (reply.httpstatus === 400) {
-              console.error('twitter post rate exceeded!', rate);
-            } else {
-              console.log('rate limit:', rate);
-            }
-            if (reply.errors) {
-              console.error('error in post reply:', reply.errors);
-              reject(reply.errors);
-              return;
-            }
-            if (reply) {
-              resolve(reply);
-            }
-          });
+        this.client.__call( source, params, (reply, rate, err) => {
+          if (err) {
+            console.error('error in post', err);
+            reject(err.error);
+            return;
+          }
+          if (reply.httpstatus === 400) {
+            console.error('twitter post rate exceeded!', rate);
+          } else {
+            console.log('rate limit:', rate);
+          }
+          if (reply.errors) {
+            console.error('error in post reply:', reply.errors);
+            reject(reply.errors);
+            return;
+          }
+          if (reply) {
+            resolve(reply);
+          }
+        });
       });
     }
   }

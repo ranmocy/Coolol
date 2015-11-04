@@ -136,16 +136,20 @@
       }
 
       submit() {
-        var client = document.store.getTwitterClient(document.account);
         this.$submit.disabled = true;
         this.params.status = this.$text.value;
         if ($.isDefined(this.quoted_status)) {
+          if (this.params.status === '') {
+            return this.retweet();
+          }
           var tweet = this.quoted_status;
+          // This is the only link that can be determined as quoted status
           this.params.status += ` https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`;
         }
 
         console.log('[compose] submit:', this.params);
-        client.post(this.params).then((reply) => {
+        var client = document.store.getTwitterClient(document.account);
+        client.post("statuses_update", this.params).then((reply) => {
           console.log('[compose] posted:', reply);
           this.$submit.disabled = false;
           this.clear();
@@ -153,6 +157,21 @@
           this.trigger('refreshBoard', reply);
         }).catch((err) => {
           console.error('[compose] post failed:', err);
+          this.$submit.disabled = false;
+        });
+      }
+
+      retweet() {
+        var client = document.store.getTwitterClient(document.account);
+        client.post("statuses_retweet_ID", {id: this.quoted_status.id_str})
+        .then((reply) => {
+          console.log('[compose] retweet:', reply);
+          this.$submit.disabled = false;
+          this.clear();
+          this.hide();
+          this.trigger('refreshBoard', reply);
+        }).catch((err) => {
+          console.error('[compose] retweet failed:', err);
           this.$submit.disabled = false;
         });
       }

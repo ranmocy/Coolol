@@ -92,7 +92,7 @@
             allSources.add(source);
           });
         });
-        console.log('allSources', allSources);
+        console.log('[board] refresh allSources:', allSources);
 
         // fetch all sources
         var client = document.store.getTwitterClient(document.account);
@@ -106,10 +106,11 @@
           all.push(Promise.all(allSourcesPromises));
           return all;
         }, []);
-        console.log('all Promises', allChannelsPromises);
+        console.log('[board] refresh all Promises:', allChannelsPromises);
 
         Promise.all(allChannelsPromises)
           .then((data) => {
+            console.log('[board] refresh allData', data);
             this.setData(data);
           });
       }

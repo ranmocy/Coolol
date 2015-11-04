@@ -90,12 +90,13 @@
         this.$background.handle('click', this.hide.bind(this));
         this.$container.handle('click', null); // stop popup to background
         this.$close.handle('click', () => {
-          this.$text.value = '';
+          this.clear();
           this.hide();
         });
         this.$submit.handle('click', this.submit.bind(this));
 
         this.params = {};
+        this.quoted_status = null;
 
         this.hide();
       }
@@ -108,15 +109,27 @@
         this.$host.style.display = 'none';
       }
 
+      clear() {
+        this.$reply_to.textContent = '';
+        this.$text.value = '';
+        this.params = {};
+        this.quoted_status = null;
+      }
+
       submit() {
         var client = document.store.getTwitterClient(document.account);
         this.$submit.disabled = true;
         this.params.status = this.$text.value;
+        if ($.isDefined(this.quoted_status)) {
+          var tweet = this.quoted_status;
+          this.params.status += ` https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`;
+        }
+
         console.log('[compose] submit:', this.params);
         client.post(this.params).then((reply) => {
           console.log('[compose] posted:', reply);
           this.$submit.disabled = false;
-          this.$text.value = '';
+          this.clear();
           this.hide();
           this.trigger('refreshBoard', reply);
         }).catch((err) => {
@@ -126,17 +139,22 @@
       }
 
       replyTweet(tweet) {
-        console.log('[compose] replyTweet', tweet);
+        console.log('[compose] replyTweet:', tweet);
         this.$reply_to.textContent = `Reply to ${tweet.user.screen_name}: ${tweet.text}`;
         this.$text.value = `@${tweet.user.screen_name} `;
         this.params = {
-          in_reply_to_status_id: tweet.id_str,
+          in_reply_to_status_id: tweet.id_str, // use id_str instead of id
         };
         this.show();
       }
 
       retweetTweet(tweet) {
-        // TODO:
+        console.log('[compose] retweetTweet:', tweet);
+        this.$reply_to.textContent = `Retweet from ${tweet.user.screen_name}: ${tweet.text}`;
+        this.$text.value = '';
+        this.quoted_status = tweet;
+        this.params = {};
+        this.show();
       }
     }
 

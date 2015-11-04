@@ -20,19 +20,47 @@
   </head>
   <body>
     <x-app>
-      <div style="position: fixed; background: white; width: 100vw; height: 100vh; z-index: 1000;">
-        <h1 style="position: relative; text-align: center; top: 50%; transform: translateY(-50%);">Loading...</h1>
+      <div id="loading" style="position: fixed; background: white; width: 100vw; height: 100vh; z-index: 1000;">
+        <div style="position: relative; text-align: center; top: 50%; transform: translateY(-50%);">
+          <h1>Loading...</h1>
+        </div>
       </div>
     </x-app>
 
     <script type="text/javascript">
+      var features_missing = [];
       // Test HTML5 local storage
       if(typeof(Storage) === "undefined") {
-        throw "Can't read from storage!";
+        features_missing.push("Can't read from storage!");
       }
       // Test HTML template support
       if (!('content' in document.createElement('template'))) {
-        throw "Can't use HTML template!";
+        features_missing.push("Can't use HTML template!");
+      }
+      // Test shadow dom support
+      if (typeof document.body.createShadowRoot !== 'function') {
+        features_missing.push("Can't use shadow dom!");
+      }
+      // Test arrow function
+      try {
+        new Function( "(y => y)" );
+      } catch (err) {
+        features_missing.push("Can't use arrow function!");
+      }
+      // Tell user
+      if (features_missing.length > 0) {
+        var $loading = document.body.querySelector('#loading');
+        $loading.id = 'error';
+        var $container = $loading.querySelector('div');
+        $container.querySelector('h1').textContent = "Some JavaScript features are missing!";
+        features_missing.forEach(function (feature) {
+          var $item = document.createElement('h3');
+          $item.textContent = feature;
+          $container.appendChild($item);
+        });
+        var $tip = document.createElement('h2');
+        $tip.textContent = 'Tip: Use the latest Chrome browser.';
+        $container.appendChild($tip);
       }
     </script>
 

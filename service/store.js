@@ -52,6 +52,7 @@
         if ($.isDefined(value)) {
           delete values[account.screen_name];
         }
+        this.saveJSON(field, values);
         return value;
       };
 
@@ -135,15 +136,18 @@
 
     /* Account */
     updateAccount(account) {
-      console.log('[store] updateAccount:');
+      console.log('[store] updateAccount:', account.screen_name);
       this.getTwitterClient(account).fetch('users_show', {
         user_id: account.user_id,
         screen_name: account.screen_name,
       }).then((reply) => {
-        console.log('get user info', reply);
-        account = Object.assign(account, reply);
-        this.saveAccount(account);
-        console.log('save account', account);
+        console.log('[store] get user info', reply);
+        var new_account = Object.assign({}, account, reply); // keep old info as much as possible
+        if (account.screen_name !== new_account.screen_name) {
+          console.log('[store] screen_name is changed!');
+          this.deleteAccount(account);
+        }
+        this.saveAccount(new_account, new_account); // save new_account under new_account.screen_name
       });
     }
 
@@ -155,6 +159,7 @@
       }
     }
 
+    /* Last active account */
     getLastActiveAccount() {
       return this.getJSON(LAST_ACTIVE_ACCOUNT_FIELD, '');
     }

@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  var consumerKey = "SCEdx4ZEOO68QDCTC7FFUQ";
-  var consumerSecret = "2IBoGkVrpwOo7UZhjkYYekw0ciXG1WHpsqQtUqZCSw";
+  var consumerKey = "vbUQPCkkyFYUiomrSk9Nnysh0";
+  var consumerSecret = "2EEZCi4nDKHK8rc4Y43iBQ3Nl9HSLbmaZeVigip1grhcmL8ajF";
   var REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 mins
 
   class Twitter {

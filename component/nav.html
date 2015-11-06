@@ -62,8 +62,11 @@
       border: 1px solid rgba(0, 0, 0, 0.15);;
       box-shadow: rgba(0, 0, 0, 0.18) 0 3px 3px;
     }
-
-
+    #account-list {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
   </style>
 
   <nav>
@@ -113,7 +116,7 @@
       updateNav(board) {
         console.log('setBoard', board);
         if (document.account !== null) {
-          this.$switch_config.show();
+          this.$switch_config.show('inline-block');
           this.$switch_config.handle('click', () => {
             this.trigger('switchConfig');
           });
@@ -121,8 +124,8 @@
           this.$switch_config.hide();
         }
         if (document.account !== null && $.isDefined(board)) {
-          this.$open_compose.show();
-          this.$refresh_board.show();
+          this.$open_compose.show('inline-block');
+          this.$refresh_board.show('inline-block');
           this.$refresh_board.handle('click', () => {
             board.refresh();
           });

@@ -1,20 +1,107 @@
 (function () {
 
-/* DOM */
-var $ = function () {
-  return document.querySelector.apply(document, arguments);
-};
+var $ = Object.assign(function () { return document.querySelector.apply(document, arguments); }, {
+  /* DOM */
+  findAll: function() {
+    return document.querySelectorAll.apply(document, arguments);
+  },
 
-$.findAll = document.querySelectorAll;
+  removeAllChild: function(element) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+    return element;
+  },
 
-$.removeAllChild = function(element) {
-  while (element.firstChild) {
-    element.removeChild(element.firstChild);
-  }
-  return element;
-};
+  /* AJAX */
+  get: function (url) {
+    return $http(url).get();
+  },
 
-/* AJAX */
+  /* Object */
+  isDefined: function (v) {
+    return typeof v !== "undefined";
+  },
+
+  forEachKeyValue: function (obj, callback) {
+    Object.keys(obj).forEach((key) => {
+      callback(key, obj[key]);
+    });
+    return obj;
+  },
+
+  /* String */
+  capitalize: function (s) {
+    return s[0].toUpperCase() + s.substr(1);
+  },
+
+  camelize: function (s) {
+    return s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
+  },
+
+
+});
+
+
+/* Core extentions */
+NodeList.prototype.forEach = Array.prototype.forEach;
+
+Object.assign(HTMLElement.prototype, {
+  detach: function () {
+    var parent = this.parentNode;
+    if (!parent) {
+      return;
+    }
+    parent.removeChild(this);
+    return this;
+  },
+
+  show: function(display) {
+    if (!$.isDefined(display)) {
+      if ($.isDefined(this._old_display_value)) {
+        display = this._old_display_value;
+        this._old_display_value = undefined;
+      } else {
+        display = 'block';
+      }
+    }
+    this.style.display = display;
+  },
+
+  hide: function() {
+    this._old_display_value = this.style.display;
+    this.style.display = 'none';
+  },
+
+  trigger: function (eventName, parameters) {
+    console.log('trigger', eventName, parameters);
+    this.dispatchEvent(new CustomEvent(eventName, {detail: parameters}));
+  },
+
+  handle: function (eventName, callback, popup) {
+    this.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      if ($.isDefined(popup) && popup) {
+        console.log('handle propagate up');
+      } else {
+        event.stopPropagation();
+      }
+      console.log('handle', eventName, event.detail);
+      if (callback) {
+        callback(event);
+      }
+    });
+  },
+
+  handleActions: function (actions) {
+    actions.forEach((actionName) => {
+      this.handle(actionName, (event) => { this[actionName].call(this, event.detail); });
+    });
+  },
+});
+
+
+/* Helpers */
 // A-> $http function is implemented in order to follow the standard Adapter pattern
 function $http(url){
   'use strict';
@@ -83,94 +170,6 @@ function $http(url){
     }
   };
 }
-
-$.get = function (url) {
-  return $http(url).get();
-};
-
-
-/* Object */
-$.isDefined = function (v) { return typeof v !== "undefined"; };
-
-$.forEachKeyValue = function (obj, callback) {
-  Object.keys(obj).forEach((key) => {
-    callback(key, obj[key]);
-  });
-  return obj;
-};
-
-/* String */
-$.capitalize = function (s) {
-  return s[0].toUpperCase() + s.substr(1);
-};
-$.camelize = function (s) {
-  return s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
-};
-
-$.decodeEntities = (function () {
-  // Source: http://stackoverflow.com/questions/5796718/html-entity-decode
-  // create a new html document (doesn't execute script tags in child elements)
-  var doc = document.implementation.createHTMLDocument("");
-  var element = doc.createElement('div');
-
-  function getText(str) {
-      element.innerHTML = str;
-      str = element.textContent;
-      element.textContent = '';
-      return str;
-  }
-
-  function decodeHTMLEntities(str) {
-      if (str && typeof str === 'string') {
-          var x = getText(str);
-          while (str !== x) {
-              str = x;
-              x = getText(x);
-          }
-          return x;
-      }
-  }
-  return decodeHTMLEntities;
-})();
-
-
-/* Core extentions */
-NodeList.prototype.forEach = Array.prototype.forEach;
-
-HTMLElement.prototype.detach = function () {
-  var parent = this.parentNode;
-  if (!parent) {
-    return;
-  }
-  parent.removeChild(this);
-  return this;
-};
-
-HTMLElement.prototype.trigger = function (eventName, parameters) {
-  console.log('trigger', eventName, parameters);
-  this.dispatchEvent(new CustomEvent(eventName, {detail: parameters}));
-};
-
-HTMLElement.prototype.handle = function (eventName, callback, popup) {
-  this.addEventListener(eventName, (event) => {
-    event.preventDefault();
-    if ($.isDefined(popup) && popup) {
-      console.log('handle propagate up');
-    } else {
-      event.stopPropagation();
-    }
-    console.log('handle', eventName, event.detail);
-    if (callback) {
-      callback(event);
-    }
-  });
-};
-
-HTMLElement.prototype.handleActions = function (actions) {
-  actions.forEach((actionName) => {
-    this.handle(actionName, (event) => { this[actionName].call(this, event.detail); });
-  });
-};
 
 
 /* globals module, define */

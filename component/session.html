@@ -44,13 +44,23 @@
         this.$accounts = this.shadowRoot.querySelector('x-session-accounts');
 
         this.$add = this.shadowRoot.querySelector('#add');
+        this.$login = this.shadowRoot.querySelector('#login');
+
         this.$auth = this.shadowRoot.querySelector('#auth');
         this.$auth_url = this.shadowRoot.querySelector('#auth-url');
         this.$pinCode = this.shadowRoot.querySelector('#pin-code');
         this.$verify = this.shadowRoot.querySelector('#verify');
 
+        this.$add.handle('click', this.add.bind(this));
         this.$auth.handle('click', this.auth.bind(this));
         this.$verify.handle('click', this.verify.bind(this));
+
+        this.$login.hide();
+      }
+
+      add() {
+        this.$add.hide();
+        this.$login.show();
       }
 
       auth() {
@@ -78,6 +88,9 @@
           };
           document.store.saveTwitterClient(account, this.current_client);
           document.store.updateAccount(account);
+
+          this.$add.show();
+          this.$login.hide();
         });
         return this;
       }

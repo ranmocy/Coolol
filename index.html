@@ -33,6 +33,10 @@
       if(typeof(Storage) === "undefined") {
         features_missing.push("Can't read from storage!");
       }
+      // Test Object.assign
+      if (typeof(Object.assign) !== 'function') {
+        features_missing.push("Can't use Object.assign!");
+      }
       // Test HTML template support
       if (!('content' in document.createElement('template'))) {
         features_missing.push("Can't use HTML template!");

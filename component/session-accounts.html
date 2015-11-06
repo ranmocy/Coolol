@@ -1,0 +1,35 @@
+<link rel="import" href="session-accounts-item.html">
+
+<template id="session-accounts">
+  <ul id="accounts"></ul>
+</template>
+
+<script type="text/javascript">
+  (function() {
+    "use strict";
+
+    var $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts').content;
+
+    class SessionAccounts extends HTMLElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$template, true));
+
+        this.$accounts = this.shadowRoot.querySelector('#accounts');
+
+        document.store.registerAccounts(this.refresh.bind(this));
+        this.refresh();
+      }
+
+      refresh() {
+        $.removeAllChild(this.$accounts);
+        $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
+          console.log('[SessionAccounts] refresh', screen_name);
+          var $node = document.createElement('x-session-accounts-item').setAccount(account);
+          this.$accounts.appendChild($node);
+        });
+      }
+    }
+
+    document.registerElement("x-session-accounts", SessionAccounts);
+  })();
+</script>

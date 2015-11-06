@@ -1,0 +1,39 @@
+<template id="session-accounts-item">
+  <li id="account">
+    <img id="avatar" src="" alt="avatar" />
+    <span id="name"></span>
+    <button type="button" id="delete">Delete</button>
+  </li>
+</template>
+
+<script type="text/javascript">
+  (function() {
+    "use strict";
+
+    var $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts-item').content;
+
+    class SessionAccountsItem extends HTMLElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$template, true));
+
+        this.$avatar = this.shadowRoot.querySelector('#avatar');
+        this.$name = this.shadowRoot.querySelector('#name');
+        this.$delete = this.shadowRoot.querySelector('#delete');
+      }
+
+      setData(account) {
+        this.$avatar.src = account.profile_image_url;
+        this.$name.textContent = account.screen_name;
+        this.$delete.handle('click', () => {
+          document.store.deleteTweets(account);
+          document.store.deleteTwitterClient(account);
+          document.store.deleteConfig(account);
+          document.store.deleteAccount(account);
+        });
+        return this;
+      }
+    }
+
+    document.registerElement("x-session-accounts-item", SessionAccountsItem);
+  })();
+</script>

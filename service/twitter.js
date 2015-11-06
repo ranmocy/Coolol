@@ -1,4 +1,4 @@
-(function () {
+(function() {
   "use strict";
 
   var consumerKey = "vbUQPCkkyFYUiomrSk9Nnysh0";
@@ -33,36 +33,34 @@
     }
 
     auth(callback) {
-      this.client.__call("oauth_requestToken",
-                {oauth_callback: "oob"},
-                (reply) => {
-                  // This is the request token, not final accessToken.
-                  this.client.setToken(reply.oauth_token, reply.oauth_token_secret);
+      this.client.__call("oauth_requestToken", {
+        oauth_callback: "oob"
+      }, (reply) => {
+        // This is the request token, not final accessToken.
+        this.client.setToken(reply.oauth_token, reply.oauth_token_secret);
 
-                  // gets the authorize screen URL
-                  this.client.__call("oauth_authorize",
-                            {},
-                            (auth_url) => {
-                              if (callback) {
-                                callback(auth_url);
-                              } else {
-                                window.codebird_auth = window.open(auth_url);
-                              }
-                            });
-                });
+        // gets the authorize screen URL
+        this.client.__call("oauth_authorize", {}, (auth_url) => {
+          if (callback) {
+            callback(auth_url);
+          } else {
+            window.codebird_auth = window.open(auth_url);
+          }
+        });
+      });
     }
 
     verify(pinCode, callback) {
-      this.client.__call("oauth_accessToken",
-                {oauth_verifier: pinCode},
-                (reply) => {
-                  console.log('twitter.verify', reply);
-                  // store the authenticated token, which may be different from the request token (!)
-                  this.setToken(reply.oauth_token, reply.oauth_token_secret);
-                  if (callback) {
-                    callback(reply);
-                  }
-                });
+      this.client.__call("oauth_accessToken", {
+        oauth_verifier: pinCode
+      }, (reply) => {
+        console.log('twitter.verify', reply);
+        // store the authenticated token, which may be different from the request token (!)
+        this.setToken(reply.oauth_token, reply.oauth_token_secret);
+        if (callback) {
+          callback(reply);
+        }
+      });
     }
 
     fetch(source, params) {
@@ -107,7 +105,7 @@
 
     post(source, params) {
       return new Promise((resolve, reject) => {
-        this.client.__call( source, params, (reply, rate, err) => {
+        this.client.__call(source, params, (reply, rate, err) => {
           if (err) {
             console.error('error in post', err);
             reject(err.error);
@@ -133,14 +131,16 @@
 
   /* globals module, define */
   if (typeof module === "object" && module && typeof module.exports === "object") {
-      module.exports = Twitter;
+    module.exports = Twitter;
   } else {
-      // Otherwise expose to the global object as usual
-      if (typeof window === "object" && window) {
-        window.Twitter = Twitter;
-      }
-      if (typeof define === "function") {
-        define("twitter", [], function () { return Twitter; });
-      }
+    // Otherwise expose to the global object as usual
+    if (typeof window === "object" && window) {
+      window.Twitter = Twitter;
+    }
+    if (typeof define === "function") {
+      define("twitter", [], function() {
+        return Twitter;
+      });
+    }
   }
 })();

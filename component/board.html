@@ -35,7 +35,7 @@
 
 
 <script type="text/javascript">
-  (function () {
+  (function() {
     "use strict";
 
     var $$$board = document.currentScript.ownerDocument.querySelector('template#board').content;
@@ -75,7 +75,7 @@
         }
 
         // update new data
-        this.config.channels.forEach(function (channel_config, index) {
+        this.config.channels.forEach(function(channel_config, index) {
           var $channel_container = document.importNode($$$channel, true);
           $channel_container.querySelector('x-channel').setData(channel_config, this._data[index]);
           this.$channels.appendChild($channel_container);

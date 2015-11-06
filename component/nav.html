@@ -84,7 +84,7 @@
 </template>
 
 <script type="text/javascript">
-  (function () {
+  (function() {
     "use strict";
 
     var $$$nav = document.currentScript.ownerDocument.querySelector('template#nav').content;
@@ -99,8 +99,12 @@
         this.$switch_session = this.shadowRoot.querySelector('#account-manage');
         this.$account_list = this.shadowRoot.querySelector('#account-list');
 
-        this.$open_compose.handle('click', () => { this.trigger('openCompose'); });
-        this.$switch_session.handle('click', () => { this.trigger('switchSession'); });
+        this.$open_compose.handle('click', () => {
+          this.trigger('openCompose');
+        });
+        this.$switch_session.handle('click', () => {
+          this.trigger('switchSession');
+        });
 
         this.updateAccountList();
         document.store.registerAccounts(this.updateAccountList.bind(this));
@@ -110,14 +114,18 @@
         console.log('setBoard', board);
         if (document.account !== null) {
           this.$switch_config.show();
-          this.$switch_config.handle('click', () => { this.trigger('switchConfig'); });
+          this.$switch_config.handle('click', () => {
+            this.trigger('switchConfig');
+          });
         } else {
           this.$switch_config.hide();
         }
         if (document.account !== null && $.isDefined(board)) {
           this.$open_compose.show();
           this.$refresh_board.show();
-          this.$refresh_board.handle('click', () => { board.refresh(); });
+          this.$refresh_board.handle('click', () => {
+            board.refresh();
+          });
         } else {
           this.$open_compose.hide();
           this.$refresh_board.hide();

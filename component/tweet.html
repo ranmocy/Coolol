@@ -93,7 +93,7 @@
 
 
 <script type="text/javascript">
-  (function () {
+  (function() {
     "use strict";
 
     var $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet');
@@ -115,10 +115,18 @@
         this.$retweet = this.get('retweet-button');
         this.$fav = this.get('fav-button');
 
-        this.$container.handle('mouseenter', () => { this.$control.style.display = 'block'; });
-        this.$container.handle('mouseleave', () => { this.$control.style.display = 'none'; });
-        this.$reply.handle('click', () => { this.trigger('openComposeForReply', this.tweet); });
-        this.$retweet.handle('click', () => { this.trigger('openComposeForRetweet', this.tweet); });
+        this.$container.handle('mouseenter', () => {
+          this.$control.style.display = 'block';
+        });
+        this.$container.handle('mouseleave', () => {
+          this.$control.style.display = 'none';
+        });
+        this.$reply.handle('click', () => {
+          this.trigger('openComposeForReply', this.tweet);
+        });
+        this.$retweet.handle('click', () => {
+          this.trigger('openComposeForRetweet', this.tweet);
+        });
         this.$fav.handle('click', this.favorite.bind(this));
 
         this.tweet = null;
@@ -130,12 +138,14 @@
 
       favorite() {
         document.store.getTwitterClient(document.account)
-        .post("favorites_create", {id: this.tweet.id_str})
-        .then((reply) => {
-          console.log('[tweet] favorite:', reply);
-        }).catch((err) => {
-          console.error('[tweet] favorite failed:', err);
-        });
+          .post("favorites_create", {
+            id: this.tweet.id_str
+          })
+          .then((reply) => {
+            console.log('[tweet] favorite:', reply);
+          }).catch((err) => {
+            console.error('[tweet] favorite failed:', err);
+          });
       }
 
       setReplyTo(tweet) {
@@ -174,8 +184,10 @@
         var entities = Object.keys(obj).reduce((all, key) => {
           return all.concat(obj[key]);
         }, []);
-        this.$text.innerHTML = twttr.txt.autoLink(text, {urlEntities: entities});
-        this.$text.querySelectorAll('a').forEach(function (node) {
+        this.$text.innerHTML = twttr.txt.autoLink(text, {
+          urlEntities: entities
+        });
+        this.$text.querySelectorAll('a').forEach(function(node) {
           node.target = '_blank';
         });
         return this;
@@ -190,7 +202,7 @@
         }
         // console.log('media', media);
         $.removeAllChild(this.$media);
-        media.forEach(function (medium) {
+        media.forEach(function(medium) {
           var $img = document.createElement('img');
           $img.src = medium.media_url_https;
           this.$media.appendChild($img);
@@ -216,7 +228,7 @@
           // it's a retweeted tweet
           this.setTweet(tweet.retweeted_status);
           this.setRetweeted(tweet.user);
-        } else if (tweet.is_quote_status && $.isDefined(tweet.quoted_status) /* in case quoted tweets chain */) {
+        } else if (tweet.is_quote_status && $.isDefined(tweet.quoted_status) /* in case quoted tweets chain */ ) {
           // it's a quoted tweet
           this.setTweet(tweet);
 

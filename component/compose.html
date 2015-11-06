@@ -71,7 +71,7 @@
 </template>
 
 <script type="text/javascript">
-  (function () {
+  (function() {
     "use strict";
 
     var $$$compose = document.currentScript.ownerDocument.querySelector('template#compose');
@@ -99,14 +99,6 @@
         this.quoted_status = null;
 
         this.hide();
-      }
-
-      show() {
-        this.$host.style.display = 'block';
-      }
-
-      hide() {
-        this.$host.style.display = 'none';
       }
 
       clear() {
@@ -149,31 +141,38 @@
 
         console.log('[compose] submit:', this.params);
         var client = document.store.getTwitterClient(document.account);
-        client.post("statuses_update", this.params).then((reply) => {
-          console.log('[compose] posted:', reply);
-          this.$submit.disabled = false;
-          this.clear();
-          this.hide();
-          this.trigger('refreshBoard', reply);
-        }).catch((err) => {
-          console.error('[compose] post failed:', err);
-          this.$submit.disabled = false;
-        });
+        client
+          .post("statuses_update", this.params)
+          .then((reply) => {
+            console.log('[compose] posted:', reply);
+            this.$submit.disabled = false;
+            this.clear();
+            this.hide();
+            this.trigger('refreshBoard', reply);
+          })
+          .catch((err) => {
+            console.error('[compose] post failed:', err);
+            this.$submit.disabled = false;
+          });
       }
 
       retweet() {
         var client = document.store.getTwitterClient(document.account);
-        client.post("statuses_retweet_ID", {id: this.quoted_status.id_str})
-        .then((reply) => {
-          console.log('[compose] retweet:', reply);
-          this.$submit.disabled = false;
-          this.clear();
-          this.hide();
-          this.trigger('refreshBoard', reply);
-        }).catch((err) => {
-          console.error('[compose] retweet failed:', err);
-          this.$submit.disabled = false;
-        });
+        client
+          .post("statuses_retweet_ID", {
+            id: this.quoted_status.id_str
+          })
+          .then((reply) => {
+            console.log('[compose] retweet:', reply);
+            this.$submit.disabled = false;
+            this.clear();
+            this.hide();
+            this.trigger('refreshBoard', reply);
+          })
+          .catch((err) => {
+            console.error('[compose] retweet failed:', err);
+            this.$submit.disabled = false;
+          });
       }
     }
 

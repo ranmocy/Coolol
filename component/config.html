@@ -17,26 +17,22 @@
 </template>
 
 <script type="text/javascript">
-  (function () {
+  (function() {
     "use strict";
 
     var template = document.currentScript.ownerDocument.querySelector('template');
 
     var defaultConfig = {
-      channels: [
-        {
-          name: 'Home',
-          sources: ['statuses_homeTimeline']
-        },
-        {
-          name: 'Mentions',
-          sources: ['statuses_mentionsTimeline']
-        },
-        {
-          name: 'Mix sources',
-          sources: ['statuses_homeTimeline', 'statuses_mentionsTimeline']
-        }
-      ]
+      channels: [{
+        name: 'Home',
+        sources: ['statuses_homeTimeline']
+      }, {
+        name: 'Mentions',
+        sources: ['statuses_mentionsTimeline']
+      }, {
+        name: 'Mix sources',
+        sources: ['statuses_homeTimeline', 'statuses_mentionsTimeline']
+      }]
     };
 
     class Config extends HTMLElement {
@@ -49,7 +45,9 @@
         this.saveButton.handle('click', this.saveConfig.bind(this));
         this.resetButton.handle('click', this.resetConfig.bind(this));
 
-        this.editor = new JSONEditor(this.editorElem, {mode: 'code'});
+        this.editor = new JSONEditor(this.editorElem, {
+          mode: 'code'
+        });
         this.loadConfig();
       }
 

@@ -1,6 +1,8 @@
-(function () {
+(function() {
 
-  var $ = Object.assign(function () { return document.querySelector.apply(document, arguments); }, {
+  var $ = Object.assign(function() {
+    return document.querySelector.apply(document, arguments);
+  }, {
     /* DOM */
     findAll: function() {
       return document.querySelectorAll.apply(document, arguments);
@@ -14,16 +16,16 @@
     },
 
     /* AJAX */
-    get: function (url) {
+    get: function(url) {
       return $http(url).get();
     },
 
     /* Object */
-    isDefined: function (v) {
+    isDefined: function(v) {
       return typeof v !== "undefined";
     },
 
-    forEachKeyValue: function (obj, callback) {
+    forEachKeyValue: function(obj, callback) {
       Object.keys(obj).forEach((key) => {
         callback(key, obj[key]);
       });
@@ -31,12 +33,14 @@
     },
 
     /* String */
-    capitalize: function (s) {
+    capitalize: function(s) {
       return s[0].toUpperCase() + s.substr(1);
     },
 
-    camelize: function (s) {
-      return s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
+    camelize: function(s) {
+      return s.replace(/_([a-z])/g, function(g) {
+        return g[1].toUpperCase();
+      });
     },
 
 
@@ -47,7 +51,7 @@
   NodeList.prototype.forEach = Array.prototype.forEach;
 
   Object.assign(HTMLElement.prototype, {
-    detach: function () {
+    detach: function() {
       var parent = this.parentNode;
       if (!parent) {
         return;
@@ -73,12 +77,14 @@
       this.style.display = 'none';
     },
 
-    trigger: function (eventName, parameters) {
+    trigger: function(eventName, parameters) {
       console.log('trigger', eventName, parameters);
-      this.dispatchEvent(new CustomEvent(eventName, {detail: parameters}));
+      this.dispatchEvent(new CustomEvent(eventName, {
+        detail: parameters
+      }));
     },
 
-    handle: function (eventName, callback, popup) {
+    handle: function(eventName, callback, popup) {
       this.addEventListener(eventName, (event) => {
         event.preventDefault();
         if ($.isDefined(popup) && popup) {
@@ -93,95 +99,98 @@
       });
     },
 
-    handleActions: function (actions) {
+    handleActions: function(actions) {
       actions.forEach((actionName) => {
-        this.handle(actionName, (event) => { this[actionName].call(this, event.detail); });
+        this.handle(actionName, (event) => {
+          this[actionName].call(this, event.detail);
+        });
       });
     },
   });
 
 
-/* Helpers */
-// A-> $http function is implemented in order to follow the standard Adapter pattern
-function $http(url){
-  'use strict';
+  /* A-> $http function is implemented in order to follow the standard Adapter pattern */
+  function $http(url) {
+    'use strict';
 
-  // A small example of object
-  var core = {
+    // A small example of object
+    var core = {
 
-    // Method that performs the ajax request
-    ajax : function (method, url, args) {
+      // Method that performs the ajax request
+      ajax: function(method, url, args) {
 
-      // Creating a promise
-      var promise = new Promise( function (resolve, reject) {
+        // Creating a promise
+        var promise = new Promise(function(resolve, reject) {
 
-        // Instantiates the XMLHttpRequest
-        var client = new XMLHttpRequest();
-        var uri = url;
+          // Instantiates the XMLHttpRequest
+          var client = new XMLHttpRequest();
+          var uri = url;
 
-        if (args && (method === 'POST' || method === 'PUT')) {
-          uri += '?';
-          var argcount = 0;
-          for (var key in args) {
-            if (args.hasOwnProperty(key)) {
-              if (argcount++) {
-                uri += '&';
+          if (args && (method === 'POST' || method === 'PUT')) {
+            uri += '?';
+            var argcount = 0;
+            for (var key in args) {
+              if (args.hasOwnProperty(key)) {
+                if (argcount++) {
+                  uri += '&';
+                }
+                uri += encodeURIComponent(key) + '=' + encodeURIComponent(args[key]);
               }
-              uri += encodeURIComponent(key) + '=' + encodeURIComponent(args[key]);
             }
           }
-        }
 
-        client.open(method, uri);
-        client.send();
+          client.open(method, uri);
+          client.send();
 
-        client.onload = function () {
-          if (this.status >= 200 && this.status < 300) {
-            // Performs the function "resolve" when this.status is equal to 2xx
-            resolve(this.response);
-          } else {
-            // Performs the function "reject" when this.status is different than 2xx
+          client.onload = function() {
+            if (this.status >= 200 && this.status < 300) {
+              // Performs the function "resolve" when this.status is equal to 2xx
+              resolve(this.response);
+            } else {
+              // Performs the function "reject" when this.status is different than 2xx
+              reject(this.statusText);
+            }
+          };
+          client.onerror = function() {
             reject(this.statusText);
-          }
-        };
-        client.onerror = function () {
-          reject(this.statusText);
-        };
-      });
+          };
+        });
 
-      // Return the promise
-      return promise;
-    }
-  };
+        // Return the promise
+        return promise;
+      }
+    };
 
-  // Adapter pattern
-  return {
-    'get' : function(args) {
-      return core.ajax('GET', url, args);
-    },
-    'post' : function(args) {
-      return core.ajax('POST', url, args);
-    },
-    'put' : function(args) {
-      return core.ajax('PUT', url, args);
-    },
-    'delete' : function(args) {
-      return core.ajax('DELETE', url, args);
-    }
-  };
-}
+    // Adapter pattern
+    return {
+      'get': function(args) {
+        return core.ajax('GET', url, args);
+      },
+      'post': function(args) {
+        return core.ajax('POST', url, args);
+      },
+      'put': function(args) {
+        return core.ajax('PUT', url, args);
+      },
+      'delete': function(args) {
+        return core.ajax('DELETE', url, args);
+      }
+    };
+  }
 
 
-/* globals module, define */
-if (typeof module === "object" && module && typeof module.exports === "object") {
-  module.exports = $;
-} else {
+  /* globals module, define */
+  if (typeof module === "object" && module && typeof module.exports === "object") {
+    module.exports = $;
+  } else {
     // Otherwise expose to the global object as usual
     if (typeof window === "object" && window) {
       window.$ = $;
     }
     if (typeof define === "function") {
-    	define("$", [], function () { return $; });
+      define("$", [], function() {
+        return $;
+      });
     }
   }
 })();

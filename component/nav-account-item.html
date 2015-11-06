@@ -1,4 +1,4 @@
-<template id="nav-account-item">
+<template id="nav-accounts-item">
   <style type="text/css">
     #account-list {
       list-style-type: none;
@@ -40,9 +40,9 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#nav-account-item').content;
+    var $$$template = document.currentScript.ownerDocument.querySelector('template#nav-accounts-item').content;
 
-    class NavAccountItem extends HTMLElement {
+    class NavAccountsItem extends HTMLElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
 
@@ -52,7 +52,9 @@
       }
 
       setAccount(account) {
-        this.$item.handle('click', () => { this.trigger('switchBoard', account); });
+        this.$item.handle('click', () => {
+          this.trigger('switchBoard', account);
+        });
         if (account.profile_image_url) {
           this.$avatar.src = account.profile_image_url;
         }
@@ -61,6 +63,6 @@
       }
     }
 
-    document.registerElement("x-nav-account-item", NavAccountItem);
+    document.registerElement("x-nav-accounts-item", NavAccountsItem);
   })();
 </script>

@@ -27,7 +27,7 @@
 </template>
 
 <script type="text/javascript">
-  (function () {
+  (function() {
     "use strict";
 
     var template = document.currentScript.ownerDocument.querySelector('template');
@@ -42,7 +42,8 @@
 
         this.handleActions([
           'openCompose', 'openComposeForReply', 'openComposeForRetweet',
-          'refreshBoard', 'switchBoard', 'switchConfig', 'switchSession']);
+          'refreshBoard', 'switchBoard', 'switchConfig', 'switchSession'
+        ]);
 
         // TODO: enable this
         // document.store.updateAllAccounts();
@@ -103,7 +104,7 @@
         this.$nav.updateNav();
       }
 
-      switchSession () {
+      switchSession() {
         console.log('switchSession');
         document.account = null;
         $.removeAllChild(this.$main);

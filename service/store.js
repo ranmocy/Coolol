@@ -1,4 +1,4 @@
-(function () {
+(function() {
   "use strict";
 
   var CLIENT_FIELD = 'clients';
@@ -20,13 +20,13 @@
       var registerMethodName = `register${capitalized}s`;
 
       // read
-      this.prototype[getAllMethodName] = function () {
+      this.prototype[getAllMethodName] = function() {
         // the default value of whole field is always {}, because they are all saved in account space
         var values = this.getJSON(field, {});
         console.log(`[store] ${getAllMethodName}:`, values);
         return values;
       };
-      this.prototype[getMethodName] = function (account) {
+      this.prototype[getMethodName] = function(account) {
         var value = this[getAllMethodName]()[account.screen_name];
         console.log(`[store] ${getMethodName}:`, account.screen_name, value);
         if ($.isDefined(value) && value) {
@@ -57,7 +57,7 @@
       };
 
       // register
-      this.prototype[registerMethodName] = function (callback) {
+      this.prototype[registerMethodName] = function(callback) {
         return this.register(field, callback);
       };
 

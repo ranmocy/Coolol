@@ -1,3 +1,5 @@
+<link rel="import" href="nav-account-item.html">
+
 <template id="nav">
   <style media="screen">
     nav {
@@ -61,21 +63,7 @@
       box-shadow: rgba(0, 0, 0, 0.18) 0 3px 3px;
     }
 
-    #account-list {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-    }
-    .account-item:hover {
-      background-color: #eee;
-    }
-    .account-item a {
-      width: 100%;
-      padding: 5px 10px;
-    }
-    .account-item .avatar {
-      height: 16px;
-    }
+
   </style>
 
   <nav>
@@ -95,21 +83,11 @@
   </nav>
 </template>
 
-<template id="account">
-  <li class="account-item">
-    <a href="#">
-      <img class="avatar" />
-      <span class="name"></span>
-    </a>
-  </li>
-</template>
-
 <script type="text/javascript">
   (function () {
     "use strict";
 
     var $$$nav = document.currentScript.ownerDocument.querySelector('template#nav').content;
-    var $$$account = document.currentScript.ownerDocument.querySelector('template#account').content;
 
     class Nav extends HTMLElement {
       createdCallback() {
@@ -131,36 +109,26 @@
       updateNav(board) {
         console.log('setBoard', board);
         if (document.account !== null) {
-          this.$switch_config.style.visibility = 'visible';
+          this.$switch_config.show();
           this.$switch_config.handle('click', () => { this.trigger('switchConfig'); });
         } else {
-          this.$switch_config.style.visibility = 'hidden';
+          this.$switch_config.hide();
         }
         if (document.account !== null && $.isDefined(board)) {
-          this.$open_compose.style.visibility = "visible";
-          this.$refresh_board.style.visibility = "visible";
+          this.$open_compose.show();
+          this.$refresh_board.show();
           this.$refresh_board.handle('click', () => { board.refresh(); });
         } else {
-          this.$open_compose.style.visibility = "hidden";
-          this.$refresh_board.style.visibility = "hidden";
+          this.$open_compose.hide();
+          this.$refresh_board.hide();
         }
       }
 
       updateAccountList() {
         $.removeAllChild(this.$account_list);
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
-          console.log('list account item', screen_name);
-          var $li = document.importNode($$$account, true);
-          $li.querySelector('a').href = `#${account.screen_name}`;
-          if (account.profile_image_url) {
-            $li.querySelector('.avatar').src = account.profile_image_url;
-          }
-          $li.querySelector('.name').textContent = account.name;
-          $li.querySelector('.account-item').handle('click', () => {
-            console.log('li click', screen_name);
-            this.trigger('switchBoard', account);
-          });
-          this.$account_list.appendChild($li);
+          console.log('[nav] list account item', screen_name);
+          this.$account_list.appendChild(document.createElement('x-nav-accounts-item').setAccount(account));
         });
       }
     }

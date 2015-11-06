@@ -1,104 +1,104 @@
 (function () {
 
-var $ = Object.assign(function () { return document.querySelector.apply(document, arguments); }, {
-  /* DOM */
-  findAll: function() {
-    return document.querySelectorAll.apply(document, arguments);
-  },
+  var $ = Object.assign(function () { return document.querySelector.apply(document, arguments); }, {
+    /* DOM */
+    findAll: function() {
+      return document.querySelectorAll.apply(document, arguments);
+    },
 
-  removeAllChild: function(element) {
-    while (element.firstChild) {
-      element.removeChild(element.firstChild);
-    }
-    return element;
-  },
-
-  /* AJAX */
-  get: function (url) {
-    return $http(url).get();
-  },
-
-  /* Object */
-  isDefined: function (v) {
-    return typeof v !== "undefined";
-  },
-
-  forEachKeyValue: function (obj, callback) {
-    Object.keys(obj).forEach((key) => {
-      callback(key, obj[key]);
-    });
-    return obj;
-  },
-
-  /* String */
-  capitalize: function (s) {
-    return s[0].toUpperCase() + s.substr(1);
-  },
-
-  camelize: function (s) {
-    return s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
-  },
-
-
-});
-
-
-/* Core extentions */
-NodeList.prototype.forEach = Array.prototype.forEach;
-
-Object.assign(HTMLElement.prototype, {
-  detach: function () {
-    var parent = this.parentNode;
-    if (!parent) {
-      return;
-    }
-    parent.removeChild(this);
-    return this;
-  },
-
-  show: function(display) {
-    if (!$.isDefined(display)) {
-      if ($.isDefined(this._old_display_value)) {
-        display = this._old_display_value;
-        this._old_display_value = undefined;
-      } else {
-        display = 'block';
+    removeAllChild: function(element) {
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
       }
-    }
-    this.style.display = display;
-  },
+      return element;
+    },
 
-  hide: function() {
-    this._old_display_value = this.style.display;
-    this.style.display = 'none';
-  },
+    /* AJAX */
+    get: function (url) {
+      return $http(url).get();
+    },
 
-  trigger: function (eventName, parameters) {
-    console.log('trigger', eventName, parameters);
-    this.dispatchEvent(new CustomEvent(eventName, {detail: parameters}));
-  },
+    /* Object */
+    isDefined: function (v) {
+      return typeof v !== "undefined";
+    },
 
-  handle: function (eventName, callback, popup) {
-    this.addEventListener(eventName, (event) => {
-      event.preventDefault();
-      if ($.isDefined(popup) && popup) {
-        console.log('handle propagate up');
-      } else {
-        event.stopPropagation();
+    forEachKeyValue: function (obj, callback) {
+      Object.keys(obj).forEach((key) => {
+        callback(key, obj[key]);
+      });
+      return obj;
+    },
+
+    /* String */
+    capitalize: function (s) {
+      return s[0].toUpperCase() + s.substr(1);
+    },
+
+    camelize: function (s) {
+      return s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
+    },
+
+
+  });
+
+
+  /* Core extentions */
+  NodeList.prototype.forEach = Array.prototype.forEach;
+
+  Object.assign(HTMLElement.prototype, {
+    detach: function () {
+      var parent = this.parentNode;
+      if (!parent) {
+        return;
       }
-      console.log('handle', eventName, event.detail);
-      if (callback) {
-        callback(event);
-      }
-    });
-  },
+      parent.removeChild(this);
+      return this;
+    },
 
-  handleActions: function (actions) {
-    actions.forEach((actionName) => {
-      this.handle(actionName, (event) => { this[actionName].call(this, event.detail); });
-    });
-  },
-});
+    show: function(display) {
+      if (!$.isDefined(display)) {
+        if ($.isDefined(this._old_display_value)) {
+          display = this._old_display_value;
+          this._old_display_value = undefined;
+        } else {
+          display = 'block';
+        }
+      }
+      this.style.display = display;
+    },
+
+    hide: function() {
+      this._old_display_value = this.style.display;
+      this.style.display = 'none';
+    },
+
+    trigger: function (eventName, parameters) {
+      console.log('trigger', eventName, parameters);
+      this.dispatchEvent(new CustomEvent(eventName, {detail: parameters}));
+    },
+
+    handle: function (eventName, callback, popup) {
+      this.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        if ($.isDefined(popup) && popup) {
+          console.log('handle propagate up');
+        } else {
+          event.stopPropagation();
+        }
+        console.log('handle', eventName, event.detail);
+        if (callback) {
+          callback(event);
+        }
+      });
+    },
+
+    handleActions: function (actions) {
+      actions.forEach((actionName) => {
+        this.handle(actionName, (event) => { this[actionName].call(this, event.detail); });
+      });
+    },
+  });
 
 
 /* Helpers */
@@ -174,7 +174,7 @@ function $http(url){
 
 /* globals module, define */
 if (typeof module === "object" && module && typeof module.exports === "object") {
-    module.exports = $;
+  module.exports = $;
 } else {
     // Otherwise expose to the global object as usual
     if (typeof window === "object" && window) {
@@ -183,5 +183,5 @@ if (typeof module === "object" && module && typeof module.exports === "object") 
     if (typeof define === "function") {
     	define("$", [], function () { return $; });
     }
-}
+  }
 })();

@@ -27,11 +27,6 @@
       console.debug('twitter refreshing');
     }
 
-    saveTokenToLocal(token, secret) {
-      localStorage.setItem('oauth_token', token);
-      localStorage.setItem('oauth_token_secret', secret);
-    }
-
     setToken(token, secret) {
       console.debug('Set token: ', token, secret);
       this.client.setToken(token, secret);

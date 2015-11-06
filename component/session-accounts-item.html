@@ -21,7 +21,7 @@
         this.$delete = this.shadowRoot.querySelector('#delete');
       }
 
-      setData(account) {
+      setAccount(account) {
         this.$avatar.src = account.profile_image_url;
         this.$name.textContent = account.screen_name;
         this.$delete.handle('click', () => {
@@ -29,6 +29,9 @@
           document.store.deleteTwitterClient(account);
           document.store.deleteConfig(account);
           document.store.deleteAccount(account);
+        });
+        this.handle('click', () => {
+          this.trigger('switchBoard', account);
         });
         return this;
       }

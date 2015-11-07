@@ -99,6 +99,7 @@
           };
           document.store.saveTwitterClient(account, this.current_client);
           document.store.updateAccount(account);
+          document.store.resetConfig(account);
 
           this.$('add').show();
           this.$('login').hide();

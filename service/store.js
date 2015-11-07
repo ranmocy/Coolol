@@ -4,6 +4,19 @@
   var CLIENT_FIELD = 'clients';
   var LAST_ACTIVE_ACCOUNT_FIELD = 'last_account';
 
+  var DEFAULT_CONFIG = {
+    channels: [{
+      name: 'Home',
+      sources: ['statuses_homeTimeline']
+    }, {
+      name: 'Mentions',
+      sources: ['statuses_mentionsTimeline']
+    }, {
+      name: 'Mix sources',
+      sources: ['statuses_homeTimeline', 'statuses_mentionsTimeline']
+    }]
+  };
+
   var cache = {};
   var callbacks = {};
 
@@ -132,6 +145,12 @@
         delete cache[CLIENT_FIELD][account.screen_name];
       }
       return client;
+    }
+
+    /* Config */
+    resetConfig(account) {
+      this.saveConfig(account, DEFAULT_CONFIG);
+      return DEFAULT_CONFIG;
     }
 
     /* Account */

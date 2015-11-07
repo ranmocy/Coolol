@@ -22,19 +22,6 @@
 
     var template = document.currentScript.ownerDocument.querySelector('template');
 
-    var defaultConfig = {
-      channels: [{
-        name: 'Home',
-        sources: ['statuses_homeTimeline']
-      }, {
-        name: 'Mentions',
-        sources: ['statuses_mentionsTimeline']
-      }, {
-        name: 'Mix sources',
-        sources: ['statuses_homeTimeline', 'statuses_mentionsTimeline']
-      }]
-    };
-
     class Config extends HTMLElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
@@ -65,8 +52,8 @@
       }
 
       resetConfig() {
-        this.editor.set(defaultConfig);
-        document.store.saveConfig(document.account, defaultConfig);
+        var config = document.store.resetConfig(document.account);
+        this.editor.set(config);
         console.log("Config reseted.");
       }
     }

@@ -10,13 +10,13 @@
       position: relative;
       z-index: 100;
     }
-    .logo {
+    #logo a {
       line-height: 50px;
       font-size: 30px;
       font-weight: bold;
       color: #424d54;
     }
-    .control-panel {
+    #control-panel {
       float: right;
       height: 30px;
       line-height: 30px;
@@ -70,8 +70,8 @@
   </style>
 
   <nav>
-    <span class="logo">Coolol</span>
-    <span class="control-panel">
+    <span id="logo"><a href="#sessions">Coolol</a></span>
+    <span id="control-panel">
       <a href="#" class="menu" id="open-compose">Compose</a>
       <a href="#" class="menu" id="refresh-board">Refresh</a>
       <a href="#" class="menu" id="switch-config">Setting</a>
@@ -92,20 +92,17 @@
 
     var $$$nav = document.currentScript.ownerDocument.querySelector('template#nav').content;
 
-    class Nav extends HTMLElement {
+    class Nav extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$nav, true));
 
-        this.$refresh_board = this.shadowRoot.querySelector('#refresh-board');
-        this.$open_compose = this.shadowRoot.querySelector('#open-compose');
-        this.$switch_config = this.shadowRoot.querySelector('#switch-config');
-        this.$switch_session = this.shadowRoot.querySelector('#account-manage');
-        this.$account_list = this.shadowRoot.querySelector('#account-list');
-
-        this.$open_compose.handle('click', () => {
+        this.$('logo').handle('click', () => {
+          this.trigger('switchSession');
+        });
+        this.$('open-compose').handle('click', () => {
           this.trigger('openCompose');
         });
-        this.$switch_session.handle('click', () => {
+        this.$('account-manage').handle('click', () => {
           this.trigger('switchSession');
         });
 
@@ -116,30 +113,30 @@
       updateNav(board) {
         console.log('setBoard', board);
         if (document.account !== null) {
-          this.$switch_config.show('inline-block');
-          this.$switch_config.handle('click', () => {
+          this.$('switch-config').show('inline-block');
+          this.$('switch-config').handle('click', () => {
             this.trigger('switchConfig');
           });
         } else {
-          this.$switch_config.hide();
+          this.$('switch-config').hide();
         }
         if (document.account !== null && $.isDefined(board)) {
-          this.$open_compose.show('inline-block');
-          this.$refresh_board.show('inline-block');
-          this.$refresh_board.handle('click', () => {
+          this.$('open-compose').show('inline-block');
+          this.$('refresh-board').show('inline-block');
+          this.$('refresh-board').handle('click', () => {
             board.refresh();
           });
         } else {
-          this.$open_compose.hide();
-          this.$refresh_board.hide();
+          this.$('open-compose').hide();
+          this.$('refresh-board').hide();
         }
       }
 
       updateAccountList() {
-        $.removeAllChild(this.$account_list);
+        $.removeAllChild(this.$('account-list'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.log('[nav] list account item', screen_name);
-          this.$account_list.appendChild(document.createElement('x-nav-accounts-item').setAccount(account));
+          this.$('account-list').appendChild(document.createElement('x-nav-accounts-item').setAccount(account));
         });
       }
     }

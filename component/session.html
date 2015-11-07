@@ -35,46 +35,37 @@
   (function() {
     "use strict";
 
-    var $$$session = document.currentScript.ownerDocument.querySelector('template#session').content;
+    var $$$template = document.currentScript.ownerDocument.querySelector('template').content;
 
-    class Session extends HTMLElement {
+    class Session extends Element {
       createdCallback() {
-        this.createShadowRoot().appendChild(document.importNode($$$session, true));
+        this.createShadowRoot().appendChild(document.importNode($$$template, true));
 
-        this.$accounts = this.shadowRoot.querySelector('x-session-accounts');
+        this.$('add').handle('click', this.add.bind(this));
+        this.$('auth').handle('click', this.auth.bind(this));
+        this.$('verify').handle('click', this.verify.bind(this));
 
-        this.$add = this.shadowRoot.querySelector('#add');
-        this.$login = this.shadowRoot.querySelector('#login');
-
-        this.$auth = this.shadowRoot.querySelector('#auth');
-        this.$auth_url = this.shadowRoot.querySelector('#auth-url');
-        this.$pinCode = this.shadowRoot.querySelector('#pin-code');
-        this.$verify = this.shadowRoot.querySelector('#verify');
-
-        this.$add.handle('click', this.add.bind(this));
-        this.$auth.handle('click', this.auth.bind(this));
-        this.$verify.handle('click', this.verify.bind(this));
-
-        this.$login.hide();
+        this.$('login').hide();
       }
 
       add() {
-        this.$add.hide();
-        this.$login.show();
+        this.$('add').hide();
+        this.$('login').show();
       }
 
       auth() {
         this.current_client = new Twitter();
         this.current_client.auth((auth_url) => {
-          this.$auth_url.textContent = auth_url;
-          this.$auth_url.href = auth_url;
+          this.$('auth-url').textContent = auth_url;
+          this.$('auth-url').href = auth_url;
           window.codebird_auth = window.open(auth_url);
         });
         return this;
       }
 
       verify() {
-        this.current_client.verify(this.$pinCode.value, (reply) => {
+        this.current_client
+        .verify(this.$('pin-code').value, (reply) => {
           if (!reply || !reply.user_id) {
             console.error('[session] verify account failed!', reply);
             return;
@@ -89,8 +80,8 @@
           document.store.saveTwitterClient(account, this.current_client);
           document.store.updateAccount(account);
 
-          this.$add.show();
-          this.$login.hide();
+          this.$('add').show();
+          this.$('login').hide();
         });
         return this;
       }

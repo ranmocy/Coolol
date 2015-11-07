@@ -4,6 +4,7 @@
     "window",
     "System",
     "$",
+    "XElement",
     "JSONEditor",
     "Codebird",
     "Twitter",

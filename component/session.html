@@ -4,8 +4,26 @@
   <style media="screen">
     :host {
       display: block;
-      width: 500px;
+      width: 300px;
       margin: 50px auto;
+    }
+    #add, #login {
+      background-color: #efefef;
+      text-align: center;
+    }
+    #add {
+      line-height: 48px;
+      cursor: pointer;
+    }
+    #add:hover {
+      background-color: #bbb;
+    }
+    #login {
+      cursor: default;
+      padding: 0.5em 0;
+    }
+    #auth, #verify {
+      cursor: pointer;
     }
   </style>
 
@@ -18,13 +36,13 @@
       button to authorize on Twitter.
     </div>
     <div id="auth-info">
-      Or manually open the url:
-      <a href="" id="auth-url" target="_blank"></a>
-    </div>
-    <div>
-      Copy the pin code from Twitter to verify:
-      <input type="text" id="pin-code" value="">
-      <button type="button" id="verify">Verify</button>
+      <p>Or manually open the url:</p>
+      <p><a href="" id="auth-url" target="_blank"></a></p>
+      <p>Copy the pin code from Twitter to verify:</p>
+      <p>
+        <input type="text" id="pin-code" value="">
+        <button type="button" id="verify">Verify</button>
+      </p>
     </div>
   </div>
 
@@ -37,7 +55,7 @@
 
     var $$$template = document.currentScript.ownerDocument.querySelector('template').content;
 
-    class Session extends Element {
+    class Session extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
 
@@ -51,6 +69,7 @@
       add() {
         this.$('add').hide();
         this.$('login').show();
+        this.$('auth-info').hide();
       }
 
       auth() {
@@ -58,6 +77,7 @@
         this.current_client.auth((auth_url) => {
           this.$('auth-url').textContent = auth_url;
           this.$('auth-url').href = auth_url;
+          this.$('auth-info').show();
           window.codebird_auth = window.open(auth_url);
         });
         return this;

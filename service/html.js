@@ -1,11 +1,12 @@
-window.Element = (function() {
+window.XElement = (function() {
   "use strict";
 
-  class Element extends HTMLElement {
+
+  class XElement extends HTMLElement {
     $(name) {
       return this.shadowRoot.querySelector(`#${name}`);
     }
   }
 
-  return Element;
+  return XElement;
 })();

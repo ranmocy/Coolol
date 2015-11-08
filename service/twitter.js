@@ -63,11 +63,17 @@
       });
     }
 
-    fetch(source, params) {
-      var key = source;
+    key(source, params) {
       if (params) {
-        key = key + JSON.stringify(params);
+        return `${source}:${JSON.stringify(params)}`;
       } else {
+        return source;
+      }
+    }
+
+    fetch(source, params) {
+      var key = this.key(source, params);
+      if (!$.isDefined(params)) {
         params = {};
       }
       this.promises[key] = new Promise((resolve, reject) => {
@@ -96,11 +102,7 @@
     }
 
     get(source, params) {
-      var key = source;
-      if (params) {
-        key = key + JSON.stringify(params);
-      }
-      return this.promises[key];
+      return this.promises[this.key(source, params)];
     }
 
     post(source, params) {

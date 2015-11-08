@@ -86,26 +86,24 @@
 
       refresh() {
         var channels = this.config.channels;
-        var allSources = new Set();
-        channels.forEach((channel) => {
-          channel.sources.forEach((source) => {
-            allSources.add(source);
-          });
-        });
-        console.log('[board] refresh allSources:', allSources);
-
-        // fetch all sources
         var client = document.store.getTwitterClient(document.account);
-        allSources.forEach((source) => {
-          client.fetch(source);
-        });
+        var fetched_source = new Set();
 
-        // get all data
-        var allChannelsPromises = channels.reduce((all, channel) => {
-          var allSourcesPromises = channel.sources.map((source) => client.get(source));
-          all.push(Promise.all(allSourcesPromises));
-          return all;
-        }, []);
+        var allChannelsPromises = channels.map((channel) => {
+          var source_promises = [];
+          $.forEachKeyValue(channel.sources, (source, params) => {
+            var key = client.key(source, params);
+            if (key in fetched_source) {
+              console.log('[board] get:', key);
+              source_promises.push(client.get(source, params));
+            } else {
+              console.log('[board] fetch:', key);
+              source_promises.push(client.fetch(source, params));
+              fetched_source.add(key);
+            }
+          });
+          return Promise.all(source_promises);
+        });
         console.log('[board] refresh all Promises:', allChannelsPromises);
 
         Promise.all(allChannelsPromises)

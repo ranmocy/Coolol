@@ -7,16 +7,16 @@
       position: absolute;
       right: 0;
     }
-    #container li.control-button {
+    #container li {
       display: inline-block;
       cursor: pointer;
     }
   </style>
 
   <ul id="container">
-    <li class="control-button" id="reply-button">Reply</li>
-    <li class="control-button" id="retweet-button">Retweet</li>
-    <li class="control-button" id="fav-button">Fav</li>
+    <li id="reply-button">Reply</li>
+    <li id="retweet-button">Retweet</li>
+    <li id="fav-button">Fav</li>
   </ul>
 </template>
 
@@ -34,7 +34,9 @@
           this.trigger('openComposeForReply', this.tweet);
         });
         this.$('retweet-button').handle('click', () => {
-          this.trigger('openComposeForRetweet', this.tweet);
+          if (this.tweet.user.screen_name !== document.account.screen_name) {
+            this.trigger('openComposeForRetweet', this.tweet);
+          }
         });
         this.$('fav-button').handle('click', this.favorite.bind(this));
 
@@ -45,6 +47,9 @@
 
       setTweet(tweet) {
         this.tweet = tweet;
+        if (this.tweet.user.screen_name === document.account.screen_name) {
+          this.$('retweet-button').class = 'disable';
+        }
       }
 
       favorite() {

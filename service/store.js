@@ -7,13 +7,25 @@
   var DEFAULT_CONFIG = {
     channels: [{
       name: 'Home',
-      sources: ['statuses_homeTimeline']
+      sources: {
+        'statuses_homeTimeline': {}
+      },
     }, {
       name: 'Mentions',
-      sources: ['statuses_mentionsTimeline']
+      sources: {
+        'statuses_mentionsTimeline': {}
+      },
     }, {
       name: 'Mix sources',
-      sources: ['statuses_homeTimeline', 'statuses_mentionsTimeline']
+      sources: {
+        'statuses_homeTimeline': {},
+        'statuses_mentionsTimeline': {},
+      },
+    }, {
+      name: 'My tweets',
+      sources: {
+        'statuses_userTimeline': { user_id: 'me' }
+      }
     }]
   };
 
@@ -189,6 +201,8 @@
     }
   }
 
+  var store = new Store();
+
   /*
   Config = {
     <screen_name>: {
@@ -204,6 +218,7 @@
   }
   */
   Store.addAccessTo('config', {});
+  store.registerConfigs(() => { store.deleteTweets(document.account); });
 
   /*
   Tweets = {
@@ -223,5 +238,6 @@
   */
   Store.addAccessTo('account', {});
 
-  document.store = new Store();
+  document.store = store;
+  return store;
 })();

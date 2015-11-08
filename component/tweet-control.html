@@ -7,9 +7,19 @@
       position: absolute;
       right: 0;
     }
-    #container li {
+    li {
       display: inline-block;
       cursor: pointer;
+    }
+    li.disabled {
+      cursor: normal;
+      color: #eee;
+    }
+    li.retweeted {
+      color: #5c913b;
+    }
+    li.favorited {
+      color: #dd2e44;
     }
   </style>
 
@@ -48,7 +58,13 @@
       setTweet(tweet) {
         this.tweet = tweet;
         if (this.tweet.user.screen_name === document.account.screen_name) {
-          this.$('retweet-button').class = 'disable';
+          this.$('retweet-button').className = 'disabled';
+        } else if (this.tweet.retweeted) {
+          this.$('retweet-button').className = 'retweeted';
+        }
+
+        if (this.tweet.favorited) {
+          this.$('fav-button').className = 'favorited';
         }
       }
 

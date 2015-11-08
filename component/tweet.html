@@ -1,36 +1,25 @@
+<link rel="import" href="tweet-control.html">
+
 <template id="tweet">
   <style>
     :host {
       display: block;
     }
-    #m-container {
+    #container {
       padding: 0.5em 1em;
     }
-    #m-reply, #m-retweeted {
+    #reply, #retweeted {
       color: #888;
     }
-    #m-creator {
+    #creator {
       color: green;
     }
-    #m-body {
+    #body {
       color: black;
     }
-    #m-body a{
+    #body a{
       color: #377ac3;
       text-decoration: none;
-    }
-
-    #m-control {
-      display: none;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      position: absolute;
-      right: 0;
-    }
-    #m-control li.control-button {
-      display: inline-block;
-      cursor: pointer;
     }
 
     .avatar {
@@ -38,30 +27,26 @@
     }
 
     /* media */
-    #m-media {
+    #media {
       white-space: nowrap;
       width: 400px;
       overflow-x: auto;
       overflow-y: hidden;
     }
-    #m-media img {
+    #media img {
       height: 200px;
       margin-left: 1em;
     }
   </style>
 
-  <div id="m-container">
-    <ul id="m-control">
-      <li class="control-button" id="m-reply-button">Reply</li>
-      <li class="control-button" id="m-retweet-button">Retweet</li>
-      <li class="control-button" id="m-fav-button">Fav</li>
-    </ul>
-    <div id="m-retweeted"></div>
-    <div id="m-reply"></div>
-    <div id="m-creator"></div>
-    <div id="m-body">
-      <div id="m-text"></div>
-      <div id="m-media"></div>
+  <div id="container">
+    <x-tweet-control id="control"></x-tweet-control>
+    <div id="retweeted"></div>
+    <div id="reply"></div>
+    <div id="creator"></div>
+    <div id="body">
+      <div id="text"></div>
+      <div id="media"></div>
     </div>
   </div>
 </template>
@@ -104,54 +89,24 @@
     var $$$creator = document.currentScript.ownerDocument.querySelector('template#creator');
     $$$creator.find = $$$creator.content.querySelector.bind($$$creator.content);
 
-    class Tweet extends HTMLElement {
+    class Tweet extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$tweet.content, true));
-        this.$container = this.get('container');
-        this.$control = this.get('control');
-        this.$text = this.get('text');
-        this.$media = this.get('media');
-        this.$reply = this.get('reply-button');
-        this.$retweet = this.get('retweet-button');
-        this.$fav = this.get('fav-button');
 
-        this.$container.handle('mouseenter', () => {
-          this.$control.style.display = 'block';
+        this.$('container').handle('mouseenter', () => {
+          this.$('control').show();
         });
-        this.$container.handle('mouseleave', () => {
-          this.$control.style.display = 'none';
+        this.$('container').handle('mouseleave', () => {
+          this.$('control').hide();
         });
-        this.$reply.handle('click', () => {
-          this.trigger('openComposeForReply', this.tweet);
-        });
-        this.$retweet.handle('click', () => {
-          this.trigger('openComposeForRetweet', this.tweet);
-        });
-        this.$fav.handle('click', this.favorite.bind(this));
 
         this.tweet = null;
-      }
-
-      get(prop) {
-        return this.shadowRoot.querySelector(`#m-${prop}`);
-      }
-
-      favorite() {
-        document.store.getTwitterClient(document.account)
-          .post("favorites_create", {
-            id: this.tweet.id_str
-          })
-          .then((reply) => {
-            console.log('[tweet] favorite:', reply);
-          }).catch((err) => {
-            console.error('[tweet] favorite failed:', err);
-          });
       }
 
       setReplyTo(tweet) {
         $$$reply.find('.screen-name').textContent = tweet.in_reply_to_screen_name;
 
-        var $container = this.get('reply');
+        var $container = this.$('reply');
         $.removeAllChild($container);
         $container.appendChild(document.importNode($$$reply.content, true));
         return this;
@@ -162,7 +117,7 @@
         $$$retweeted.find('.name').textContent = user.name;
         $$$retweeted.find('.screen-name').textContent = user.screen_name;
 
-        var $container = this.get('retweeted');
+        var $container = this.$('retweeted');
         $.removeAllChild($container);
         $container.appendChild(document.importNode($$$retweeted.content, true));
         return this;
@@ -173,7 +128,7 @@
         $$$creator.find('.name').textContent = user.name;
         $$$creator.find('.screen-name').textContent = user.screen_name;
 
-        var $container = this.get('creator');
+        var $container = this.$('creator');
         $.removeAllChild($container);
         $container.appendChild(document.importNode($$$creator.content, true));
         return this;
@@ -184,10 +139,10 @@
         var entities = Object.keys(obj).reduce((all, key) => {
           return all.concat(obj[key]);
         }, []);
-        this.$text.innerHTML = twttr.txt.autoLink(text, {
+        this.$('text').innerHTML = twttr.txt.autoLink(text, {
           urlEntities: entities
         });
-        this.$text.querySelectorAll('a').forEach(function(node) {
+        this.$('text').querySelectorAll('a').forEach(function(node) {
           node.target = '_blank';
         });
         return this;
@@ -201,11 +156,11 @@
           media = entities.media;
         }
         // console.log('media', media);
-        $.removeAllChild(this.$media);
+        $.removeAllChild(this.$('media'));
         media.forEach(function(medium) {
           var $img = document.createElement('img');
           $img.src = medium.media_url_https;
-          this.$media.appendChild($img);
+          this.$('media').appendChild($img);
         }, this);
         return this;
       }
@@ -219,6 +174,8 @@
 
       setData(tweet) {
         this.tweet = tweet;
+        this.$('control').setTweet(tweet);
+
         // console.log('tweet', tweet);
         if (tweet.in_reply_to_screen_name) {
           // it's a reply tweet
@@ -233,9 +190,9 @@
           this.setTweet(tweet);
 
           var original_tweet = document.createElement('x-tweet');
-          original_tweet.className = "m-quoted";
+          original_tweet.className = "quoted";
           original_tweet.setData(tweet.quoted_status);
-          this.get('body').appendChild(original_tweet);
+          this.$('body').appendChild(original_tweet);
         } else {
           this.setTweet(tweet);
         }

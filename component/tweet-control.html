@@ -1,0 +1,65 @@
+<template id="tweet-control">
+  <style type="text/css">
+    #container {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      position: absolute;
+      right: 0;
+    }
+    #container li.control-button {
+      display: inline-block;
+      cursor: pointer;
+    }
+  </style>
+
+  <ul id="container">
+    <li class="control-button" id="reply-button">Reply</li>
+    <li class="control-button" id="retweet-button">Retweet</li>
+    <li class="control-button" id="fav-button">Fav</li>
+  </ul>
+</template>
+
+<script type="text/javascript">
+  (function() {
+    "use strict";
+
+    var $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-control').content;
+
+    class TweetControl extends XElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$template, true));
+
+        this.$('reply-button').handle('click', () => {
+          this.trigger('openComposeForReply', this.tweet);
+        });
+        this.$('retweet-button').handle('click', () => {
+          this.trigger('openComposeForRetweet', this.tweet);
+        });
+        this.$('fav-button').handle('click', this.favorite.bind(this));
+
+        this.tweet = null;
+
+        this.hide();
+      }
+
+      setTweet(tweet) {
+        this.tweet = tweet;
+      }
+
+      favorite() {
+        document.store.getTwitterClient(document.account)
+          .post("favorites_create", {
+            id: this.tweet.id_str
+          })
+          .then((reply) => {
+            console.log('[tweet] favorite:', reply);
+          }).catch((err) => {
+            console.error('[tweet] favorite failed:', err);
+          });
+      }
+    }
+
+    document.registerElement("x-tweet-control", TweetControl);
+  })();
+</script>

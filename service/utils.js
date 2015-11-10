@@ -87,7 +87,8 @@
       this.style.display = 'none';
     },
 
-    trigger: function(eventName, parameters) {
+    trigger: function(eventName) {
+      var parameters = Array.from(arguments).slice(1);
       console.log('trigger', eventName, parameters);
       this.dispatchEvent(new CustomEvent(eventName, {
         detail: parameters
@@ -112,7 +113,7 @@
     handleActions: function(actions) {
       actions.forEach((actionName) => {
         this.handle(actionName, (event) => {
-          this[actionName].call(this, event.detail);
+          this[actionName].apply(this, event.detail);
         });
       });
     },

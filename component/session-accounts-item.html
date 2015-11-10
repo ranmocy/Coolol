@@ -60,7 +60,7 @@
           document.store.deleteAccount(account);
         });
         this.handle('click', () => {
-          this.trigger('switchBoard', account);
+          this.trigger('switchView', 'board', account);
         });
         return this;
       }

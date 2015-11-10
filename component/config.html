@@ -45,7 +45,7 @@
         var config = this.editor.get();
         document.store.saveConfig(document.account, config);
         console.log("Config saved.", JSON.stringify(config));
-        this.trigger('switchBoard', document.account);
+        this.trigger('switchView', 'board', document.account);
       }
 
       resetConfig() {

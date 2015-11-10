@@ -44,7 +44,7 @@
 
       setAccount(account) {
         this.$('#item').handle('click', () => {
-          this.trigger('switchBoard', account);
+          this.trigger('switchView', 'board', account);
         });
         if (account.profile_image_url) {
           this.$('#avatar').src = account.profile_image_url;

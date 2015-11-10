@@ -97,13 +97,13 @@
         this.createShadowRoot().appendChild(document.importNode($$$nav, true));
 
         this.$('#logo').handle('click', () => {
-          this.trigger('switchSession');
+          this.trigger('switchView', 'session');
         });
         this.$('#open-compose').handle('click', () => {
           this.trigger('openCompose');
         });
         this.$('#account-manage').handle('click', () => {
-          this.trigger('switchSession');
+          this.trigger('switchView', 'session');
         });
 
         this.updateAccountList();
@@ -115,7 +115,7 @@
         if (document.account !== null) {
           this.$('#switch-config').show('inline-block');
           this.$('#switch-config').handle('click', () => {
-            this.trigger('switchConfig');
+            this.trigger('switchView', 'config');
           });
         } else {
           this.$('#switch-config').hide();

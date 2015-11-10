@@ -10,7 +10,6 @@
       this.client = new Codebird();
       this.client.setConsumerKey(consumerKey, consumerSecret);
       this.setToken(token, token_secret);
-      this.promises = {};
     }
 
     start() {
@@ -72,11 +71,10 @@
     }
 
     fetch(source, params) {
-      var key = this.key(source, params);
       if (!$.isDefined(params)) {
         params = {};
       }
-      this.promises[key] = new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         this.client.__call(source, params, (reply, rate, err) => {
           if (err) {
             console.error('error in fetch', err);
@@ -98,11 +96,6 @@
           }
         });
       });
-      return this.promises[key];
-    }
-
-    get(source, params) {
-      return this.promises[this.key(source, params)];
     }
 
     post(source, params) {

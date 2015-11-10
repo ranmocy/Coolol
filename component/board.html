@@ -77,7 +77,7 @@
       refresh() {
         var channels = this.config.channels;
         var client = document.store.getTwitterClient(document.account);
-        var fetched_source = new Set();
+        var fetched_source = {};
 
         var allChannelsPromises = channels.map((channel) => {
           var source_promises = [];
@@ -85,11 +85,12 @@
             var key = client.key(source, params);
             if (key in fetched_source) {
               console.log('[board] get:', key);
-              source_promises.push(client.get(source, params));
+              source_promises.push(fetched_source[key]);
             } else {
               console.log('[board] fetch:', key);
-              source_promises.push(client.fetch(source, params));
-              fetched_source.add(key);
+              var promise = client.fetch(source, params);
+              source_promises.push(promise);
+              fetched_source[key] = promise;
             }
           });
           return Promise.all(source_promises);

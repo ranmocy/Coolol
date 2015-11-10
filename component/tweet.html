@@ -81,17 +81,14 @@
   (function() {
     "use strict";
 
-    var $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet');
-    var $$$retweeted = document.currentScript.ownerDocument.querySelector('template#retweeted');
-    $$$retweeted.find = $$$retweeted.content.querySelector.bind($$$retweeted.content);
-    var $$$reply = document.currentScript.ownerDocument.querySelector('template#reply');
-    $$$reply.find = $$$reply.content.querySelector.bind($$$reply.content);
-    var $$$creator = document.currentScript.ownerDocument.querySelector('template#creator');
-    $$$creator.find = $$$creator.content.querySelector.bind($$$creator.content);
+    var $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet').content;
+    var $$$retweeted = document.currentScript.ownerDocument.querySelector('template#retweeted').content;
+    var $$$reply = document.currentScript.ownerDocument.querySelector('template#reply').content;
+    var $$$creator = document.currentScript.ownerDocument.querySelector('template#creator').content;
 
     class Tweet extends XElement {
       createdCallback() {
-        this.createShadowRoot().appendChild(document.importNode($$$tweet.content, true));
+        this.createShadowRoot().appendChild(document.importNode($$$tweet, true));
 
         this.$('container').handle('mouseenter', () => {
           this.$('control').show();
@@ -104,41 +101,45 @@
       }
 
       setReplyTo(tweet) {
-        $$$reply.find('.screen-name').textContent = tweet.in_reply_to_screen_name;
+        $$$reply.$('.screen-name').textContent = tweet.in_reply_to_screen_name;
 
         var $container = this.$('reply');
         $.removeAllChild($container);
-        $container.appendChild(document.importNode($$$reply.content, true));
+        $container.appendChild(document.importNode($$$reply, true));
         return this;
       }
 
       setRetweeted(user) {
-        $$$retweeted.find('.avatar').src = user.profile_image_url_https;
-        $$$retweeted.find('.name').textContent = user.name;
-        $$$retweeted.find('.screen-name').textContent = user.screen_name;
+        $$$retweeted.$('.avatar').src = user.profile_image_url_https;
+        $$$retweeted.$('.name').textContent = user.name;
+        $$$retweeted.$('.screen-name').textContent = user.screen_name;
 
         var $container = this.$('retweeted');
         $.removeAllChild($container);
-        $container.appendChild(document.importNode($$$retweeted.content, true));
+        $container.appendChild(document.importNode($$$retweeted, true));
         return this;
       }
 
       setCreator(user) {
-        $$$creator.find('.avatar').src = user.profile_image_url_https;
-        $$$creator.find('.name').textContent = user.name;
-        $$$creator.find('.screen-name').textContent = user.screen_name;
+        $$$creator.$('.avatar').src = user.profile_image_url_https;
+        $$$creator.$('.name').textContent = user.name;
+        $$$creator.$('.screen-name').textContent = user.screen_name;
 
         var $container = this.$('creator');
         $.removeAllChild($container);
-        $container.appendChild(document.importNode($$$creator.content, true));
+        $container.appendChild(document.importNode($$$creator, true));
         return this;
       }
 
       setText(text) {
-        var obj = this.tweet.entities;
-        var entities = Object.keys(obj).reduce((all, key) => {
-          return all.concat(obj[key]);
-        }, []);
+        var entities = [];
+        [this.tweet.entities, this.tweet.extended_entities].forEach((obj) => {
+          if ($.isDefined(obj)) {
+            entities = Object.keys(obj).reduce((all, key) => {
+              return all.concat(obj[key]);
+            }, entities);
+          }
+        });
         this.$('text').innerHTML = twttr.txt.autoLink(text, {
           urlEntities: entities
         });
@@ -176,23 +177,26 @@
         this.tweet = tweet;
         this.$('control').setTweet(tweet);
 
-        // console.log('tweet', tweet);
+        // if it's a reply tweet
         if (tweet.in_reply_to_screen_name) {
-          // it's a reply tweet
-          this.setTweet(tweet);
           this.setReplyTo(tweet);
-        } else if (tweet.retweeted_status) {
-          // it's a retweeted tweet
-          this.setTweet(tweet.retweeted_status);
-          this.setRetweeted(tweet.user);
-        } else if (tweet.is_quote_status && $.isDefined(tweet.quoted_status) /* in case quoted tweets chain */ ) {
-          // it's a quoted tweet
-          this.setTweet(tweet);
+        }
 
+        // if it's a retweeted tweet
+        if ($.isDefined(tweet.retweeted_status)) {
+          this.setRetweeted(tweet.user);
+        }
+
+        // if it's a quoted tweet
+        if (tweet.is_quote_status && $.isDefined(tweet.quoted_status) /* in case quoted tweets chain */ ) {
           var original_tweet = document.createElement('x-tweet');
           original_tweet.className = "quoted";
           original_tweet.setData(tweet.quoted_status);
           this.$('body').appendChild(original_tweet);
+        }
+
+        if ($.isDefined(tweet.retweeted_status)) {
+          this.setTweet(tweet.retweeted_status);
         } else {
           this.setTweet(tweet);
         }
@@ -201,7 +205,6 @@
       }
     }
 
-    // Tweet.extends = 'div';
     document.registerElement("x-tweet", Tweet);
   })();
 </script>

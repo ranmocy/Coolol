@@ -50,7 +50,17 @@
   /* Core extentions */
   NodeList.prototype.forEach = Array.prototype.forEach;
 
+  Object.assign(DocumentFragment.prototype, {
+    $: function() {
+      return this.querySelector.apply(this, arguments);
+    },
+  });
+
   Object.assign(HTMLElement.prototype, {
+    $: function() {
+      return this.querySelector.apply(this, arguments);
+    },
+
     detach: function() {
       var parent = this.parentNode;
       if (!parent) {

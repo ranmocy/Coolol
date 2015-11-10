@@ -8,27 +8,27 @@
       height: 100%;
       width: 100%;
     }
-    #m-header {
+    #header {
       color: orange;
       height: 24px;
       line-height: 24px;
       text-align: center;
       border-bottom: 1px #eee solid;
     }
-    #m-tweets {
+    #tweets {
       position: absolute;
       top: 24px;
       bottom: 0;
       overflow-x: hidden;
       overflow-y: auto;
     }
-    #m-tweets x-tweet {
+    #tweets x-tweet {
       border-bottom: 1px #eee solid;
     }
   </style>
 
-  <div id="m-header"></div>
-  <div id="m-tweets"></div>
+  <div id="header"></div>
+  <div id="tweets"></div>
 </template>
 
 <script type="text/javascript">
@@ -37,17 +37,15 @@
 
     var template = document.currentScript.ownerDocument.querySelector('template');
 
-    class Channel extends HTMLElement {
+    class Channel extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
         this.data = null;
-        this.$header = this.shadowRoot.querySelector('#m-header');
-        this.$tweets = this.shadowRoot.querySelector('#m-tweets');
       }
 
       setName(name) {
-        this.$header.textContent = name;
+        this.$('#header').textContent = name;
         return this;
       }
 
@@ -59,7 +57,7 @@
         this.setName(this.config.name);
 
         // Remove all children
-        $.removeAllChildren(this.$tweets);
+        $.removeAllChildren(this.$('#tweets'));
 
         if (!data) {
           return this;
@@ -79,7 +77,7 @@
             return b.created_at - a.created_at;
           })
           .forEach((tweet) => {
-            this.$tweets.appendChild(document.createElement('x-tweet').setData(tweet));
+            this.$('#tweets').appendChild(document.createElement('x-tweet').setData(tweet));
           });
 
         return this;

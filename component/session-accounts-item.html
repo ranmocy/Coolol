@@ -45,19 +45,15 @@
 
     var $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts-item').content;
 
-    class SessionAccountsItem extends HTMLElement {
+    class SessionAccountsItem extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
-
-        this.$avatar = this.shadowRoot.querySelector('#avatar');
-        this.$name = this.shadowRoot.querySelector('#name');
-        this.$delete = this.shadowRoot.querySelector('#delete');
       }
 
       setAccount(account) {
-        this.$avatar.src = account.profile_image_url;
-        this.$name.textContent = account.screen_name;
-        this.$delete.handle('click', () => {
+        this.$('#avatar').src = account.profile_image_url;
+        this.$('#name').textContent = account.screen_name;
+        this.$('#delete').handle('click', () => {
           document.store.deleteTweets(account);
           document.store.deleteTwitterClient(account);
           document.store.deleteConfig(account);

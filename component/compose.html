@@ -7,15 +7,10 @@
       left: 0;
       right: 0;
       z-index: 1000;
-    }
-    #background {
-      height: 100%;
-      width: 100%;
       background-color: rgba(0, 0, 0, 0.8);
-      position: relative;
     }
     #container {
-      position: relative;
+      position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -53,19 +48,17 @@
     }
   </style>
 
-  <div id="background">
-    <div id="container">
-      <div id="header">
-        <span id="title">Compose</span>
-        <span id="close">X</span>
-      </div>
-      <div id="body">
-        <div id="reply-to"></div>
-        <form id="tweet" action="#" method="post">
-          <textarea id="text" rows="8" cols="40"></textarea>
-          <button type="button" id="submit">Tweet</button>
-        </form>
-      </div>
+  <div id="container">
+    <div id="header">
+      <span id="title">Compose</span>
+      <span id="close">X</span>
+    </div>
+    <div id="body">
+      <div id="reply-to"></div>
+      <form id="tweet" action="#" method="post">
+        <textarea id="text" rows="8" cols="40"></textarea>
+        <button type="button" id="submit">Tweet</button>
+      </form>
     </div>
   </div>
 </template>
@@ -76,24 +69,17 @@
 
     var $$$compose = document.currentScript.ownerDocument.querySelector('template#compose');
 
-    class Compose extends HTMLElement {
+    class Compose extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$compose.content, true));
-        this.$host = this.shadowRoot.host;
-        this.$background = this.shadowRoot.querySelector('#background');
-        this.$container = this.shadowRoot.querySelector('#container');
-        this.$close = this.shadowRoot.querySelector('#close');
-        this.$reply_to = this.shadowRoot.querySelector('#reply-to');
-        this.$text = this.shadowRoot.querySelector('#text');
-        this.$submit = this.shadowRoot.querySelector('#submit');
 
-        this.$background.handle('click', this.hide.bind(this));
-        this.$container.handle('click', null); // stop popup to background
-        this.$close.handle('click', () => {
+        this.handle('click', this.hide.bind(this));
+        this.$('#container').handle('click', null); // stop popup to host
+        this.$('#close').handle('click', () => {
           this.clear();
           this.hide();
         });
-        this.$submit.handle('click', this.submit.bind(this));
+        this.$('#submit').handle('click', this.submit.bind(this));
 
         this.params = {};
         this.quoted_status = null;
@@ -102,16 +88,16 @@
       }
 
       clear() {
-        this.$reply_to.textContent = '';
-        this.$text.value = '';
+        this.$('#reply-to').textContent = '';
+        this.$('#text').value = '';
         this.params = {};
         this.quoted_status = null;
       }
 
       openComposeForReply(tweet) {
         console.log('[compose] openComposeForReply:', tweet);
-        this.$reply_to.textContent = `Reply to ${tweet.user.screen_name}: ${tweet.text}`;
-        this.$text.value = `@${tweet.user.screen_name} `;
+        this.$('#reply-to').textContent = `Reply to ${tweet.user.screen_name}: ${tweet.text}`;
+        this.$('#text').value = `@${tweet.user.screen_name} `;
         this.params = {
           in_reply_to_status_id: tweet.id_str, // use id_str instead of id
         };
@@ -120,16 +106,16 @@
 
       openComposeForRetweet(tweet) {
         console.log('[compose] openComposeForRetweet:', tweet);
-        this.$reply_to.textContent = `Retweet from ${tweet.user.screen_name}: ${tweet.text}`;
-        this.$text.value = '';
+        this.$('#reply-to').textContent = `Retweet from ${tweet.user.screen_name}: ${tweet.text}`;
+        this.$('#text').value = '';
         this.quoted_status = tweet;
         this.params = {};
         this.show();
       }
 
       submit() {
-        this.$submit.disabled = true;
-        this.params.status = this.$text.value;
+        this.$('#submit').disabled = true;
+        this.params.status = this.$('#text').value;
         if ($.isDefined(this.quoted_status)) {
           if (this.params.status === '') {
             return this.retweet();
@@ -145,14 +131,14 @@
           .post("statuses_update", this.params)
           .then((reply) => {
             console.log('[compose] posted:', reply);
-            this.$submit.disabled = false;
+            this.$('#submit').disabled = false;
             this.clear();
             this.hide();
             this.trigger('refreshBoard', reply);
           })
           .catch((err) => {
             console.error('[compose] post failed:', err);
-            this.$submit.disabled = false;
+            this.$('#submit').disabled = false;
           });
       }
 
@@ -164,14 +150,14 @@
           })
           .then((reply) => {
             console.log('[compose] retweet:', reply);
-            this.$submit.disabled = false;
+            this.$('#submit').disabled = false;
             this.clear();
             this.hide();
             this.trigger('refreshBoard', reply);
           })
           .catch((err) => {
             console.error('[compose] retweet failed:', err);
-            this.$submit.disabled = false;
+            this.$('#submit').disabled = false;
           });
       }
     }

@@ -37,23 +37,19 @@
 
     var $$$template = document.currentScript.ownerDocument.querySelector('template#nav-accounts-item').content;
 
-    class NavAccountsItem extends HTMLElement {
+    class NavAccountsItem extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
-
-        this.$item = this.shadowRoot.querySelector('#item');
-        this.$avatar = this.shadowRoot.querySelector('#avatar');
-        this.$name = this.shadowRoot.querySelector('#name');
       }
 
       setAccount(account) {
-        this.$item.handle('click', () => {
+        this.$('#item').handle('click', () => {
           this.trigger('switchBoard', account);
         });
         if (account.profile_image_url) {
-          this.$avatar.src = account.profile_image_url;
+          this.$('#avatar').src = account.profile_image_url;
         }
-        this.$name.textContent = account.screen_name;
+        this.$('#name').textContent = account.screen_name;
         return this;
       }
     }

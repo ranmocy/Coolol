@@ -18,22 +18,20 @@
 
     var $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts').content;
 
-    class SessionAccounts extends HTMLElement {
+    class SessionAccounts extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
-
-        this.$accounts = this.shadowRoot.querySelector('#accounts');
 
         document.store.registerAccounts(this.refresh.bind(this));
         this.refresh();
       }
 
       refresh() {
-        $.removeAllChildren(this.$accounts);
+        $.removeAllChildren(this.$('#accounts'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.log('[SessionAccounts] refresh', screen_name);
           var $node = document.createElement('x-session-accounts-item').setAccount(account);
-          this.$accounts.appendChild($node);
+          this.$('#accounts').appendChild($node);
         });
       }
     }

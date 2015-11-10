@@ -3,8 +3,8 @@ window.XElement = (function() {
 
 
   class XElement extends HTMLElement {
-    $(name) {
-      return this.shadowRoot.querySelector(`#${name}`);
+    $(query) {
+      return this.shadowRoot.querySelector(query);
     }
   }
 

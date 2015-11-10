@@ -42,27 +42,27 @@
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
         this.media = null;
-        this.$('background').hide();
+        this.$('#background').hide();
       }
 
       setMedia(media) {
         this.media = media;
 
-        this.$('preview').src = media.media_url_https;
-        this.$('preview').handle('click', () => {
+        this.$('#preview').src = media.media_url_https;
+        this.$('#preview').handle('click', () => {
           console.log('media', media);
-          this.$('background').show();
+          this.$('#background').show();
         });
 
         if (media.type === 'animated_gif' && media.video_info && media.video_info.variants) {
-          this.$('video source').src = media.video_info.variants[0].url;
-          this.$('video source').type = media.video_info.variants[0].content_type;
+          this.$('#video source').src = media.video_info.variants[0].url;
+          this.$('#video source').type = media.video_info.variants[0].content_type;
         } else {
-          this.$('image').src = media.media_url_https;
+          this.$('#image').src = media.media_url_https;
         }
 
-        this.$('background').handle('click', () => {
-          this.$('background').hide();
+        this.$('#background').handle('click', () => {
+          this.$('#background').hide();
         });
         return this;
       }

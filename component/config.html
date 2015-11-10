@@ -5,15 +5,15 @@
   <style>
     /* Relative to the url, which is the directory of index.html */
     @import "vendor/jsoneditor@4.2.1/jsoneditor.min.css";
-    .editor {
+    #editor {
       width: 400px;
       height: 400px;
     }
   </style>
 
-  <div class="editor"></div>
-  <button type="button" name="save">Save</button>
-  <button type="button" name="reset">Reset to default</button>
+  <div id="editor"></div>
+  <button type="button" id="save">Save</button>
+  <button type="button" id="reset">Reset to default</button>
 </template>
 
 <script type="text/javascript">
@@ -22,17 +22,14 @@
 
     var template = document.currentScript.ownerDocument.querySelector('template');
 
-    class Config extends HTMLElement {
+    class Config extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
-        this.saveButton = this.shadowRoot.querySelector('button[name=save]');
-        this.resetButton = this.shadowRoot.querySelector('button[name=reset]');
-        this.editorElem = this.shadowRoot.querySelector('.editor');
 
-        this.saveButton.handle('click', this.saveConfig.bind(this));
-        this.resetButton.handle('click', this.resetConfig.bind(this));
+        this.$('#save').handle('click', this.saveConfig.bind(this));
+        this.$('#reset').handle('click', this.resetConfig.bind(this));
 
-        this.editor = new JSONEditor(this.editorElem, {
+        this.editor = new JSONEditor(this.$('#editor'), {
           mode: 'code'
         });
         this.loadConfig();

@@ -86,11 +86,11 @@
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$tweet, true));
 
-        this.$('container').handle('mouseenter', () => {
-          this.$('control').show();
+        this.$('#container').handle('mouseenter', () => {
+          this.$('#control').show();
         });
-        this.$('container').handle('mouseleave', () => {
-          this.$('control').hide();
+        this.$('#container').handle('mouseleave', () => {
+          this.$('#control').hide();
         });
 
         this.tweet = null;
@@ -99,7 +99,7 @@
       setReplyTo(tweet) {
         $$$reply.$('.screen-name').textContent = tweet.in_reply_to_screen_name;
 
-        var $container = this.$('reply');
+        var $container = this.$('#reply');
         $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$reply, true));
         return this;
@@ -110,7 +110,7 @@
         $$$retweeted.$('.name').textContent = user.name;
         $$$retweeted.$('.screen-name').textContent = user.screen_name;
 
-        var $container = this.$('retweeted');
+        var $container = this.$('#retweeted');
         $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$retweeted, true));
         return this;
@@ -121,7 +121,7 @@
         $$$creator.$('.name').textContent = user.name;
         $$$creator.$('.screen-name').textContent = user.screen_name;
 
-        var $container = this.$('creator');
+        var $container = this.$('#creator');
         $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$creator, true));
         return this;
@@ -136,10 +136,10 @@
             }, entities);
           }
         });
-        this.$('text').innerHTML = twttr.txt.autoLink(text, {
+        this.$('#text').innerHTML = twttr.txt.autoLink(text, {
           urlEntities: entities
         });
-        this.$('text').querySelectorAll('a').forEach(function(node) {
+        this.$('#text').querySelectorAll('a').forEach(function(node) {
           node.target = '_blank';
         });
         return this;
@@ -152,9 +152,9 @@
         } else if (entities && entities.media) {
           media = entities.media;
         }
-        $.removeAllChildren(this.$('media'));
+        $.removeAllChildren(this.$('#media'));
         media.forEach((medium) => {
-          this.$('media').appendChild(document.createElement('x-tweet-media').setMedia(medium));
+          this.$('#media').appendChild(document.createElement('x-tweet-media').setMedia(medium));
         });
         return this;
       }
@@ -168,7 +168,7 @@
 
       setData(tweet) {
         this.tweet = tweet;
-        this.$('control').setTweet(tweet);
+        this.$('#control').setTweet(tweet);
 
         // if it's a reply tweet
         if (tweet.in_reply_to_screen_name) {
@@ -185,7 +185,7 @@
           var original_tweet = document.createElement('x-tweet');
           original_tweet.className = "quoted";
           original_tweet.setData(tweet.quoted_status);
-          this.$('body').appendChild(original_tweet);
+          this.$('#body').appendChild(original_tweet);
         }
 
         if ($.isDefined(tweet.retweeted_status)) {

@@ -32,13 +32,9 @@
 
     var template = document.currentScript.ownerDocument.querySelector('template');
 
-    class App extends HTMLElement {
+    class App extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
-
-        this.$compose = this.shadowRoot.querySelector('x-compose');
-        this.$nav = this.shadowRoot.querySelector('x-nav');
-        this.$main = this.shadowRoot.querySelector('#main');
 
         this.handleActions([
           'openCompose', 'openComposeForReply', 'openComposeForRetweet',
@@ -66,19 +62,19 @@
       }
 
       openCompose(args) {
-        this.$compose.show(args);
+        this.$('x-compose').show(args);
       }
 
       openComposeForReply(tweet) {
-        this.$compose.openComposeForReply(tweet);
+        this.$('x-compose').openComposeForReply(tweet);
       }
 
       openComposeForRetweet(tweet) {
-        this.$compose.openComposeForRetweet(tweet);
+        this.$('x-compose').openComposeForRetweet(tweet);
       }
 
       refreshBoard() {
-        this.$main.querySelector('x-board').refresh();
+        this.$('#main').querySelector('x-board').refresh();
       }
 
       switchBoard(account) {
@@ -91,30 +87,30 @@
           console.log('switchBoard: log is empty, switch to config');
           this.switchConfig();
         } else {
-          $.removeAllChildren(this.$main);
+          $.removeAllChildren(this.$('#main'));
           var board = document.createElement('x-board');
-          this.$main.appendChild(board);
-          this.$nav.updateNav(board);
+          this.$('#main').appendChild(board);
+          this.$('x-nav').updateNav(board);
         }
       }
 
       switchConfig() {
         console.log('switchConfig');
         // document.URL = '#config';
-        $.removeAllChildren(this.$main);
+        $.removeAllChildren(this.$('#main'));
         var config = document.createElement('x-config');
-        this.$main.appendChild(config);
-        this.$nav.updateNav();
+        this.$('#main').appendChild(config);
+        this.$('x-nav').updateNav();
       }
 
       switchSession() {
         console.log('switchSession');
         // document.URL = '#session';
         document.account = null;
-        $.removeAllChildren(this.$main);
+        $.removeAllChildren(this.$('#main'));
         var $session = document.createElement('x-session');
-        this.$main.appendChild($session);
-        this.$nav.updateNav();
+        this.$('#main').appendChild($session);
+        this.$('x-nav').updateNav();
       }
     }
 

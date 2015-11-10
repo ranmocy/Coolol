@@ -40,15 +40,15 @@
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
 
-        this.$('reply-button').handle('click', () => {
+        this.$('#reply-button').handle('click', () => {
           this.trigger('openComposeForReply', this.tweet);
         });
-        this.$('retweet-button').handle('click', () => {
+        this.$('#retweet-button').handle('click', () => {
           if (this.tweet.user.screen_name !== document.account.screen_name) {
             this.trigger('openComposeForRetweet', this.tweet);
           }
         });
-        this.$('fav-button').handle('click', this.favorite.bind(this));
+        this.$('#fav-button').handle('click', this.favorite.bind(this));
 
         this.tweet = null;
 
@@ -58,13 +58,13 @@
       setTweet(tweet) {
         this.tweet = tweet;
         if (this.tweet.user.screen_name === document.account.screen_name) {
-          this.$('retweet-button').className = 'disabled';
+          this.$('#retweet-button').className = 'disabled';
         } else if (this.tweet.retweeted) {
-          this.$('retweet-button').className = 'retweeted';
+          this.$('#retweet-button').className = 'retweeted';
         }
 
         if (this.tweet.favorited) {
-          this.$('fav-button').className = 'favorited';
+          this.$('#fav-button').className = 'favorited';
         }
       }
 

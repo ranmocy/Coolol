@@ -8,7 +8,7 @@
       return document.querySelectorAll.apply(document, arguments);
     },
 
-    removeAllChild: function(element) {
+    removeAllChildren: function(element) {
       while (element.firstChild) {
         element.removeChild(element.firstChild);
       }

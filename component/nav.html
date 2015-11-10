@@ -133,7 +133,7 @@
       }
 
       updateAccountList() {
-        $.removeAllChild(this.$('account-list'));
+        $.removeAllChildren(this.$('account-list'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.log('[nav] list account item', screen_name);
           this.$('account-list').appendChild(document.createElement('x-nav-accounts-item').setAccount(account));

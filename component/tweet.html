@@ -1,4 +1,5 @@
 <link rel="import" href="tweet-control.html">
+<link rel="import" href="tweet-media.html">
 
 <template id="tweet">
   <style>
@@ -26,16 +27,11 @@
       height: 16px;
     }
 
-    /* media */
     #media {
       white-space: nowrap;
       width: 400px;
       overflow-x: auto;
       overflow-y: hidden;
-    }
-    #media img {
-      height: 200px;
-      margin-left: 1em;
     }
   </style>
 
@@ -104,7 +100,7 @@
         $$$reply.$('.screen-name').textContent = tweet.in_reply_to_screen_name;
 
         var $container = this.$('reply');
-        $.removeAllChild($container);
+        $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$reply, true));
         return this;
       }
@@ -115,7 +111,7 @@
         $$$retweeted.$('.screen-name').textContent = user.screen_name;
 
         var $container = this.$('retweeted');
-        $.removeAllChild($container);
+        $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$retweeted, true));
         return this;
       }
@@ -126,7 +122,7 @@
         $$$creator.$('.screen-name').textContent = user.screen_name;
 
         var $container = this.$('creator');
-        $.removeAllChild($container);
+        $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$creator, true));
         return this;
       }
@@ -156,13 +152,10 @@
         } else if (entities && entities.media) {
           media = entities.media;
         }
-        // console.log('media', media);
-        $.removeAllChild(this.$('media'));
-        media.forEach(function(medium) {
-          var $img = document.createElement('img');
-          $img.src = medium.media_url_https;
-          this.$('media').appendChild($img);
-        }, this);
+        $.removeAllChildren(this.$('media'));
+        media.forEach((medium) => {
+          this.$('media').appendChild(document.createElement('x-tweet-media').setMedia(medium));
+        });
         return this;
       }
 

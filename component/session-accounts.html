@@ -29,7 +29,7 @@
       }
 
       refresh() {
-        $.removeAllChild(this.$accounts);
+        $.removeAllChildren(this.$accounts);
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.log('[SessionAccounts] refresh', screen_name);
           var $node = document.createElement('x-session-accounts-item').setAccount(account);

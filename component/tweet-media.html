@@ -1,0 +1,73 @@
+<template id="tweet-media">
+  <style type="text/css">
+    :host {
+      margin: 0 1em;
+    }
+    #preview {
+      height: 200px;
+    }
+    #background {
+      background-color: rgba(0, 0, 0, 0.6);
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 1000;
+    }
+    #image, #video {
+      max-height: 80%;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+  <img id="preview">
+  <div id="background">
+    <img id="image">
+    <video autoplay loop id="video">
+      <source></source>
+    </video>
+  </div>
+</template>
+
+<script type="text/javascript">
+  (function() {
+    "use strict";
+
+    var $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-media').content;
+
+    class TweetMedium extends XElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$template, true));
+        this.media = null;
+        this.$('background').hide();
+      }
+
+      setMedia(media) {
+        this.media = media;
+
+        this.$('preview').src = media.media_url_https;
+        this.$('preview').handle('click', () => {
+          console.log('media', media);
+          this.$('background').show();
+        });
+
+        if (media.type === 'animated_gif' && media.video_info && media.video_info.variants) {
+          this.$('video source').src = media.video_info.variants[0].url;
+          this.$('video source').type = media.video_info.variants[0].content_type;
+        } else {
+          this.$('image').src = media.media_url_https;
+        }
+
+        this.$('background').handle('click', () => {
+          this.$('background').hide();
+        });
+        return this;
+      }
+    }
+
+    document.registerElement("x-tweet-media", TweetMedium);
+  })();
+</script>

@@ -110,13 +110,14 @@
     }
 
     saveJSON(field, value) {
+      var old_value = cache[field];
       cache[field] = value;
       localStorage.setItem(field, JSON.stringify(value));
       console.log('[store] saveJSON:', field, value, callbacks);
       if (callbacks[field]) {
         console.log('[store] trigger callbacks', field);
         callbacks[field].forEach((callback) => {
-          callback(value);
+          callback(value, old_value);
         });
       }
       return value;
@@ -218,7 +219,14 @@
   }
   */
   Store.addAccessTo('config', {});
-  store.registerConfigs(() => { store.deleteTweets(document.account); });
+  store.registerConfigs((configs, old_configs) => {
+    for (var screen_name in configs) {
+      if (configs[screen_name] !== old_configs[screen_name]) {
+        var account = store.getAllAccounts()[screen_name];
+        store.deleteTweets(account);
+      }
+    }
+  });
 
   /*
   Tweets = {

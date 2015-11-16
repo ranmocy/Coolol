@@ -42,9 +42,16 @@ It allows you to write a config like:
 }
 ```
 
+Name of sources come from [Codebird convention][codebirdMapping] based on [Twitter API][twitterApi]
+
+
 # Local Usage
 
 * `git clone https://github.com/ranmocy/Coolol.git`
 * `cd Coolol`
 * `python -m SimpleHTTPServer 8080`
 * Open browser with url: `http://localhost:8080`
+
+
+   [codebirdMapping]: https://github.com/jublonet/codebird-js#mapping-api-methods-to-codebird-function-calls (Codebird API Mapping)
+   [twitterApi]: https://dev.twitter.com/rest/public (Twitter REST API)

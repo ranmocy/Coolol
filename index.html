@@ -28,29 +28,29 @@
     </x-app>
 
     <script type="text/javascript">
-      var features_missing = [];
-      // Test HTML5 local storage
-      if(typeof(Storage) === "undefined") {
-        features_missing.push("Can't read from storage!");
-      }
-      // Test Object.assign
-      if (typeof(Object.assign) !== 'function') {
-        features_missing.push("Can't use Object.assign!");
-      }
-      // Test HTML template support
-      if (!('content' in document.createElement('template'))) {
-        features_missing.push("Can't use HTML template!");
-      }
-      // Test shadow dom support
-      if (typeof document.body.createShadowRoot !== 'function') {
-        features_missing.push("Can't use shadow dom!");
-      }
-      // Test arrow function
-      try {
-        new Function( "(y => y)" );
-      } catch (err) {
-        features_missing.push("Can't use arrow function!");
-      }
+      // Further checker: https://github.com/ruanyf/es-checker
+      var features = [
+        // Test HTML5 local storage
+        ["typeof(Storage) !== 'undefined'", "Can't read from storage!"],
+        // Test Object.assign
+        ["typeof(Object.assign) === 'function'", "Can't use Object.assign!"],
+        // Test HTML template support
+        ["'content' in document.createElement('template')", "Can't use HTML template!"],
+        // Test shadow dom support
+        ["typeof document.body.createShadowRoot === 'function'", "Can't use shadow dom!"],
+        // Test arrow function
+        ["(() => {});", "Can't use arrow function!"],
+      ];
+      var features_missing = features.filter(function(feature) {
+        try {
+          return !(new Function("'use strict'; return " + feature[0]))();
+        } catch (e) {
+          console.error(e);
+          return true; // feature missed
+        }
+      }).map(function(feature) {
+        return feature[1];
+      });
       // Tell user
       if (features_missing.length > 0) {
         var $loading = document.body.querySelector('#loading');

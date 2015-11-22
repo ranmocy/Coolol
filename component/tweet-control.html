@@ -1,17 +1,11 @@
-<!-- Pre-loading font and CSS -->
-<link rel="stylesheet" type="text/css" href="../vendor/font-awesome-4.4.0/css/font-awesome.min.css">
-
 <template id="tweet-control">
   <style type="text/css">
     @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
-    #container {
-      list-style: none;
-      margin: 0;
-      padding: 0;
+    :host {
       position: absolute;
       right: 1em;
     }
-    li {
+    i {
       display: inline-block;
       cursor: pointer;
     }
@@ -27,11 +21,9 @@
     }
   </style>
 
-  <ul id="container">
-    <i id="reply-button" class="fa fa-reply"></i>
-    <i id="retweet-button" class="fa fa-retweet"></i>
-    <i id="fav-button" class="fa fa-heart"></i>
-  </ul>
+  <i id="reply-button" class="fa fa-reply"></i>
+  <i id="retweet-button" class="fa fa-retweet"></i>
+  <i id="fav-button" class="fa fa-heart"></i>
 </template>
 
 <script type="text/javascript">
@@ -47,11 +39,7 @@
         this.$('#reply-button').handle('click', () => {
           this.trigger('openComposeForReply', this.tweet);
         });
-        this.$('#retweet-button').handle('click', () => {
-          if (this.tweet.user.screen_name !== document.account.screen_name) {
-            this.trigger('openComposeForRetweet', this.tweet);
-          }
-        });
+        this.$('#retweet-button').handle('click', this.retweet.bind(this));
         this.$('#fav-button').handle('click', this.favorite.bind(this));
 
         this.tweet = null;
@@ -69,6 +57,12 @@
 
         if (this.tweet.favorited) {
           this.$('#fav-button').dataset.status = 'favorited';
+        }
+      }
+
+      retweet() {
+        if (this.tweet.user.screen_name !== document.account.screen_name) {
+          this.trigger('openComposeForRetweet', this.tweet);
         }
       }
 

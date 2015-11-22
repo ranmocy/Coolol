@@ -53,5 +53,13 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 * Open browser with url: `http://localhost:8080`
 
 
+# TODO
+
+* When tweet is retweeted and button clicked, it cancels retweeting.
+* When retweet/fav a tweet, all tweet component should refresh.
+* Auto refresh
+* Fetch more tweet when scroll down to the bottom
+* Refresh button can spin
+
    [codebirdMapping]: https://github.com/jublonet/codebird-js#mapping-api-methods-to-codebird-function-calls (Codebird API Mapping)
    [twitterApi]: https://dev.twitter.com/rest/public (Twitter REST API)

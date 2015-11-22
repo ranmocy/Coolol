@@ -2,6 +2,7 @@
 
 <template id="nav">
   <style media="screen">
+    @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
     nav {
       height: 50px;
       padding: 0 20px;
@@ -72,11 +73,11 @@
   <nav>
     <span id="logo"><a href="#sessions">Coolol</a></span>
     <span id="control-panel">
-      <a href="#" class="menu" id="open-compose">Compose</a>
-      <a href="#" class="menu" id="refresh-board">Refresh</a>
-      <a href="#" class="menu" id="switch-config">Setting</a>
+      <a id="open-compose" class="menu fa fa-pencil-square-o"></a>
+      <a id="refresh-board" class="menu fa fa-refresh"></a>
+      <a id="switch-config" class="menu fa fa-cog"></a>
       <span class="account-list-dropdown">
-        <a href="#" class="menu dropdown-target" id="switch-session">Accounts</a>
+        <a href="#" class="menu dropdown-target fa fa-user" id="switch-session"></a>
         <div class="account-list-container">
           <ul id="account-list"></ul>
           <a href="#" id="account-manage">Manage accounts</a>

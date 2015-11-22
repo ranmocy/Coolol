@@ -1,3 +1,5 @@
+<!-- Pre-loading font and CSS -->
+<link rel="stylesheet" type="text/css" href="../vendor/font-awesome-4.4.0/css/font-awesome.min.css">
 
 <template id="tweet-control">
   <style type="text/css">
@@ -7,28 +9,28 @@
       margin: 0;
       padding: 0;
       position: absolute;
-      right: 0;
+      right: 1em;
     }
     li {
       display: inline-block;
       cursor: pointer;
     }
-    li.disabled {
+    i[data-status='disabled'] {
       cursor: normal;
       color: #eee;
     }
-    li.retweeted {
+    i[data-status='retweeted'] {
       color: #5c913b;
     }
-    li.favorited {
+    i[data-status='favorited'] {
       color: #dd2e44;
     }
   </style>
 
   <ul id="container">
-    <li id="reply-button">Reply</li>
+    <i id="reply-button" class="fa fa-reply"></i>
     <i id="retweet-button" class="fa fa-retweet"></i>
-    <li id="fav-button">Fav</li>
+    <i id="fav-button" class="fa fa-heart"></i>
   </ul>
 </template>
 
@@ -60,13 +62,13 @@
       setTweet(tweet) {
         this.tweet = tweet;
         if (this.tweet.user.screen_name === document.account.screen_name) {
-          this.$('#retweet-button').className = 'disabled';
+          this.$('#retweet-button').dataset.status = 'disabled';
         } else if (this.tweet.retweeted) {
-          this.$('#retweet-button').className = 'retweeted';
+          this.$('#retweet-button').dataset.status = "retweeted";
         }
 
         if (this.tweet.favorited) {
-          this.$('#fav-button').className = 'favorited';
+          this.$('#fav-button').dataset.status = 'favorited';
         }
       }
 

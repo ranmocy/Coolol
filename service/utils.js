@@ -43,11 +43,33 @@
       });
     },
 
+    /* Callbacks */
+    registerObjectCallback: function(obj, callback) {
+      if (!$.isDefined(obj._callbacks)) {
+        obj._callbacks = [];
+      }
+      obj._callbacks.push(callback);
+      return obj;
+    },
+
+    updateObject: function(obj, newFields) {
+      Object.assign(obj, newFields);
+      if ($.isDefined(obj._callbacks)) {
+        // call all the callbacks and remove these callbacks.
+        // it's the callbacks' duty to re-register
+        console.debug("Updated obj: ", obj, "trigger callbacks.");
+        var callbacks = obj._callbacks;
+        obj._callbacks = [];
+        callbacks.forEach((callback) => {
+          callback(obj);
+        });
+      }
+    },
 
   });
 
 
-  /* Core extentions */
+  /* Core extensions */
   NodeList.prototype.forEach = Array.prototype.forEach;
 
   Object.assign(DocumentFragment.prototype, {
@@ -120,14 +142,14 @@
   });
 
 
-  /* A-> $http function is implemented in order to follow the standard Adapter pattern */
+  /* A function is implemented in order to follow the standard Adapter pattern */
   function $http(url) {
     'use strict';
 
     // A small example of object
     var core = {
 
-      // Method that performs the ajax request
+      // Method that performs the Ajax request
       ajax: function(method, url, args) {
 
         // Creating a promise

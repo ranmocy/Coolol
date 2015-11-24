@@ -62,13 +62,18 @@
         // cache up
         document.store.saveTweets(document.account, data);
         this._data = data;
+
+        // register tweet for saveTweets when tweet changed.
         var updateFunc = (tweet) => {
-          document.store.saveTweets(document.account, data);
+          document.store.saveTweets(document.account, this._data);
           $.registerObjectCallback(tweet, updateFunc);
+          console.log('[board]', 'saveTweets due the the update of tweet', tweet);
         };
         this._data.forEach((channelData) => {
-          channelData.forEach((tweet) => {
-            $.registerObjectCallback(tweet, updateFunc);
+          channelData.forEach((sourceData) => {
+            sourceData.forEach((tweet) => {
+              $.registerObjectCallback(tweet, updateFunc);
+            });
           });
         });
         console.log('[board]', 'Register all tweet to saveTweets');

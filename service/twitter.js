@@ -74,6 +74,7 @@
       if (!$.isDefined(params)) {
         params = {};
       }
+      console.log('[twitter] fetch', source, params);
       return new Promise((resolve, reject) => {
         this.client.__call(source, params, (reply, rate, err) => {
           if (err) {
@@ -99,6 +100,11 @@
     }
 
     post(source, params) {
+      if (!$.isDefined(params)) {
+        params = {};
+      }
+      console.log('[twitter] post', source, params);
+
       return new Promise((resolve, reject) => {
         this.client.__call(source, params, (reply, rate, err) => {
           if (err) {

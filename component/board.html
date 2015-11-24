@@ -69,6 +69,7 @@
           $.registerObjectCallback(tweet, updateFunc);
           console.log('[board]', 'saveTweets due the the update of tweet', tweet);
         };
+        // TODO: unify tweet objects between different channels
         this._data.forEach((channelData) => {
           channelData.forEach((sourceData) => {
             sourceData.forEach((tweet) => {

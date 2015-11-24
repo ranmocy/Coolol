@@ -52,9 +52,10 @@
 
         this.$('#retweet-button').dataset.status =
           (this.tweet.user.screen_name === document.account.screen_name) ?
-          'disabled':
+          'disabled' :
           (this.tweet.retweeted) ?
-          'retweeted' : '';
+          'retweeted' :
+          '';
 
         this.$('#fav-button').dataset.status =
           (this.tweet.favorited) ? 'favorited' : '';

@@ -48,6 +48,10 @@
       if (!$.isDefined(obj._callbacks)) {
         obj._callbacks = [];
       }
+      if (typeof callback !== 'function') {
+        console.error('[utils]', 'updateObject', 'callback is not a function', callback);
+        return;
+      }
       obj._callbacks.push(callback);
       return obj;
     },
@@ -61,7 +65,11 @@
         var callbacks = obj._callbacks;
         obj._callbacks = [];
         callbacks.forEach((callback) => {
-          callback(obj);
+          if (typeof callback === 'function') {
+            callback(obj);
+          } else {
+            console.error('[utils]', 'updateObject', 'callback is not a function', callback);
+          }
         });
       }
     },

@@ -164,6 +164,7 @@
       }
 
       setTweet(tweet) {
+        this.$('#container').title = tweet.id_str;
         this.setCreator(tweet.user);
         this.setText(tweet.text);
         this.setMedia(tweet.entities, tweet.extended_entities);

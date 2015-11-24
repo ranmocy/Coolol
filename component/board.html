@@ -62,6 +62,16 @@
         // cache up
         document.store.saveTweets(document.account, data);
         this._data = data;
+        var updateFunc = (tweet) => {
+          document.store.saveTweets(document.account, data);
+          $.registerObjectCallback(tweet, updateFunc);
+        };
+        this._data.forEach((channelData) => {
+          channelData.forEach((tweet) => {
+            $.registerObjectCallback(tweet, updateFunc);
+          });
+        });
+        console.log('[board]', 'Register all tweet to saveTweets');
 
         // Remove all children
         $.removeAllChildren(this.$('#channels'));

@@ -171,6 +171,9 @@
       }
 
       setData(tweet) {
+        // when tweet object is changed, refresh the UI
+        $.registerObjectCallback(tweet, this.setData.bind(this));
+
         this.tweet = tweet;
         this.$('#control').setTweet(tweet);
 

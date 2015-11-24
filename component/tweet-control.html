@@ -49,15 +49,15 @@
 
       setTweet(tweet) {
         this.tweet = tweet;
-        if (this.tweet.user.screen_name === document.account.screen_name) {
-          this.$('#retweet-button').dataset.status = 'disabled';
-        } else if (this.tweet.retweeted) {
-          this.$('#retweet-button').dataset.status = "retweeted";
-        }
 
-        if (this.tweet.favorited) {
-          this.$('#fav-button').dataset.status = 'favorited';
-        }
+        this.$('#retweet-button').dataset.status =
+          (this.tweet.user.screen_name === document.account.screen_name) ?
+          'disabled':
+          (this.tweet.retweeted) ?
+          'retweeted' : '';
+
+        this.$('#fav-button').dataset.status =
+          (this.tweet.favorited) ? 'favorited' : '';
       }
 
       retweet() {
@@ -67,14 +67,21 @@
       }
 
       favorite() {
+        var api;
+        if (this.tweet.favorited) {
+          api = "favorites_destroy";
+        } else {
+          api = "favorites_create";
+        }
         document.store.getTwitterClient(document.account)
-          .post("favorites_create", {
+          .post(api, {
             id: this.tweet.id_str
           })
           .then((reply) => {
-            console.log('[tweet] favorite:', reply);
+            console.log('[tweet]', api, reply);
+            $.updateObject(this.tweet, reply);
           }).catch((err) => {
-            console.error('[tweet] favorite failed:', err);
+            console.error('[tweet] failed:', api, err);
           });
       }
     }

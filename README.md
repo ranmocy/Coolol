@@ -60,6 +60,7 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 * Fetch more tweet when scroll down to the bottom
 * Refresh button can spin
 * Prepends tweet when publish new tweet.
+* Pre-check and re-auth user.
 
    [codebirdMapping]: https://github.com/jublonet/codebird-js#mapping-api-methods-to-codebird-function-calls (Codebird API Mapping)
    [twitterApi]: https://dev.twitter.com/rest/public (Twitter REST API)

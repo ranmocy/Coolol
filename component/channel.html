@@ -78,7 +78,7 @@
             return b.created_at - a.created_at;
           })
           .forEach((tweet) => {
-            this.$('#tweets').appendChild(document.createElement('x-tweet').setData(tweet));
+            this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
           });
 
         return this;

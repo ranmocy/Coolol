@@ -69,6 +69,7 @@
           $.registerObjectCallback(tweet, updateFunc);
           console.log('[board]', 'saveTweets due the the update of tweet', tweet);
         };
+        // unify tweet into unique objects
         var tweetMaps = {};
         this._data = data.map((channelData) => {
           return channelData.map((sourceData) => {

@@ -62,7 +62,37 @@
       }
 
       retweet() {
-        if (this.tweet.user.screen_name !== document.account.screen_name) {
+        if (this.tweet.user.screen_name === document.account.screen_name) {
+          // current user can't retweet his own tweet.
+          return;
+        }
+        if (this.tweet.retweeted) {
+          // un-retweet
+          var client = document.store.getTwitterClient(document.account);
+          var un_retweet_func = (current_user_retweet_id_str) => {
+            client
+              .post("statuses_destroy_ID", {
+                id: current_user_retweet_id_str
+              })
+              .then(() => {
+                $.updateObject(this.tweet, {retweeted: false, current_user_retweet: undefined});
+              });
+          };
+          if (this.tweet.current_user_retweet) {
+            un_retweet_func(this.tweet.current_user_retweet.id_str);
+          } else {
+            client
+              .fetch("statuses_show_ID", {
+                id: this.tweet.id_str,
+                include_my_retweet: true, // so that the reply contains current_user_retweet
+              })
+              .then((reply) => {
+                $.updateObject(this.tweet, reply); // save current_user_retweet
+                un_retweet_func(reply.current_user_retweet.id_str);
+              });
+          }
+        } else {
+          // retweet this tweet
           this.trigger('openComposeForRetweet', this.tweet);
         }
       }

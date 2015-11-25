@@ -88,7 +88,9 @@
             console.log('rate limit:', rate);
           }
           if (reply.errors) {
-            console.error('error in fetch reply:', reply.errors);
+            reply.errors.forEach((error) => {
+              console.error('error in post reply:', error.code, error.message);
+            });
             reject(reply.errors);
             return;
           }
@@ -128,6 +130,16 @@
             resolve(reply);
           }
         });
+      });
+    }
+
+    do(func) {
+      return new Promise((resolve, reject) => {
+        try {
+          resolve(func(this));
+        } catch (e) {
+          reject(e);
+        }
       });
     }
   }

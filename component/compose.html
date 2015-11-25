@@ -143,17 +143,17 @@
       }
 
       retweet() {
-        var client = document.store.getTwitterClient(document.account);
-        client
+        document.store.getTwitterClient(document.account)
           .post("statuses_retweet_ID", {
             id: this.quoted_status.id_str
           })
           .then((reply) => {
             console.log('[compose] retweet:', reply);
+            debugger
             this.$('#submit').disabled = false;
             this.clear();
             this.hide();
-            this.trigger('refreshBoard', reply);
+            $.updateObject(this.quoted_status, reply);
           })
           .catch((err) => {
             console.error('[compose] retweet failed:', err);

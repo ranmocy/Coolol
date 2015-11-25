@@ -55,11 +55,11 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 
 # TODO
 
-* When tweet is retweeted and button clicked, it cancels retweeting.
-* When retweet/fav a tweet, all tweet component should refresh.
+* When retweet a tweet, all tweet component should refresh.
 * Auto refresh
 * Fetch more tweet when scroll down to the bottom
 * Refresh button can spin
+* Prepends tweet when publish new tweet.
 
    [codebirdMapping]: https://github.com/jublonet/codebird-js#mapping-api-methods-to-codebird-function-calls (Codebird API Mapping)
    [twitterApi]: https://dev.twitter.com/rest/public (Twitter REST API)

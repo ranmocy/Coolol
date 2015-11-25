@@ -39,26 +39,22 @@
     <script type="text/javascript">
       // Further checker: https://github.com/ruanyf/es-checker
       var features = [
-        // Test HTML5 local storage
-        ["typeof(Storage) !== 'undefined'", "Can't read from storage!"],
-        // Test Object.assign
-        ["typeof(Object.assign) === 'function'", "Can't use Object.assign!"],
-        // Test HTML template support
-        ["'content' in document.createElement('template')", "Can't use HTML template!"],
-        // Test shadow dom support
-        ["typeof document.body.createShadowRoot === 'function'", "Can't use shadow dom!"],
-        // Test arrow function
-        ["(() => {});", "Can't use arrow function!"],
+        ["HTML5 local storage", "typeof(Storage) !== 'undefined'"],
+        ["Object.assign", "typeof(Object.assign) === 'function'"],
+        ["HTML template", "'content' in document.createElement('template')"],
+        ["shadow dom", "typeof document.body.createShadowRoot === 'function'"],
+        ["arrow function", "(() => {});"],
+        ["Promise", "'Promise' in global"]
       ];
       var features_missing = features.filter(function(feature) {
         try {
-          return !(new Function("'use strict'; return " + feature[0]))();
+          return !(new Function("'use strict'; return " + feature[1]))();
         } catch (e) {
           console.error(e);
           return true; // feature missed
         }
       }).map(function(feature) {
-        return feature[1];
+        return feature[0];
       });
       // Tell user
       if (features_missing.length > 0) {
@@ -66,9 +62,9 @@
         $loading.id = 'error';
         var $container = $loading.querySelector('div');
         $container.querySelector('h1').textContent = "Some JavaScript features are missing!";
-        features_missing.forEach(function (feature) {
+        features_missing.forEach(function (feature_desc) {
           var $item = document.createElement('h3');
-          $item.textContent = feature;
+          $item.textContent = "Can't use " + feature_desc + "!";
           $container.appendChild($item);
         });
         var $tip = document.createElement('h2');

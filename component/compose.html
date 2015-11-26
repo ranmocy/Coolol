@@ -149,11 +149,16 @@
           })
           .then((reply) => {
             console.log('[compose] retweet:', reply);
-            debugger
             this.$('#submit').disabled = false;
             this.clear();
             this.hide();
-            $.updateObject(this.quoted_status, reply);
+            // Update current_user_retweet
+            this.quoted_status.current_user_retweet = reply.id_str;
+            if (this.quoted_status.retweeted_status) {
+              this.quoted_status.retweeted_status.current_user_retweet = reply.id_str;
+            }
+            // trigger callbacks
+            $.updateObject(this.quoted_status, {retweeted: true});
           })
           .catch((err) => {
             console.error('[compose] retweet failed:', err);

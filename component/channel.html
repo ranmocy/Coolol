@@ -81,6 +81,14 @@
             this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
           });
 
+        // scroll event
+        var tweetsElem = this.$('#tweets');
+        tweetsElem.handle('scroll', () => {
+          if (tweetsElem.scrollTop + tweetsElem.offsetHeight + 10 >= tweetsElem.scrollHeight) {
+            console.debug('scroll to bottom', tweetsElem.scrollHeight - tweetsElem.scrollTop - tweetsElem.offsetHeight);
+          }
+        });
+
         return this;
       }
     }

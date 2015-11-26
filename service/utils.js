@@ -133,7 +133,9 @@
         } else {
           event.stopPropagation();
         }
-        console.log('handle', eventName, event.detail);
+        if (eventName !== 'mouseenter' && eventName !== 'mouseleave') {
+          console.log('handle', eventName, event.detail);
+        }
         if (callback) {
           callback(event);
         }

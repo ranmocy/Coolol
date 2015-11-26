@@ -22,7 +22,7 @@
 
     /* Object */
     isDefined: function(v) {
-      return typeof v !== "undefined";
+      return (typeof(v) !== "undefined") && (v !== null);
     },
 
     forEachKeyValue: function(obj, callback) {
@@ -45,25 +45,25 @@
 
     /* Callbacks */
     registerObjectCallback: function(obj, callback) {
-      if (!$.isDefined(obj._callbacks)) {
-        obj._callbacks = [];
+      if (!$.isDefined(obj.__callbacks)) {
+        obj.__callbacks = [];
       }
       if (typeof callback !== 'function') {
         console.error('[utils]', 'updateObject', 'callback is not a function', callback);
         return;
       }
-      obj._callbacks.push(callback);
+      obj.__callbacks.push(callback);
       return obj;
     },
 
     updateObject: function(obj, newFields) {
       Object.assign(obj, newFields);
-      if ($.isDefined(obj._callbacks)) {
+      if ($.isDefined(obj.__callbacks)) {
         // call all the callbacks and remove these callbacks.
         // it's the callbacks' duty to re-register
-        console.debug("Updated obj: ", obj, "trigger callbacks.");
-        var callbacks = obj._callbacks;
-        obj._callbacks = [];
+        console.debug("Updated obj: ", obj, "trigger callbacks.", obj.__callbacks);
+        var callbacks = obj.__callbacks;
+        obj.__callbacks = [];
         callbacks.forEach((callback) => {
           if (typeof callback === 'function') {
             callback(obj);

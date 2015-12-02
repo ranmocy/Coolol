@@ -55,7 +55,6 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 
 # TODO
 
-* When retweet a tweet, all tweet component should refresh.
 * Auto refresh
 * Fetch more tweet when scroll down to the bottom
 * Refresh button can spin

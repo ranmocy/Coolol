@@ -15,21 +15,31 @@
       text-align: center;
       border-bottom: 1px #eee solid;
     }
-    #tweets {
+    #tweets, #loading {
       position: absolute;
+      width: 100%;
+    }
+    #tweets {
       top: 24px;
       bottom: 0;
+      padding-bottom: 24px;
       overflow-x: hidden;
       overflow-y: auto;
-      width: 100%;
     }
     #tweets x-tweet {
       border-bottom: 1px #eee solid;
+    }
+
+    #loading {
+      bottom: 0;
+      height: 24px;
+      text-align: center;
     }
   </style>
 
   <div id="header"></div>
   <div id="tweets"></div>
+  <div id="loading">Loading more...</div>
 </template>
 
 <script type="text/javascript">
@@ -43,6 +53,7 @@
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
         this.data = null;
+        this.fetching = false;
       }
 
       setName(name) {
@@ -56,6 +67,9 @@
 
         // set header
         this.setName(this.config.name);
+
+        // hide loading
+        this.$('#loading').hide();
 
         // Remove all children
         $.removeAllChildren(this.$('#tweets'));
@@ -85,11 +99,25 @@
         var tweetsElem = this.$('#tweets');
         tweetsElem.handle('scroll', () => {
           if (tweetsElem.scrollTop + tweetsElem.offsetHeight + 10 >= tweetsElem.scrollHeight) {
-            console.debug('scroll to bottom', tweetsElem.scrollHeight - tweetsElem.scrollTop - tweetsElem.offsetHeight);
+            this.fetchMore();
           }
         });
 
         return this;
+      }
+
+      fetchMore() {
+        console.debug('scroll to bottom');
+        if (this.fetching) {
+          console.log('This channel is fetching, skip.');
+          return;
+        }
+        this.fetching = true;
+        try {
+          this.$('#loading').show();
+        } finally {
+          this.fetching = false;
+        }
       }
     }
 

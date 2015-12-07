@@ -7,43 +7,42 @@
       width: 300px;
       margin: 50px auto;
     }
-    #add, #login {
+    #add, #loading, #login {
       background-color: #efefef;
       text-align: center;
-    }
-    #add {
-      line-height: 48px;
-      cursor: pointer;
     }
     #add:hover {
       background-color: #bbb;
     }
-    #login {
-      cursor: default;
-      padding: 0.5em 0;
+    #add, #loading {
+      line-height: 48px;
     }
-    #auth, #verify {
+    #add, #verify {
       cursor: pointer;
+    }
+    #loading, #login {
+      cursor: default;
+    }
+    #login {
+      padding: 0.5em 0;
     }
   </style>
 
   <div id="add">Add new account</div>
 
+  <div id="loading">Fetching token...</div>
+
   <div id="login">
-    <div>
-      Press
-      <button type="button" id="auth">Auth</button>
-      button to authorize on Twitter.
-    </div>
-    <div id="auth-info">
-      <p>Or manually open the url:</p>
-      <p><a href="" id="auth-url" target="_blank"></a></p>
-      <p>Copy the pin code from Twitter to verify:</p>
-      <p>
-        <input type="text" id="pin-code" value="">
-        <button type="button" id="verify">Verify</button>
-      </p>
-    </div>
+    <p>
+      If Twitter window is not opened,
+      <a href="" id="auth-url" target="_blank">click me</a>
+      .
+    </p>
+    <p>Finally, paste your PIN code here:</p>
+    <p>
+      <input type="text" id="pin-code" value="">
+      <button type="button" id="verify">Finish</button>
+    </p>
   </div>
 
   <x-session-accounts></x-session-accounts>
@@ -60,24 +59,24 @@
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
 
         this.$('#add').handle('click', this.add.bind(this));
-        this.$('#auth').handle('click', this.auth.bind(this));
         this.$('#verify').handle('click', this.verify.bind(this));
 
+        this.$('#loading').hide();
         this.$('#login').hide();
       }
 
       add() {
         this.$('#add').hide();
-        this.$('#login').show();
-        this.$('#auth-info').hide();
+        this.$('#loading').show();
+        this.auth();
       }
 
       auth() {
         this.current_client = new Twitter();
         this.current_client.auth((auth_url) => {
-          this.$('#auth-url').textContent = auth_url;
+          this.$('#loading').hide();
           this.$('#auth-url').href = auth_url;
-          this.$('#auth-info').show();
+          this.$('#login').show();
           window.codebird_auth = window.open(auth_url);
         });
         return this;
@@ -85,25 +84,25 @@
 
       verify() {
         this.current_client
-        .verify(this.$('#pin-code').value, (reply) => {
-          if (!reply || !reply.user_id) {
-            console.error('[session] verify account failed!', reply);
-            return;
-          }
-          var account = {
-            user_id: reply.user_id,
-            screen_name: reply.screen_name,
-            name: reply.name,
-            token: reply.oauth_token,
-            token_secret: reply.oauth_token_secret
-          };
-          document.store.saveTwitterClient(account, this.current_client);
-          document.store.updateAccount(account);
-          document.store.resetConfig(account);
+          .verify(this.$('#pin-code').value, (reply) => {
+            if (!reply || !reply.user_id) {
+              console.error('[session] verify account failed!', reply);
+              return;
+            }
+            var account = {
+              user_id: reply.user_id,
+              screen_name: reply.screen_name,
+              name: reply.name,
+              token: reply.oauth_token,
+              token_secret: reply.oauth_token_secret
+            };
+            document.store.saveTwitterClient(account, this.current_client);
+            document.store.updateAccount(account);
+            document.store.resetConfig(account);
 
-          this.$('#add').show();
-          this.$('#login').hide();
-        });
+            this.$('#login').hide();
+            this.$('#add').show();
+          });
         return this;
       }
     }

@@ -51,6 +51,7 @@
         this.loadView(window.location);
       }
 
+      // First time loading
       loadView(location) {
         console.log('[app] loadView', location);
         if (!location) {
@@ -102,6 +103,7 @@
         }
       }
 
+      // Switch view after initialization
       switchView(view) {
         var method_name, title, url, args = Array.from(arguments).slice(1);
         console.log('[app] switchView', view, args, window.location);
@@ -162,31 +164,30 @@
 
         var config = document.store.getConfig(account);
         if (!$.isDefined(config) || Object.keys(config).length === 0) {
-          console.log('switchBoard: log is empty, switch to config');
+          console.log('switchBoard: config is empty, switch to config view.');
+          Notify.info('You need to setup config first.');
           this.switchView('config');
         } else {
-          $.removeAllChildren(this.$('#main'));
-          var board = document.createElement('x-board');
-          this.$('#main').appendChild(board);
-          this.$('x-nav').updateNav(board);
+          this.updateView('x-board', true);
         }
       }
 
       switchConfig() {
         console.log('switchConfig');
-        $.removeAllChildren(this.$('#main'));
-        var config = document.createElement('x-config');
-        this.$('#main').appendChild(config);
-        this.$('x-nav').updateNav();
+        this.updateView('x-config');
       }
 
       switchSession() {
-        console.log('switchSession');
         document.account = null;
+        this.updateView('x-session');
+      }
+
+      updateView(elem_name, pass_elem_to_nav) {
+        console.log(`[updateView] ${elem_name}`);
         $.removeAllChildren(this.$('#main'));
-        var $session = document.createElement('x-session');
-        this.$('#main').appendChild($session);
-        this.$('x-nav').updateNav();
+        var $elem = document.createElement(elem_name);
+        this.$('#main').appendChild($elem);
+        this.$('x-nav').updateNav(pass_elem_to_nav ? $elem : undefined);
       }
     }
 

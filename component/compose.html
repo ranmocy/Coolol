@@ -134,7 +134,8 @@
             this.$('#submit').disabled = false;
             this.clear();
             this.hide();
-            this.trigger('refreshBoard', reply);
+            Notify.success('New tweet posted.');
+            // TODO: prepends new composed tweet to channels.
           })
           .catch((err) => {
             console.error('[compose] post failed:', err);

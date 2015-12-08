@@ -13,12 +13,14 @@
 
 <template id='notify-item'>
   <style type="text/css">
+    @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
     :host {
       display: block;
       text-align: center;
       margin: 3px 0;
     }
     #message {
+      position: relative;
       display: inline-block;
       height: 30px;
       line-height: 30px;
@@ -39,8 +41,21 @@
     #message.error {
       background-color: #d9534f;
     }
+    #close {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: none;
+      cursor: pointer;
+    }
+    #message:hover #close {
+      display: inline-block;
+    }
   </style>
-  <div id="message"></div>
+  <div id="message">
+    <div id="body"></div>
+    <i id="close" class="fa fa-times-circle"></i>
+  </div>
 </template>
 
 <script type="text/javascript">
@@ -51,15 +66,21 @@
     class NotifyItemElement extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$item.content, true));
+
+        this.$('#close').handle('click', this.close.bind(this));
       }
 
       setMessage(msg, level) {
         if (! $.isDefined(level)) {
           level = 'info';
         }
-        this.$('#message').textContent = msg;
+        this.$('#body').textContent = msg;
         this.$('#message').className = level;
         return this;
+      }
+
+      close() {
+        this.parentElement.removeChild(this);
       }
     }
     document.registerElement("x-notify-item", NotifyItemElement);
@@ -76,27 +97,37 @@
         window.Notify.error('Error: you got an error.');
       }
 
-      notify(msg, level) {
+      notify(msg, level, time) {
+        if (! $.isDefined(time)) {
+          time = 5000; // 5s as default
+        }
         var $item = document.createElement('x-notify-item').setMessage(msg, level);
         var $container = this.$('#container');
         $container.insertBefore($item, $container.firstChild);
+
+        // set auto dismiss
+        if (time > 0) {
+          setTimeout(() => {
+            $item.close();
+          }, time);
+        }
         return $item;
       }
 
       info(msg) {
-        return this.notify(msg, 'info');
+        return this.notify(msg, 'info', 3000);
       }
 
       success(msg) {
-        return this.notify(msg, 'success');
+        return this.notify(msg, 'success', 3000);
       }
 
       warn(msg) {
-        return this.notify(msg, 'warn');
+        return this.notify(msg, 'warn', 5000);
       }
 
       error(msg) {
-        return this.notify(msg, 'error');
+        return this.notify(msg, 'error', 0);
       }
     }
     document.registerElement("x-notify", NotifyElement);

@@ -138,6 +138,7 @@
           })
           .catch((err) => {
             console.error('[compose] post failed:', err);
+            Notify.error(`[compose] post failed: ${err}`);
             this.$('#submit').disabled = false;
           });
       }
@@ -164,6 +165,7 @@
           })
           .catch((err) => {
             console.error('[compose] retweet failed:', err);
+            Notify.error(`[compose] retweet failed: ${err}`);
             this.$('#submit').disabled = false;
           });
       }

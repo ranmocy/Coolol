@@ -8,7 +8,8 @@
     "JSONEditor",
     "Codebird",
     "Twitter",
-    "twttr"
+    "twttr",
+    "Notify"
   ],
   "browser": true,
   "boss": true,

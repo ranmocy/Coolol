@@ -78,18 +78,21 @@ window.Twitter = (function() {
       return new Promise((resolve, reject) => {
         this.client.__call(source, params, (reply, rate, err) => {
           if (err) {
-            console.error('error in fetch', err);
+            console.error('[twitter] error in fetch', err);
+            Notify.error(`[twitter] error in fetch: ${err}`);
             reject(err.error);
             return;
           }
           if (reply.httpstatus === 400) {
-            console.error('twitter fetch rate exceeded!', rate);
+            console.error('[twitter] fetch rate exceeded!', rate);
+            Notify.error(`[twitter] fetch rate exceeded!`);
           } else {
             console.log('rate limit:', rate);
           }
           if (reply.errors) {
             reply.errors.forEach((error) => {
-              console.error('error in post reply:', error.code, error.message);
+              console.error('[twitter] error in fetch reply:', error.code, error.message);
+              Notify.error(`[twitter] error in fetch reply: ${error.code}: ${error.message}`);
             });
             reject(reply.errors);
             return;
@@ -110,18 +113,21 @@ window.Twitter = (function() {
       return new Promise((resolve, reject) => {
         this.client.__call(source, params, (reply, rate, err) => {
           if (err) {
-            console.error('error in post', err);
+            console.error('[twitter] error in post', err);
+            Notify.error(`[twitter] error in post: ${err}`);
             reject(err.error);
             return;
           }
           if (reply.httpstatus === 400) {
-            console.error('twitter post rate exceeded!', rate);
+            console.error('[twitter] post rate exceeded!', rate);
+            Notify.error(`[twitter] post rate exceeded!`);
           } else {
             console.log('rate limit:', rate);
           }
           if (reply.errors) {
             reply.errors.forEach((error) => {
-              console.error('error in post reply:', error.code, error.message);
+              console.error('[twitter] error in post reply:', error.code, error.message);
+              Notify.error(`[twitter] error in post reply: ${error.code}: ${error.message}`);
             });
             reject(reply.errors);
             return;

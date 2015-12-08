@@ -87,6 +87,7 @@
           .verify(this.$('#pin-code').value, (reply) => {
             if (!reply || !reply.user_id) {
               console.error('[session] verify account failed!', reply);
+              Notify.error(`[session] verify account failed: ${reply}`);
               return;
             }
             var account = {

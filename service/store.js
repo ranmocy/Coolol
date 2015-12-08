@@ -130,6 +130,7 @@
     getTwitterClient(account) {
       if (!account || !account.token || !account.token_secret) {
         console.error('[store] getTwitterClient:', account);
+        Notify.error(`[store] getTwitterClient: ${account.screen_name}`);
         throw "[store] getTwitterClient: account/token/token_secret is null!";
       }
       if (!cache[CLIENT_FIELD]) {

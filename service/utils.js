@@ -50,7 +50,8 @@ window.$ = (function() {
         obj.__callbacks = [];
       }
       if (typeof callback !== 'function') {
-        console.error('[utils]', 'updateObject', 'callback is not a function', callback);
+        console.error('[utils]', 'registerObjectCallback', 'callback is not a function', callback);
+        Notify.error(`[utils] registerObjectCallback: callback is not a function!`);
         return;
       }
       obj.__callbacks.push(callback);
@@ -70,6 +71,7 @@ window.$ = (function() {
             callback(obj);
           } else {
             console.error('[utils]', 'updateObject', 'callback is not a function', callback);
+            Notify.error(`[utils] updateObject: callback is not a function!`);
           }
         });
       }

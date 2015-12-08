@@ -128,6 +128,7 @@
           }
           default: {
             console.error('[app] switchView: unknown view', view, args);
+            Notify.error(`[app] switchView: unknown view: ${view}`);
             return;
           }
         }

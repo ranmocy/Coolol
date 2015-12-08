@@ -116,6 +116,7 @@
             $.updateObject(this.tweet, reply);
           }).catch((err) => {
             console.error('[tweet] failed:', api, err);
+            Notify.error(`[tweet] failed in api ${api}: ${err}`);
           });
       }
     }

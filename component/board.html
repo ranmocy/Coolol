@@ -102,7 +102,7 @@
         return this;
       }
 
-      refresh() {
+      refresh(callback) {
         var channels = this.config.channels;
         var client = document.store.getTwitterClient(document.account);
         var fetched_source = {};
@@ -129,6 +129,9 @@
           .then((data) => {
             console.log('[board] refresh allData', data);
             this.setData(data);
+            if ($.isDefined(callback)) {
+              callback();
+            }
           });
       }
     }

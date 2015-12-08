@@ -74,7 +74,9 @@
     <span id="logo"><a href="#sessions">Coolol</a></span>
     <span id="control-panel">
       <a id="open-compose" class="menu fa fa-pencil-square-o"></a>
-      <a id="refresh-board" class="menu fa fa-refresh"></a>
+      <a id="refresh-board" class="menu">
+        <i id="refresh-icon" class="fa fa-refresh"></i>
+      </a>
       <a id="switch-config" class="menu fa fa-cog"></a>
       <span class="account-list-dropdown">
         <a href="#" class="menu dropdown-target fa fa-user" id="switch-session"></a>
@@ -128,7 +130,11 @@
           this.$('#open-compose').show('inline-block');
           this.$('#refresh-board').show('inline-block');
           this.$('#refresh-board').handle('click', () => {
-            board.refresh();
+            this.$('#refresh-icon').classList.add('fa-spin');
+            board.refresh(() => {
+              this.$('#refresh-icon').classList.remove('fa-spin');
+              Notify.info('The board is refreshed.');
+            });
           });
         } else {
           this.$('#open-compose').hide();

@@ -89,12 +89,7 @@
     class NotifyElement extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$notify.content, true));
-
         window.Notify = this;
-        window.Notify.success('A notify');
-        window.Notify.info('this test notify');
-        window.Notify.warn('Warning: heads up about this.');
-        window.Notify.error('Error: you got an error.');
       }
 
       notify(msg, level, time) {

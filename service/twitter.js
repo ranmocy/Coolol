@@ -1,4 +1,4 @@
-(function() {
+window.Twitter = (function() {
   "use strict";
 
   var consumerKey = "vbUQPCkkyFYUiomrSk9Nnysh0";
@@ -144,18 +144,5 @@
     }
   }
 
-  /* globals module, define */
-  if (typeof module === "object" && module && typeof module.exports === "object") {
-    module.exports = Twitter;
-  } else {
-    // Otherwise expose to the global object as usual
-    if (typeof window === "object" && window) {
-      window.Twitter = Twitter;
-    }
-    if (typeof define === "function") {
-      define("twitter", [], function() {
-        return Twitter;
-      });
-    }
-  }
+  return Twitter;
 })();

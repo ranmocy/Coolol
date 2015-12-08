@@ -1,4 +1,5 @@
-(function() {
+window.$ = (function() {
+  "use strict";
 
   var $ = Object.assign(function() {
     return document.querySelector.apply(document, arguments);
@@ -154,8 +155,6 @@
 
   /* A function is implemented in order to follow the standard Adapter pattern */
   function $http(url) {
-    'use strict';
-
     // A small example of object
     var core = {
 
@@ -221,19 +220,5 @@
     };
   }
 
-
-  /* globals module, define */
-  if (typeof module === "object" && module && typeof module.exports === "object") {
-    module.exports = $;
-  } else {
-    // Otherwise expose to the global object as usual
-    if (typeof window === "object" && window) {
-      window.$ = $;
-    }
-    if (typeof define === "function") {
-      define("$", [], function() {
-        return $;
-      });
-    }
-  }
+  return $;
 })();

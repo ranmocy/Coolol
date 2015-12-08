@@ -1,0 +1,65 @@
+<template id='notify'>
+  <style type="text/css">
+    :host {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      width: 200px;
+      left: 50%;
+      transform: translate(-50%);
+    }
+  </style>
+  <div id="container"></div>
+</template>
+
+<template id='notify-item'>
+  <style type="text/css">
+    :host {
+      display: block;
+      height: 40px;
+      line-height: 40px;
+      padding: 0 20px;
+      background-color: rgba(40, 40, 40, 0.5);
+      border: 1px solid #444;
+      border-radius: 5px;
+    }
+  </style>
+  <div id="message"></div>
+</template>
+
+<script type="text/javascript">
+  (function() {
+    'use strict';
+
+    var $$$item = document.currentScript.ownerDocument.querySelector('template#notify-item');
+    class NotifyItemElement extends XElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$item.content, true));
+        this.message = '';
+      }
+
+      setMessage(msg) {
+        this.message = msg;
+        this.$('#message').textContent = msg;
+        return this;
+      }
+    }
+    document.registerElement("x-notify-item", NotifyItemElement);
+
+    var $$$notify = document.currentScript.ownerDocument.querySelector('template#notify');
+    class NotifyElement extends XElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$notify.content, true));
+
+        window.Notify = this;
+        window.Notify.notify('this test notify');
+      }
+
+      notify(msg) {
+        var $item = document.createElement('x-notify-item').setMessage(msg);
+        this.$('#container').appendChild($item);
+      }
+    }
+    document.registerElement("x-notify", NotifyElement);
+  })();
+</script>

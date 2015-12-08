@@ -79,10 +79,10 @@
       </a>
       <a id="switch-config" class="menu fa fa-cog"></a>
       <span class="account-list-dropdown">
-        <a href="#" class="menu dropdown-target fa fa-user" id="switch-session"></a>
+        <a id="switch-session" class="menu dropdown-target fa fa-user"></a>
         <div class="account-list-container">
           <ul id="account-list"></ul>
-          <a href="#" id="account-manage">
+          <a id="account-manage">
             <i class="fa fa-users"></i>
             Manage accounts
           </a>
@@ -102,15 +102,10 @@
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$nav, true));
 
-        this.$('#logo').handle('click', () => {
-          this.trigger('switchView', 'session');
-        });
-        this.$('#open-compose').handle('click', () => {
-          this.trigger('openCompose');
-        });
-        this.$('#account-manage').handle('click', () => {
-          this.trigger('switchView', 'session');
-        });
+        this.$('#logo').handle('click', this.trigger.bind(this, 'switchView', 'session'));
+        this.$('#open-compose').handle('click', this.trigger.bind(this, 'openCompose'));
+        this.$('#switch-session').handle('click', this.trigger.bind(this, 'switchView', 'session'));
+        this.$('#account-manage').handle('click', this.trigger.bind(this, 'switchView', 'session'));
 
         this.updateAccountList();
         document.store.registerAccounts(this.updateAccountList.bind(this));
@@ -118,17 +113,21 @@
 
       updateNav(board) {
         console.log('setBoard', board);
+
+        // save original display properties
+        this.$('#open-compose').hide();
+        this.$('#refresh-board').hide();
+        this.$('#switch-config').hide();
+
         if (document.account !== null) {
-          this.$('#switch-config').show('inline-block');
+          this.$('#switch-config').show();
           this.$('#switch-config').handle('click', () => {
             this.trigger('switchView', 'config');
           });
-        } else {
-          this.$('#switch-config').hide();
         }
         if (document.account !== null && $.isDefined(board)) {
-          this.$('#open-compose').show('inline-block');
-          this.$('#refresh-board').show('inline-block');
+          this.$('#open-compose').show();
+          this.$('#refresh-board').show();
           this.$('#refresh-board').handle('click', () => {
             this.$('#refresh-icon').classList.add('fa-spin');
             board.refresh(() => {
@@ -136,9 +135,6 @@
               Notify.info('The board is refreshed.');
             });
           });
-        } else {
-          this.$('#open-compose').hide();
-          this.$('#refresh-board').hide();
         }
       }
 

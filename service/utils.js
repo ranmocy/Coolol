@@ -104,20 +104,24 @@ window.$ = (function() {
     },
 
     show: function(display) {
-      if (!$.isDefined(display)) {
-        if ($.isDefined(this._old_display_value)) {
-          display = this._old_display_value;
-          this._old_display_value = undefined;
-        } else {
-          display = 'block';
+      if (this.style.display === 'none') {
+        if (!$.isDefined(display)) {
+          if ($.isDefined(this._old_display_value)) {
+            display = this._old_display_value;
+            this._old_display_value = undefined;
+          } else {
+            display = 'block';
+          }
         }
+        this.style.display = display;
       }
-      this.style.display = display;
     },
 
     hide: function() {
-      this._old_display_value = this.style.display;
-      this.style.display = 'none';
+      if (this.style.display !== 'none') {
+        this._old_display_value = this.style.display;
+        this.style.display = 'none';
+      }
     },
 
     trigger: function(eventName) {

@@ -4,7 +4,6 @@
       display: block;
       position: fixed;
       bottom: 0;
-      width: 200px;
       left: 50%;
       transform: translate(-50%);
     }
@@ -16,12 +15,29 @@
   <style type="text/css">
     :host {
       display: block;
-      height: 40px;
-      line-height: 40px;
+      text-align: center;
+      margin: 3px 0;
+    }
+    #message {
+      display: inline-block;
+      height: 30px;
+      line-height: 30px;
       padding: 0 20px;
-      background-color: rgba(40, 40, 40, 0.5);
-      border: 1px solid #444;
       border-radius: 5px;
+      color: white;
+    }
+    #message.info {
+      color: #111;
+      background-color: #ddd;
+    }
+    #message.success {
+      background-color: #5cb85c;
+    }
+    #message.warn {
+      background-color: #f0ad4e;
+    }
+    #message.error {
+      background-color: #d9534f;
     }
   </style>
   <div id="message"></div>
@@ -35,12 +51,14 @@
     class NotifyItemElement extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$item.content, true));
-        this.message = '';
       }
 
-      setMessage(msg) {
-        this.message = msg;
+      setMessage(msg, level) {
+        if (! $.isDefined(level)) {
+          level = 'info';
+        }
         this.$('#message').textContent = msg;
+        this.$('#message').className = level;
         return this;
       }
     }
@@ -52,12 +70,33 @@
         this.createShadowRoot().appendChild(document.importNode($$$notify.content, true));
 
         window.Notify = this;
-        window.Notify.notify('this test notify');
+        window.Notify.success('A notify');
+        window.Notify.info('this test notify');
+        window.Notify.warn('Warning: heads up about this.');
+        window.Notify.error('Error: you got an error.');
       }
 
-      notify(msg) {
-        var $item = document.createElement('x-notify-item').setMessage(msg);
-        this.$('#container').appendChild($item);
+      notify(msg, level) {
+        var $item = document.createElement('x-notify-item').setMessage(msg, level);
+        var $container = this.$('#container');
+        $container.insertBefore($item, $container.firstChild);
+        return $item;
+      }
+
+      info(msg) {
+        return this.notify(msg, 'info');
+      }
+
+      success(msg) {
+        return this.notify(msg, 'success');
+      }
+
+      warn(msg) {
+        return this.notify(msg, 'warn');
+      }
+
+      error(msg) {
+        return this.notify(msg, 'error');
       }
     }
     document.registerElement("x-notify", NotifyElement);

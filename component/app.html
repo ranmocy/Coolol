@@ -168,7 +168,15 @@
           Notify.info('You need to setup config first.');
           this.switchView('config');
         } else {
-          this.updateView('x-board', true);
+          this.switchLoading();
+          document.store.getTwitterClient(account)
+            .fetch('account_verifyCredentials')
+            .then(() => {
+              this.updateView('x-board', true /* pass_elem_to_nav */);
+            })
+            .catch(() => {
+              Notify.error('Your credential may outdated!');
+            });
         }
       }
 

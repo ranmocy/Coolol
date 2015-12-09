@@ -182,12 +182,17 @@
         this.updateView('x-session');
       }
 
+      switchLoading() {
+        this.updateView('content').setAttribute('select', '#loading');
+      }
+
       updateView(elem_name, pass_elem_to_nav) {
         console.log(`[updateView] ${elem_name}`);
         $.removeAllChildren(this.$('#main'));
         var $elem = document.createElement(elem_name);
         this.$('#main').appendChild($elem);
         this.$('x-nav').updateNav(pass_elem_to_nav ? $elem : undefined);
+        return $elem;
       }
     }
 

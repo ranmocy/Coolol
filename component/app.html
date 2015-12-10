@@ -43,8 +43,7 @@
           'refreshBoard', 'switchView'
         ]);
 
-        // TODO: enable this
-        // document.store.updateAllAccounts();
+        document.store.updateAllAccounts();
 
         // init view
         window.onpopstate = (event) => { this.loadView(event.state); };

@@ -140,7 +140,7 @@ window.$ = (function() {
         } else {
           event.stopPropagation();
         }
-        if (eventName !== 'mouseenter' && eventName !== 'mouseleave') {
+        if (['mouseenter', 'mouseleave', 'scroll'].indexOf(eventName) < 0) {
           console.log('handle', eventName, event.detail);
         }
         if (callback) {

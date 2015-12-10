@@ -175,6 +175,7 @@
             })
             .catch(() => {
               Notify.error('Your credential may outdated!');
+              this.switchSession();
             });
         }
       }

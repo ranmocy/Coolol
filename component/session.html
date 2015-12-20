@@ -2,6 +2,7 @@
 
 <template id="session">
   <style media="screen">
+    @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
     :host {
       display: block;
       width: 300px;
@@ -17,7 +18,7 @@
     #add, #loading {
       line-height: 48px;
     }
-    #add, #verify {
+    #add {
       cursor: pointer;
     }
     #loading, #login {
@@ -25,6 +26,9 @@
     }
     #login {
       padding: 0.5em 0;
+    }
+    #verify:hover {
+      color: #0c0;
     }
   </style>
 
@@ -41,7 +45,7 @@
     <p>Finally, paste your PIN code here:</p>
     <p>
       <input type="text" id="pin-code" value="">
-      <button type="button" id="verify">Finish</button>
+      <a id="verify" class="fa fa-check">Finish</a>
     </p>
   </div>
 

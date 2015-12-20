@@ -1,5 +1,6 @@
 <template id="session-accounts-item">
   <style type="text/css">
+    @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
     #account {
       position: relative;
       height: 58px;
@@ -27,15 +28,24 @@
     }
     #delete {
       right: 0;
+      padding: 17px 5px;
+      color: black;
     }
-    #delete:hover {
-      cursor: pointer;
+    #delete i.fa-trash, #delete:hover i.fa-trash-o {
+      display: none;
+    }
+    #delete:hover i.fa-trash {
+      display: inline-block;
+      color: #c00;
     }
   </style>
   <li id="account">
     <img id="avatar" src="" alt="avatar" />
     <span id="name"></span>
-    <button type="button" id="delete">Delete</button>
+    <a id="delete" href="#">
+      <i class="fa fa-trash-o"></i>
+      <i class="fa fa-trash"></i>
+    </a>
   </li>
 </template>
 

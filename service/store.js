@@ -1,30 +1,32 @@
-(function() {
+document.store = (function() {
   "use strict";
 
   var CLIENT_FIELD = 'clients';
   var LAST_ACTIVE_ACCOUNT_FIELD = 'last_account';
 
-  var DEFAULT_CONFIG = {
-    channels: [{
-      name: 'Home',
-      sources: {
-        'statuses_homeTimeline': {}
+  var CURRENT_VERSION = '0.0.1';
+  var DEFAULT_CONFIG =
+  {
+    "channels": [{
+      "name": "Home",
+      "sources": {
+        "statuses_homeTimeline": {}
       },
     }, {
-      name: 'Mentions',
-      sources: {
-        'statuses_mentionsTimeline': {}
+      "name": "Mentions",
+      "sources": {
+        "statuses_mentionsTimeline": {}
       },
     }, {
-      name: 'Mix sources',
-      sources: {
-        'statuses_homeTimeline': {},
-        'statuses_mentionsTimeline': {},
+      "name": "Mix sources",
+      "sources": {
+        "statuses_homeTimeline": {},
+        "statuses_userTimeline": { "user_id": "ranmocy" }
       },
     }, {
-      name: 'My tweets',
-      sources: {
-        'statuses_userTimeline': { user_id: 'me' }
+      "name": "My tweets",
+      "sources": {
+        "statuses_userTimeline": { "user_id": "me" }
       }
     }]
   };
@@ -33,14 +35,56 @@
   var callbacks = {};
 
   class Store {
-    // Add get method for field
-    static addAccessTo(field_name, default_value) {
+    // Add methods for application level field in format of `{value: <default_value>}`
+    static addAccessToAppField(field_name, default_value) {
+      var capitalized = $.capitalize(field_name);
+      var field = field_name;
+
+      var getMethodName = `get${capitalized}`;
+      var saveMethodName = `save${capitalized}`;
+      var deleteMethodName = `delete${capitalized}`;
+      var registerMethodName = `register${capitalized}`;
+
+
+      // read
+      this.prototype[getMethodName] = function() {
+        var value = this.getJSON(field, default_value);
+        console.log(`[store] ${getMethodName}:`, value);
+        return value;
+      };
+
+      // write
+      this.prototype[saveMethodName] = function(new_value) {
+        this.saveJSON(field, new_value);
+        console.log(`[store] ${saveMethodName}:`, new_value);
+        return new_value;
+      };
+
+      // delete
+      this.prototype[deleteMethodName] = function() {
+        this.saveJSON(field, default_value);
+        console.log(`[store] ${deleteMethodName}:`, default_value);
+        return default_value;
+      };
+
+      // register
+      this.prototype[registerMethodName] = function(callback) {
+        return this.register(field, callback);
+      };
+
+      return field_name;
+    }
+
+    // Add methods for account level field in format of `{<screen_name>: <default_value>}`
+    static addAccessToAccountField(field_name, default_value) {
       var capitalized = $.capitalize(field_name);
       var field = field_name + 's';
 
       var getAllMethodName = `getAll${capitalized}s`;
       var getMethodName = `get${capitalized}`;
+      var saveAllMethodName = `saveAll${capitalized}s`;
       var saveMethodName = `save${capitalized}`;
+      var deleteAllMethodName = `deleteAll${capitalized}s`;
       var deleteMethodName = `delete${capitalized}`;
       var registerMethodName = `register${capitalized}s`;
 
@@ -61,6 +105,11 @@
       };
 
       // write
+      this.prototype[saveAllMethodName] = function(new_value) {
+        console.log(`[store] ${saveAllMethodName}:`, new_value);
+        this.saveJSON(field, new_value);
+        return new_value;
+      };
       this.prototype[saveMethodName] = function(account, new_value) {
         var values = this[getAllMethodName]();
         console.log(`[store] ${saveMethodName}:`, account.screen_name, new_value);
@@ -70,6 +119,10 @@
       };
 
       // delete
+      this.prototype[deleteAllMethodName] = function() {
+        console.log(`[store] ${deleteAllMethodName}:`);
+        this.saveJSON(field_name, default_value)
+      };
       this.prototype[deleteMethodName] = function(account) {
         var values = this[getAllMethodName]();
         var value = values[account.screen_name];
@@ -102,7 +155,7 @@
         return cache[field];
       }
       var data = JSON.parse(localStorage.getItem(field));
-      if (!data) {
+      if (! $.isDefined(data)) {
         data = default_value;
       }
       cache[field] = data;
@@ -219,7 +272,7 @@
     }
   }
   */
-  Store.addAccessTo('config', {});
+  Store.addAccessToAccountField('config', {});
   store.registerConfigs((configs, old_configs) => {
     for (var screen_name in configs) {
       if (configs[screen_name] !== old_configs[screen_name]) {
@@ -234,7 +287,7 @@
     <screen_name>: [<Tweet>]
   }
   */
-  Store.addAccessTo('tweets', []);
+  Store.addAccessToAccountField('tweets', []);
 
   /*
   Accounts = {
@@ -245,8 +298,35 @@
     }
   }
   */
-  Store.addAccessTo('account', {});
+  Store.addAccessToAccountField('account', {});
 
-  document.store = store;
+  /*
+  Version = <CURRENT_VERSION>
+  */
+  Store.addAccessToAppField('version', CURRENT_VERSION);
+  store.registerVersion((version_str, old_version_str) => {
+    if (! $.isDefined(old_version_str)) {
+      // First time app launched, cleanup everything.
+      store.deleteAllTweetss();
+      store.deleteAllConfigs();
+      store.deleteAllAccounts();
+      return;
+    }
+    var version = version_str.split('.');
+    var old_version = old_version_str.split('.');
+    if (version.length !== old_version.length || version[0] !== old_version[0]) {
+      // Major update, backward incompatible, drop everything
+      console.error("ATTENTION: Backward incompatible update finished, your config may need updates and your account may need re-authorize!");
+      if ($.isDefined(Notify)) {
+        Notify.error("ATTENTION: Backward incompatible update finished, your config may need updates and your account may need re-authorize!");
+      }
+    } else if (version[1] !== old_version[1]) {
+      // Minor update, featuers extended, drop caches
+      store.deleteAllTweetss();
+    }
+    // Bug fixes update, do nothing
+  });
+  store.saveVersion(CURRENT_VERSION);
+
   return store;
 })();

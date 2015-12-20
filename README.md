@@ -48,7 +48,6 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 
 # TODO list
 
-* Add version check
 * Re-auth when token invalid
 * Auto refresh
 * Fetch more tweet when scroll down to the bottom

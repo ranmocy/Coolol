@@ -1,29 +1,83 @@
 window.Twitter = (function() {
   "use strict";
 
-  var consumerKey = "vbUQPCkkyFYUiomrSk9Nnysh0";
-  var consumerSecret = "2EEZCi4nDKHK8rc4Y43iBQ3Nl9HSLbmaZeVigip1grhcmL8ajF";
-  var REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 mins
+  const CONSUMER_KEY = "vbUQPCkkyFYUiomrSk9Nnysh0";
+  const CONSUMER_SECRET = "2EEZCi4nDKHK8rc4Y43iBQ3Nl9HSLbmaZeVigip1grhcmL8ajF";
+  const REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 mins
+  const CACHE_LIFETIME_MS = 5 * 1000; // 5 seconds
+
+  function hashKey(source, params) {
+    if (!$.isDefined(params)) {
+      params = {};
+    }
+    return `${source}:${JSON.stringify(params)}`;
+  }
+
+  const SUPPORT_METHODS = ['get', 'post'];
+  function promiseFunc(client, method, source, params) {
+    if (SUPPORT_METHODS.indexOf(method) < 0) {
+      console.error('[twitter] Unsupported method:', method);
+      return;
+    }
+    console.log('[twitter]', method, source, params);
+
+    return new Promise((resolve, reject) => {
+      client.__call(source, params, (reply, rate, err) => {
+        if (err) {
+          console.error(`[twitter] error in ${method}`, err);
+          Notify.error(`[twitter] error in ${method}: ${err}`);
+          reject(err.error);
+          return;
+        }
+        if (reply.httpstatus === 400) {
+          console.error(`[twitter] ${method} rate exceeded!`, rate);
+          Notify.error(`[twitter] ${method} rate exceeded!`);
+        } else {
+          console.log(`rate limit:`, rate);
+        }
+        if (reply.errors) {
+          reply.errors.forEach((error) => {
+            console.error(`[twitter] error in ${method} reply:`, error.code, error.message);
+            Notify.error(`[twitter] error in ${method} reply: ${error.code}: ${error.message}`);
+          });
+          reject(reply.errors);
+          return;
+        }
+        if (reply) {
+          return resolve(reply);
+        }
+        reject("No reply");
+      });
+    });
+  }
+
+  class Cache {
+    constructor(func) {
+      this.func = func;
+      this.value = null;
+      this.timestamp = new Date(0); // data at 1969
+    }
+
+    getValuePromise() {
+      var now = new Date();
+      if (this.timestamp !== null && ((now - this.timestamp) < CACHE_LIFETIME_MS)) {
+        // Cache is valid!
+        return new Promise((resolve) => {
+          return resolve(this.value);
+        });
+      } else {
+        // Otherwise fetch it!
+        return this.func();
+      }
+    }
+  }
 
   class Twitter {
     constructor(token, token_secret) {
       this.client = new Codebird();
-      this.client.setConsumerKey(consumerKey, consumerSecret);
+      this.client.setConsumerKey(CONSUMER_KEY, CONSUMER_SECRET);
       this.setToken(token, token_secret);
-    }
-
-    start() {
-      // Refresh channels every 60s
-      var task_factory = () => {
-        this.refresh();
-        setTimeout(task_factory, REFRESH_INTERVAL_MS);
-      };
-      console.debug('twitter.start');
-      task_factory(); // call it immediately
-    }
-
-    refresh() {
-      console.debug('twitter refreshing');
+      this.cache = {}; // String => Cache
     }
 
     setToken(token, secret) {
@@ -62,91 +116,23 @@ window.Twitter = (function() {
       });
     }
 
-    key(source, params) {
-      if (params) {
-        return `${source}:${JSON.stringify(params)}`;
-      } else {
-        return source;
-      }
-    }
-
+    // try to get the cache or fetch it
     fetch(source, params) {
       if (!$.isDefined(params)) {
         params = {};
       }
-      console.log('[twitter] fetch', source, params);
-      return new Promise((resolve, reject) => {
-        this.client.__call(source, params, (reply, rate, err) => {
-          if (err) {
-            console.error('[twitter] error in fetch', err);
-            Notify.error(`[twitter] error in fetch: ${err}`);
-            reject(err.error);
-            return;
-          }
-          if (reply.httpstatus === 400) {
-            console.error('[twitter] fetch rate exceeded!', rate);
-            Notify.error(`[twitter] fetch rate exceeded!`);
-          } else {
-            console.log('rate limit:', rate);
-          }
-          if (reply.errors) {
-            reply.errors.forEach((error) => {
-              console.error('[twitter] error in fetch reply:', error.code, error.message);
-              Notify.error(`[twitter] error in fetch reply: ${error.code}: ${error.message}`);
-            });
-            reject(reply.errors);
-            return;
-          }
-          if (reply) {
-            resolve(reply);
-          }
-        });
-      });
+      var key = hashKey(source, params);
+      if (!(key in this.cache)) {
+        this.cache[key] = new Cache(promiseFunc.bind(this, this.client, 'get', source, params));
+      }
+      return this.cache[key].getValuePromise();
     }
 
     post(source, params) {
       if (!$.isDefined(params)) {
         params = {};
       }
-      console.log('[twitter] post', source, params);
-
-      return new Promise((resolve, reject) => {
-        this.client.__call(source, params, (reply, rate, err) => {
-          if (err) {
-            console.error('[twitter] error in post', err);
-            Notify.error(`[twitter] error in post: ${err}`);
-            reject(err.error);
-            return;
-          }
-          if (reply.httpstatus === 400) {
-            console.error('[twitter] post rate exceeded!', rate);
-            Notify.error(`[twitter] post rate exceeded!`);
-          } else {
-            console.log('rate limit:', rate);
-          }
-          if (reply.errors) {
-            reply.errors.forEach((error) => {
-              console.error('[twitter] error in post reply:', error.code, error.message);
-              Notify.error(`[twitter] error in post reply: ${error.code}: ${error.message}`);
-            });
-            reject(reply.errors);
-            return;
-          }
-          if (reply) {
-            resolve(reply);
-          }
-        });
-      });
-    }
-
-    do(func) {
-      return new Promise((resolve, reject) => {
-        try {
-          resolve(func(this));
-        } catch (e) {
-          reject(e);
-        }
-      });
+      return promiseFunc(this.client, 'post', source, params);
     }
   }
 

@@ -4,7 +4,7 @@ document.store = (function() {
   var CLIENT_FIELD = 'clients';
   var LAST_ACTIVE_ACCOUNT_FIELD = 'last_account';
 
-  var CURRENT_VERSION = '0.0.1';
+  var CURRENT_VERSION = '0.0.2';
   var DEFAULT_CONFIG =
   {
     "channels": [{

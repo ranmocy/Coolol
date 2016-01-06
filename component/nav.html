@@ -122,7 +122,7 @@
         if (document.account !== null) {
           this.$('#switch-config').show();
           this.$('#switch-config').handle('click', () => {
-            this.trigger('switchView', 'config');
+            this.trigger('switchView', 'config', document.account);
           });
         }
         if (document.account !== null && $.isDefined(board)) {

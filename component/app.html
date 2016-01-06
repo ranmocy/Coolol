@@ -46,79 +46,79 @@
         document.store.updateAllAccounts();
 
         // init view
-        window.onpopstate = (event) => { this.loadView(event.state); };
-        this.loadView(window.location);
+        window.onpopstate = (event) => { this.loadLastView(event.state); };
+        this.loadLastView(window.location);
       }
 
       // First time loading
-      loadView(location) {
-        console.log('[app] loadView', location);
+      loadLastView(location) {
+        console.log('[app] loadLastView', location);
         if (!location) {
           location = window.location;
         }
-        switch(location.hash) {
-          case '#accounts': {
-            this.switchSession();
-            break;
-          }
-          case '#settings': {
-            this.switchConfig();
-            break;
-          }
-          default: {
-            document.account = null;
-            var accounts = document.store.getAllAccounts();
-            var screen_names = Object.keys(accounts);
-            if ($.isDefined(screen_names) && screen_names && screen_names.length > 0) {
-              var screen_name;
-              // try parse from url
-              if (location.hash.startsWith('#@')) {
-                screen_name = location.hash.substr(2);
-                console.log('[app] active account from url', screen_name);
-                if (screen_name in accounts) {
-                  this.switchBoard(accounts[screen_name]);
-                  return;
-                } else {
-                  console.log('[app] last active account is not valid', screen_name, screen_names);
-                }
-              }
+        if (location.hash === '#accounts') {
+          return this.switchSession();
+        }
 
-              // try load from store
-              screen_name = document.store.getLastActiveAccount();
-              console.log('[app] active account from store', screen_name);
-              if (screen_name in accounts) {
-                this.switchView('board', accounts[screen_name]);
-              } else {
-                console.log('[app] last active account is not valid', screen_name, screen_names);
-                // fallback, use first account
-                screen_name = screen_names[0];
-                this.switchView('board', accounts[screen_name]);
-              }
+        document.account = null;
+
+        // get screen_names
+        var accounts = document.store.getAllAccounts();
+        var screen_names = Object.keys(accounts);
+        if (!$.isDefined(screen_names) || screen_names.length === 0) {
+          console.log('[app] no speficified account, go to sessions');
+          return this.switchSession();
+        }
+
+        // get current screen_name
+        var screen_name;
+        // try parse from url
+        if (location.hash.startsWith('#@')) {
+          var parts = location.hash.substr(2).split('/');
+          screen_name = parts[0];
+          console.log('[app] active account from url', screen_name);
+
+          if (screen_name in accounts) {
+            if (parts[1] === 'settings') {
+              return this.switchConfig(accounts[screen_name]);
             } else {
-              console.log('[app] no speficified account, go to sessions');
-              this.switchSession();
+              return this.switchBoard(accounts[screen_name]);
             }
+          } else {
+            console.log('[app] last active account is not valid', screen_name, screen_names);
           }
+        }
+
+        // try load from store
+        screen_name = document.store.getLastActiveAccount();
+        console.log('[app] active account from store', screen_name);
+        if (screen_name in accounts) {
+          this.switchView('board', accounts[screen_name]);
+        } else {
+          console.log('[app] last active account is not valid', screen_name, screen_names);
+          // fallback, show sessions page
+          return this.switchSession();
         }
       }
 
       // Switch view after initialization
       switchView(view) {
-        var method_name, title, url, args = Array.from(arguments).slice(1);
+        var method_name, title, url, args = Array.from(arguments).slice(1), screen_name;
         console.log('[app] switchView', view, args, window.location);
 
         switch(view) {
           case 'board': {
             method_name = 'switchBoard';
-            var screen_name = args[0].screen_name;
+            screen_name = args[0].screen_name;
             title = `@${screen_name}`;
             url = `#@${screen_name}`;
             break;
           }
           case 'config': {
             method_name = 'switchConfig';
-            title = 'Settings';
-            url = '#settings';
+            screen_name = args[0].screen_name;
+            title = `@${screen_name} Settings`;
+            url = `#@${screen_name}/settings`;
             break;
           }
           case 'session': {
@@ -134,9 +134,9 @@
           }
         }
         window.history.pushState({
-          hash: url,
-          account: document.account,
-        }, title, url);
+            hash: url,
+            account: document.account,
+          }, title, url);
         this[method_name].apply(this, args);
       }
 
@@ -165,7 +165,7 @@
         if (!$.isDefined(config) || Object.keys(config).length === 0) {
           console.log('switchBoard: config is empty, switch to config view.');
           Notify.info('You need to setup config first.');
-          this.switchView('config');
+          this.switchView('config', document.account);
         } else {
           this.switchLoading();
           document.store.getTwitterClient(account)
@@ -180,8 +180,11 @@
         }
       }
 
-      switchConfig() {
-        console.log('switchConfig');
+      switchConfig(account) {
+        console.log('switchConfig', account && account.screen_name);
+        document.account = account;
+        document.store.saveLastActiveAccount(account);
+
         this.updateView('x-config');
       }
 

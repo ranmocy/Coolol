@@ -13,42 +13,36 @@ window.Twitter = (function() {
     return `${source}:${JSON.stringify(params)}`;
   }
 
-  const SUPPORT_METHODS = ['get', 'post'];
-  function promiseFunc(client, method, source, params) {
-    if (SUPPORT_METHODS.indexOf(method) < 0) {
-      console.error('[twitter] Unsupported method:', method);
-      return;
-    }
-    console.log('[twitter]', method, source, params);
-
-    return new Promise((resolve, reject) => {
-      client.__call(source, params, (reply, rate, err) => {
+  // => func(resolve, reject)
+  function fetchPromiseFuncFactory(client, source, params) {
+    return function(resolve, reject) {
+      console.log('[twitter]', source, params);
+      return client.__call(source, params, (reply, rate, err) => {
         if (err) {
-          console.error(`[twitter] error in ${method}`, err);
-          Notify.error(`[twitter] error in ${method}: ${err}`);
+          console.error(`[twitter] error:`, err, source, params);
+          Notify.error(`[twitter] error in API ${source} fetch: ${err}`);
           reject(err.error);
-          return;
         }
         if (reply.httpstatus === 400) {
-          console.error(`[twitter] ${method} rate exceeded!`, rate);
-          Notify.error(`[twitter] ${method} rate exceeded!`);
+          console.error(`[twitter] rate exceeded!`, rate, source, params);
+          Notify.error(`[twitter] API ${source} rate exceeded!`);
+          reject(err.error);
         } else {
-          console.log(`rate limit:`, rate);
+          console.log(`[twitter] rate limit:`, rate);
         }
         if (reply.errors) {
           reply.errors.forEach((error) => {
-            console.error(`[twitter] error in ${method} reply:`, error.code, error.message);
-            Notify.error(`[twitter] error in ${method} reply: ${error.code}: ${error.message}`);
+            console.error(`[twitter] error in reply:`, error.code, error.message, source, params);
+            Notify.error(`[twitter] error in API ${source} reply: ${error.code}: ${error.message}`);
           });
           reject(reply.errors);
-          return;
         }
         if (reply) {
-          return resolve(reply);
+          resolve(reply);
         }
         reject("No reply");
       });
-    });
+    };
   }
 
   class Cache {
@@ -60,15 +54,15 @@ window.Twitter = (function() {
 
     getValuePromise() {
       var now = new Date();
-      if (this.timestamp !== null && ((now - this.timestamp) < CACHE_LIFETIME_MS)) {
-        // Cache is valid!
-        return new Promise((resolve) => {
-          return resolve(this.value);
-        });
-      } else {
-        // Otherwise fetch it!
-        return this.func();
-      }
+      return new Promise((resolve, reject) => {
+        if (this.timestamp !== null && ((now - this.timestamp) < CACHE_LIFETIME_MS)) {
+          // Cache is valid!
+          resolve(this.value);
+        } else {
+          // Otherwise fetch it!
+          this.func(resolve, reject);
+        }
+      });
     }
   }
 
@@ -117,22 +111,24 @@ window.Twitter = (function() {
     }
 
     // try to get the cache or fetch it
+    // => Promise
     fetch(source, params) {
       if (!$.isDefined(params)) {
         params = {};
       }
       var key = hashKey(source, params);
       if (!(key in this.cache)) {
-        this.cache[key] = new Cache(promiseFunc.bind(this, this.client, 'get', source, params));
+        this.cache[key] = new Cache(fetchPromiseFuncFactory(this.client, source, params));
       }
       return this.cache[key].getValuePromise();
     }
 
+    // => Promise
     post(source, params) {
       if (!$.isDefined(params)) {
         params = {};
       }
-      return promiseFunc(this.client, 'post', source, params);
+      return fetchPromiseFuncFactory(this.client, source, params)();
     }
   }
 

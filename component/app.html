@@ -38,10 +38,7 @@
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
 
-        this.handleActions([
-          'openCompose', 'openComposeForReply', 'openComposeForRetweet',
-          'refreshBoard', 'switchView'
-        ]);
+        this.handleActions(['openCompose', 'openComposeForReply', 'openComposeForRetweet', 'switchView']);
 
         document.store.updateAllAccounts();
 
@@ -150,10 +147,6 @@
 
       openComposeForRetweet(tweet) {
         this.$('x-compose').openComposeForRetweet(tweet);
-      }
-
-      refreshBoard() {
-        this.$('#main x-board').refresh();
       }
 
       switchBoard(account) {

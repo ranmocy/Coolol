@@ -33,6 +33,12 @@ window.$ = (function() {
       return obj;
     },
 
+    mapKeyValue: function(obj, callback) {
+      return Object.keys(obj).map((key) => {
+        return callback(key, obj[key]);
+      });
+    },
+
     /* String */
     capitalize: function(s) {
       return s[0].toUpperCase() + s.substr(1);

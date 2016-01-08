@@ -56,28 +56,38 @@
         this.fetching = false;
       }
 
-      setName(name) {
-        this.$('#header').textContent = name;
+      setConfig(config) {
+        this.config = config;
+        this.$('#header').textContent = config.name;
         return this;
       }
 
-      setData(config, data) {
-        this.config = config;
+      setData(data) {
+        console.log('[channel] setData', data);
+
+        if (!$.isDefined(data)) {
+          data = [];
+        }
+
         this.data = data;
-
-        // set header
-        this.setName(this.config.name);
-
-        // hide loading
-        this.$('#loading').hide();
 
         // Remove all children
         $.removeAllChildren(this.$('#tweets'));
 
-        if (!data) {
-          return this;
-        }
-
+        // TODO
+        // unify tweet into unique objects
+        // var tweetMaps = {};
+        // data.map((sourceData) => {
+        //   return sourceData.map((tweet) => {
+        //     if (!(tweet.id_str in tweetMaps)) {
+        //       tweetMaps[tweet.id_str] = tweet;
+        //     } else {
+        //       tweet = tweetMaps[tweet.id_str];
+        //     }
+        //     $.registerObjectCallback(tweet, updateFunc);
+        //     return tweet;
+        //   });
+        // });
         // update new data
         // flatten [[tweetsForSource1], [tweetsForSource2], ...]
         data
@@ -103,7 +113,23 @@
           }
         });
 
+        // hide loading
+        this.$('#loading').hide();
+
         return this;
+      }
+
+      refresh() {
+        console.log('[channel] refresh');
+        var client = document.store.getTwitterClient(document.account);
+        var source_promises = $.mapKeyValue(this.config.sources, (source, params) => {
+          return client.fetch(source, params);
+        });
+        return Promise.all(source_promises)
+          .then((data) => {
+            this.setData(data);
+            return data;
+          });
       }
 
       fetchMore() {
@@ -115,6 +141,7 @@
         this.fetching = true;
         try {
           this.$('#loading').show();
+          // TODO
         } finally {
           this.fetching = false;
         }

@@ -284,13 +284,6 @@ document.store = (function() {
   });
 
   /*
-  Tweets = {
-    <screen_name>: [<Tweet>]
-  }
-  */
-  Store.addAccessToAccountField('tweets', []);
-
-  /*
   Accounts = {
     <screen_name>: {
       'screen_name': '@NAME',
@@ -308,7 +301,6 @@ document.store = (function() {
   store.registerVersion((version_str, old_version_str) => {
     if (! $.isDefined(old_version_str)) {
       // First time app launched, cleanup everything.
-      store.deleteAllTweetss();
       store.deleteAllConfigs();
       store.deleteAllAccounts();
       return;
@@ -323,7 +315,6 @@ document.store = (function() {
       }
     } else if (version[1] !== old_version[1]) {
       // Minor update, featuers extended, drop caches
-      store.deleteAllTweetss();
     }
     // Bug fixes update, do nothing
   });

@@ -45,90 +45,26 @@
         this.config = document.store.getConfig(document.account);
         this._data = null;
 
-        // load caches
-        var data = document.store.getTweets(document.account);
-        console.log('board loadData', data);
-        if (data.length > 0) {
-          this.setData(data);
-        } else {
-          this.refresh();
-        }
-
-        return this;
-      }
-
-      setData(data) {
-        console.log('board setData', data);
-        // cache up
-        document.store.saveTweets(document.account, data);
-        this._data = data;
-
-        // register tweet for saveTweets when tweet changed.
-        var updateFunc = (tweet) => {
-          document.store.saveTweets(document.account, this._data);
-          $.registerObjectCallback(tweet, updateFunc);
-          console.log('[board]', 'saveTweets due the the update of tweet', tweet);
-        };
-        // unify tweet into unique objects
-        var tweetMaps = {};
-        this._data = data.map((channelData) => {
-          return channelData.map((sourceData) => {
-            return sourceData.map((tweet) => {
-              if (!(tweet.id_str in tweetMaps)) {
-                tweetMaps[tweet.id_str] = tweet;
-              } else {
-                tweet = tweetMaps[tweet.id_str];
-              }
-              $.registerObjectCallback(tweet, updateFunc);
-              return tweet;
-            });
-          });
-        });
-        console.log('[board]', 'Register all tweet to saveTweets');
-
-        // Remove all children
-        $.removeAllChildren(this.$('#channels'));
-
-        if (!data) {
-          return this;
-        }
-
-        // update new data
-        this.config.channels.forEach((channel_config, index) => {
-          var $channel = document.createElement('x-channel').setData(channel_config, this._data[index]);
-          this.$('#channels').appendChild($channel);
-        });
+        this.refresh();
 
         return this;
       }
 
       refresh(callback) {
-        var channels = this.config.channels;
-        var client = document.store.getTwitterClient(document.account);
-        var fetched_source = {};
+        // Remove all children
+        $.removeAllChildren(this.$('#channels'));
 
-        var allChannelsPromises = channels.map((channel) => {
-          var source_promises = [];
-          $.forEachKeyValue(channel.sources, (source, params) => {
-            var key = client.key(source, params);
-            if (key in fetched_source) {
-              console.log('[board] get:', key);
-              source_promises.push(fetched_source[key]);
-            } else {
-              console.log('[board] fetch:', key);
-              var promise = client.fetch(source, params);
-              source_promises.push(promise);
-              fetched_source[key] = promise;
-            }
-          });
-          return Promise.all(source_promises);
+        // recreate all children
+        var allChannelsPromises = this.config.channels.map((channel_config) => {
+          var $channel = document.createElement('x-channel').setConfig(channel_config);
+          this.$('#channels').appendChild($channel);
+          return $channel.refresh();
         });
         console.log('[board] refresh all Promises:', allChannelsPromises);
 
         Promise.all(allChannelsPromises)
           .then((data) => {
             console.log('[board] refresh allData', data);
-            this.setData(data);
             if ($.isDefined(callback)) {
               callback();
             }

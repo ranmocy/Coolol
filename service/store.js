@@ -189,9 +189,10 @@ document.store = (function() {
       if (!cache[CLIENT_FIELD]) {
         cache[CLIENT_FIELD] = {};
       }
-      var client = new Twitter(account.token, account.token_secret);
-      cache[CLIENT_FIELD][account.screen_name] = client;
-      return client;
+      if (!(account.screen_name in cache[CLIENT_FIELD])) {
+        this.saveTwitterClient(account, new Twitter(account.token, account.token_secret));
+      }
+      return cache[CLIENT_FIELD][account.screen_name];
     }
 
     saveTwitterClient(account, client) {

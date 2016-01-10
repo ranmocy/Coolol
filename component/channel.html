@@ -62,63 +62,6 @@
         return this;
       }
 
-      setData(data) {
-        console.info('[channel] setData', data);
-
-        if (!$.isDefined(data)) {
-          data = [];
-        }
-
-        this.data = data;
-
-        // Remove all children
-        $.removeAllChildren(this.$('#tweets'));
-
-        // TODO
-        // unify tweet into unique objects
-        // var tweetMaps = {};
-        // data.map((sourceData) => {
-        //   return sourceData.map((tweet) => {
-        //     if (!(tweet.id_str in tweetMaps)) {
-        //       tweetMaps[tweet.id_str] = tweet;
-        //     } else {
-        //       tweet = tweetMaps[tweet.id_str];
-        //     }
-        //     $.registerObjectCallback(tweet, updateFunc);
-        //     return tweet;
-        //   });
-        // });
-        // update new data
-        // flatten [[tweetsForSource1], [tweetsForSource2], ...]
-        data
-          .reduce((all, current) => {
-            return all.concat(current);
-          }, [])
-          .map((tweet) => {
-            tweet.created_at = new Date(tweet.created_at);
-            return tweet;
-          })
-          .sort((a, b) => {
-            return b.created_at - a.created_at;
-          })
-          .forEach((tweet) => {
-            this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
-          });
-
-        // scroll event
-        var tweetsElem = this.$('#tweets');
-        tweetsElem.handle('scroll', () => {
-          if (tweetsElem.scrollTop + tweetsElem.offsetHeight + 10 >= tweetsElem.scrollHeight) {
-            this.fetchMore();
-          }
-        });
-
-        // hide loading
-        this.$('#loading').hide();
-
-        return this;
-      }
-
       refresh() {
         console.info('[channel] refresh', this.config.name);
         var client = document.cache.getTwitterClient(document.account);
@@ -145,6 +88,55 @@
         } finally {
           this.fetching = false;
         }
+      }
+
+      setData(data) {
+        console.info('[channel] setData', data);
+
+        if (!$.isDefined(data)) {
+          data = [];
+        }
+
+        this.data = data;
+
+        // Remove all children
+        $.removeAllChildren(this.$('#tweets'));
+
+        data
+          // flatten [[tweetsForSource1], [tweetsForSource2], ...]
+          .reduce((all, current) => {
+            return all.concat(current);
+          }, [])
+          // unify tweet into unique objects
+          .map((tweet) => {
+            return document.cache.getCurrentAccountTweet(tweet);
+          })
+          // Transform created_at field into Date object
+          .map((tweet) => {
+            tweet.created_at = new Date(tweet.created_at);
+            return tweet;
+          })
+          // sort by created_at
+          .sort((a, b) => {
+            return b.created_at - a.created_at;
+          })
+          // create tweet elements
+          .forEach((tweet) => {
+            this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
+          });
+
+        // scroll event
+        var tweetsElem = this.$('#tweets');
+        tweetsElem.handle('scroll', () => {
+          if (tweetsElem.scrollTop + tweetsElem.offsetHeight + 10 >= tweetsElem.scrollHeight) {
+            this.fetchMore();
+          }
+        });
+
+        // hide loading
+        this.$('#loading').hide();
+
+        return this;
       }
     }
 

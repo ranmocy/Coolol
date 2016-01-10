@@ -60,11 +60,11 @@
           this.$('#channels').appendChild($channel);
           return $channel.refresh();
         });
-        console.log('[board] refresh all Promises:', allChannelsPromises);
+        console.info('[board] refresh all Promises:', allChannelsPromises);
 
         Promise.all(allChannelsPromises)
           .then((data) => {
-            console.log('[board] refresh allData', data);
+            console.info('[board] refresh allData', data);
             if ($.isDefined(callback)) {
               callback();
             }

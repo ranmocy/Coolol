@@ -13,9 +13,9 @@
     saveJSON(field, value) {
       var old_value = this.storage[field];
       this.storage[field] = value;
-      console.log('[cache] saveJSON:', field, value, this.callbacks);
+      Cache.log('[cache] saveJSON:', field, value, this.callbacks);
       if (this.callbacks[field]) {
-        console.log('[cache] trigger callbacks', field);
+        Cache.log('[cache] trigger callbacks', field);
         this.callbacks[field].forEach((callback) => {
           callback(value, old_value);
         });
@@ -44,6 +44,7 @@
       return this.getClient(account);
     }
   });
+
 
   // Exported
   document.cache = cache;

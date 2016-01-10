@@ -63,7 +63,7 @@
       }
 
       setData(data) {
-        console.log('[channel] setData', data);
+        console.info('[channel] setData', data);
 
         if (!$.isDefined(data)) {
           data = [];
@@ -120,7 +120,7 @@
       }
 
       refresh() {
-        console.log('[channel] refresh');
+        console.info('[channel] refresh', this.config.name);
         var client = document.cache.getTwitterClient(document.account);
         var source_promises = $.mapKeyValue(this.config.sources, (source, params) => {
           return client.fetch(source, params);

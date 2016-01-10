@@ -112,7 +112,7 @@
       }
 
       updateNav(board) {
-        console.log('setBoard', board);
+        console.info('[nav] setBoard', board);
 
         // save original display properties
         this.$('#open-compose').hide();
@@ -141,7 +141,7 @@
       updateAccountList() {
         $.removeAllChildren(this.$('#account-list'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
-          console.log('[nav] list account item', screen_name);
+          console.info('[nav] list account item', screen_name);
           this.$('#account-list').appendChild(document.createElement('x-nav-accounts-item').setAccount(account));
         });
       }

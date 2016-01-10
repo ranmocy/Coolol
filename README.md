@@ -50,7 +50,6 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 
 * Re-auth when token invalid
 * Auto refresh
-* Fetch more tweet when scroll down to the bottom
 * Prepends tweet when publish new tweet.
 * Add GIF indicator
 

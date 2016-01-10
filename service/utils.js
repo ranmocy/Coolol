@@ -23,7 +23,15 @@ window.$ = (function() {
 
     /* Object */
     isDefined: function(v) {
-      return (typeof(v) !== "undefined") && (v !== null);
+      return (typeof(v) !== 'undefined') && (v !== null);
+    },
+
+    isFunction: function(f) {
+      return (typeof(f) === 'function');
+    },
+
+    isObject: function(o) {
+      return (typeof(o) === 'object');
     },
 
     forEachKeyValue: function(obj, callback) {
@@ -45,8 +53,8 @@ window.$ = (function() {
     },
 
     camelize: function(s) {
-      return s.replace(/_([a-z])/g, function(g) {
-        return g[1].toUpperCase();
+      return $.capitalize(s).replace(/_([a-z])/g, function(g) {
+        return g[1].toUpperCase().replace('_', '');
       });
     },
 

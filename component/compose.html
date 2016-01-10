@@ -126,7 +126,7 @@
         }
 
         console.log('[compose] submit:', this.params);
-        var client = document.store.getTwitterClient(document.account);
+        var client = document.cache.getTwitterClient(document.account);
         client
           .post("statuses_update", this.params)
           .then((reply) => {
@@ -145,7 +145,7 @@
       }
 
       retweet() {
-        document.store.getTwitterClient(document.account)
+        document.cache.getTwitterClient(document.account)
           .post("statuses_retweet_ID", {
             id: this.quoted_status.id_str
           })

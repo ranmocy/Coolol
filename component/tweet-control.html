@@ -72,7 +72,7 @@
           return;
         }
         // un-retweet
-        var client = document.store.getTwitterClient(document.account);
+        var client = document.cache.getTwitterClient(document.account);
         var retweeted_status = this.tweet.retweeted_status ? this.tweet.retweeted_status : this.tweet;
         var un_retweet_func = (current_user_retweet_id_str) => {
           client
@@ -107,7 +107,7 @@
         } else {
           api = "favorites_create";
         }
-        document.store.getTwitterClient(document.account)
+        document.cache.getTwitterClient(document.account)
           .post(api, {
             id: this.tweet.id_str
           })

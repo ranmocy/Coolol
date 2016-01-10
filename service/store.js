@@ -1,11 +1,8 @@
-document.store = (function() {
+(function() {
   "use strict";
 
-  var CLIENT_FIELD = 'clients';
-  var LAST_ACTIVE_ACCOUNT_FIELD = 'last_account';
-
-  var CURRENT_VERSION = '0.0.2';
-  var DEFAULT_CONFIG =
+  const CURRENT_VERSION = '0.0.2';
+  const DEFAULT_CONFIG =
   {
     "channels": [{
       "name": "Home",
@@ -31,13 +28,15 @@ document.store = (function() {
     }]
   };
 
-  var cache = {};
-  var callbacks = {};
-
   class Store {
-    // Add methods for application level field in format of `{value: <default_value>}`
-    static addAccessToAppField(field_name, default_value) {
-      var capitalized = $.capitalize(field_name);
+
+    static defaultValueFactoryFactory(default_value) {
+      return function() { return default_value; };
+    }
+
+    // Add methods for application level field in format of `{value: <factory()>}`
+    static addAccessToAppField(field_name, factory) {
+      var capitalized = $.camelize(field_name);
       var field = field_name;
 
       var getMethodName = `get${capitalized}`;
@@ -48,23 +47,24 @@ document.store = (function() {
 
       // read
       this.prototype[getMethodName] = function() {
-        var value = this.getJSON(field, default_value);
+        var value = this.getJSON(field, factory);
         console.log(`[store] ${getMethodName}:`, value);
         return value;
       };
 
       // write
       this.prototype[saveMethodName] = function(new_value) {
-        this.saveJSON(field, new_value);
         console.log(`[store] ${saveMethodName}:`, new_value);
+        this.saveJSON(field, new_value);
         return new_value;
       };
 
       // delete
       this.prototype[deleteMethodName] = function() {
-        this.saveJSON(field, default_value);
-        console.log(`[store] ${deleteMethodName}:`, default_value);
-        return default_value;
+        var old_value = this[getMethodName]();
+        console.log(`[store] ${deleteMethodName}:`, old_value);
+        this.saveJSON(field, factory);
+        return old_value;
       };
 
       // register
@@ -75,10 +75,11 @@ document.store = (function() {
       return field_name;
     }
 
-    // Add methods for account level field in format of `{<screen_name>: <default_value>}`
-    static addAccessToAccountField(field_name, default_value) {
-      var capitalized = $.capitalize(field_name);
+    // Add methods for account level field in format of `{<screen_name>: <factory()>}`
+    static addAccessToAccountField(field_name, factory) {
+      var capitalized = $.camelize(field_name);
       var field = field_name + 's';
+      var account_default_factory = function() {};
 
       var getAllMethodName = `getAll${capitalized}s`;
       var getMethodName = `get${capitalized}`;
@@ -91,17 +92,20 @@ document.store = (function() {
       // read
       this.prototype[getAllMethodName] = function() {
         // the default value of whole field is always {}, because they are all saved in account space
-        var values = this.getJSON(field, {});
+        var values = this.getJSON(field, account_default_factory);
         console.log(`[store] ${getAllMethodName}:`, values);
         return values;
       };
       this.prototype[getMethodName] = function(account) {
         var value = this[getAllMethodName]()[account.screen_name];
         console.log(`[store] ${getMethodName}:`, account.screen_name, value);
-        if ($.isDefined(value) && value) {
+        if ($.isDefined(value)) {
           return value;
+        } else if ($.isDefined(factory)) {
+          return this[saveMethodName](account, factory(account));
+        } else {
+          return null;
         }
-        return default_value;
       };
 
       // write
@@ -121,17 +125,17 @@ document.store = (function() {
       // delete
       this.prototype[deleteAllMethodName] = function() {
         console.log(`[store] ${deleteAllMethodName}:`);
-        this.saveJSON(field_name, default_value)
+        this.saveJSON(field_name, account_default_factory());
       };
       this.prototype[deleteMethodName] = function(account) {
         var values = this[getAllMethodName]();
-        var value = values[account.screen_name];
-        console.log(`[store] ${deleteMethodName}:`, account.screen_name, value);
-        if ($.isDefined(value)) {
+        var old_value = values[account.screen_name];
+        console.log(`[store] ${deleteMethodName}:`, account.screen_name, old_value);
+        if ($.isDefined(old_value)) {
           delete values[account.screen_name];
         }
         this.saveJSON(field, values);
-        return value;
+        return old_value;
       };
 
       // register
@@ -142,122 +146,53 @@ document.store = (function() {
       return field_name;
     }
 
-    register(field, callback) {
-      if (!callbacks[field]) {
-        callbacks[field] = [];
-      }
-      callbacks[field].push(callback);
-      console.log('[store] register:', field, callbacks);
+    constructor() {
+      this.storage = {};
+      this.callbacks = {};
     }
 
-    getJSON(field, default_value) {
-      if (cache[field]) {
-        return cache[field];
+    extends(fields_object) {
+      return Object.assign(this, fields_object);
+    }
+
+    register(field, callback) {
+      if (!this.callbacks[field]) {
+        this.callbacks[field] = [];
+      }
+      this.callbacks[field].push(callback);
+      console.log('[store] register:', field, this.callbacks);
+    }
+
+    getJSON(field, factory) {
+      if (this.storage[field]) {
+        return this.storage[field];
       }
       var data = JSON.parse(localStorage.getItem(field));
       if (! $.isDefined(data)) {
-        data = default_value;
+        data = factory();
       }
-      cache[field] = data;
+      this.storage[field] = data;
       return data;
     }
 
     saveJSON(field, value) {
-      var old_value = cache[field];
-      cache[field] = value;
+      var old_value = this.storage[field];
+      this.storage[field] = value;
       localStorage.setItem(field, JSON.stringify(value));
-      console.log('[store] saveJSON:', field, value, callbacks);
-      if (callbacks[field]) {
+      console.log('[store] saveJSON:', field, value, this.callbacks);
+      if (this.callbacks[field]) {
         console.log('[store] trigger callbacks', field);
-        callbacks[field].forEach((callback) => {
+        this.callbacks[field].forEach((callback) => {
           callback(value, old_value);
         });
       }
       return value;
     }
-
-
-    /*
-    Client is not saved to local storage
-    */
-    getTwitterClient(account) {
-      if (!account || !account.token || !account.token_secret) {
-        console.error('[store] getTwitterClient:', account);
-        Notify.error(`[store] getTwitterClient: ${account.screen_name}`);
-        throw "[store] getTwitterClient: account/token/token_secret is null!";
-      }
-      if (!cache[CLIENT_FIELD]) {
-        cache[CLIENT_FIELD] = {};
-      }
-      if (!(account.screen_name in cache[CLIENT_FIELD])) {
-        this.saveTwitterClient(account, new Twitter(account.token, account.token_secret));
-      }
-      return cache[CLIENT_FIELD][account.screen_name];
-    }
-
-    saveTwitterClient(account, client) {
-      if (!cache[CLIENT_FIELD]) {
-        cache[CLIENT_FIELD] = {};
-      }
-      cache[CLIENT_FIELD][account.screen_name] = client;
-      return client;
-    }
-
-    deleteTwitterClient(account) {
-      if (!cache[CLIENT_FIELD]) {
-        cache[CLIENT_FIELD] = {};
-      }
-      console.log('[store] delete client:', account.screen_name);
-      var client = cache[CLIENT_FIELD][account.screen_name];
-      if ($.isDefined(client)) {
-        delete cache[CLIENT_FIELD][account.screen_name];
-      }
-      return client;
-    }
-
-    /* Config */
-    resetConfig(account) {
-      this.saveConfig(account, DEFAULT_CONFIG);
-      return DEFAULT_CONFIG;
-    }
-
-    /* Account */
-    updateAccount(account) {
-      console.log('[store] updateAccount:', account.screen_name);
-      this.getTwitterClient(account).fetch('users_show', {
-        user_id: account.user_id,
-        screen_name: account.screen_name,
-      }).then((reply) => {
-        console.log('[store] get user info', reply);
-        var new_account = Object.assign({}, account, reply); // keep old info as much as possible
-        if (account.screen_name !== new_account.screen_name) {
-          console.log('[store] screen_name is changed!');
-          this.deleteAccount(account);
-        }
-        this.saveAccount(new_account, new_account); // save new_account under new_account.screen_name
-      });
-    }
-
-    updateAllAccounts() {
-      console.log('[store] updateAllAccounts:', accounts);
-      var accounts = this.getAllAccounts();
-      for (var screen_name in accounts) {
-        this.updateAccount(accounts[screen_name]);
-      }
-    }
-
-    /* Last active account */
-    getLastActiveAccount() {
-      return this.getJSON(LAST_ACTIVE_ACCOUNT_FIELD, '');
-    }
-
-    saveLastActiveAccount(account) {
-      this.saveJSON(LAST_ACTIVE_ACCOUNT_FIELD, account.screen_name);
-      return account;
-    }
   }
 
+
   var store = new Store();
+
 
   /*
   Config = {
@@ -273,15 +208,14 @@ document.store = (function() {
     }
   }
   */
-  Store.addAccessToAccountField('config', {});
-  store.registerConfigs((configs, old_configs) => {
-    for (var screen_name in configs) {
-      if (configs[screen_name] !== old_configs[screen_name]) {
-        var account = store.getAllAccounts()[screen_name];
-        store.deleteTweets(account);
-      }
-    }
+  Store.addAccessToAccountField('config', Store.defaultValueFactoryFactory({}));
+  store.extends({
+    resetConfig: function(account) {
+      this.saveConfig(account, DEFAULT_CONFIG);
+      return DEFAULT_CONFIG;
+    },
   });
+
 
   /*
   Accounts = {
@@ -292,12 +226,44 @@ document.store = (function() {
     }
   }
   */
-  Store.addAccessToAccountField('account', {});
+  Store.addAccessToAccountField('account', Store.defaultValueFactoryFactory({}));
+  store.extends({
+    updateAccount: function(account) {
+      console.log('[store] updateAccount:', account.screen_name);
+      document.cache.getTwitterClient(account).fetch('users_show', {
+        user_id: account.user_id,
+        screen_name: account.screen_name,
+      }).then((reply) => {
+        console.log('[store] get user info', reply);
+        var new_account = Object.assign({}, account, reply); // keep old info as much as possible
+        if (account.screen_name !== new_account.screen_name) {
+          console.log('[store] screen_name is changed!');
+          this.deleteAccount(account);
+        }
+        this.saveAccount(new_account, new_account); // save new_account under new_account.screen_name
+      });
+    },
+
+    updateAllAccounts: function() {
+      console.log('[store] updateAllAccounts:', accounts);
+      var accounts = this.getAllAccounts();
+      for (var screen_name in accounts) {
+        this.updateAccount(accounts[screen_name]);
+      }
+    },
+  });
+
+
+  /*
+  LastActiveAccount = <LAST_ACCOUNT>
+  */
+  Store.addAccessToAppField('last_active_account_name', Store.defaultValueFactoryFactory(''));
+
 
   /*
   Version = <CURRENT_VERSION>
   */
-  Store.addAccessToAppField('version', CURRENT_VERSION);
+  Store.addAccessToAppField('version', Store.defaultValueFactoryFactory(CURRENT_VERSION));
   store.registerVersion((version_str, old_version_str) => {
     if (! $.isDefined(old_version_str)) {
       // First time app launched, cleanup everything.
@@ -320,5 +286,7 @@ document.store = (function() {
   });
   store.saveVersion(CURRENT_VERSION);
 
-  return store;
+  // Exported
+  window.Store = Store;
+  document.store = store;
 })();

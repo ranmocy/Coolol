@@ -121,7 +121,7 @@
 
       refresh() {
         console.log('[channel] refresh');
-        var client = document.store.getTwitterClient(document.account);
+        var client = document.cache.getTwitterClient(document.account);
         var source_promises = $.mapKeyValue(this.config.sources, (source, params) => {
           return client.fetch(source, params);
         });

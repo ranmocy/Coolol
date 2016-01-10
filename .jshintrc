@@ -9,7 +9,8 @@
     "Codebird",
     "Twitter",
     "twttr",
-    "Notify"
+    "Notify",
+    "Store"
   ],
   "browser": true,
   "boss": true,

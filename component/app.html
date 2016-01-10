@@ -87,7 +87,7 @@
         }
 
         // try load from store
-        screen_name = document.store.getLastActiveAccount();
+        screen_name = document.store.getLastActiveAccountName();
         console.log('[app] active account from store', screen_name);
         if (screen_name in accounts) {
           this.switchView('board', accounts[screen_name]);
@@ -152,7 +152,7 @@
       switchBoard(account) {
         console.log('switchBoard', account && account.screen_name);
         document.account = account;
-        document.store.saveLastActiveAccount(account);
+        document.store.saveLastActiveAccountName(account.screen_name);
 
         var config = document.store.getConfig(account);
         if (!$.isDefined(config) || Object.keys(config).length === 0) {
@@ -161,7 +161,7 @@
           this.switchView('config', document.account);
         } else {
           this.switchLoading();
-          document.store.getTwitterClient(account)
+          document.cache.getTwitterClient(account)
             .fetch('account_verifyCredentials')
             .then(() => {
               this.updateView('x-board', true /* pass_elem_to_nav */);
@@ -176,7 +176,7 @@
       switchConfig(account) {
         console.log('switchConfig', account && account.screen_name);
         document.account = account;
-        document.store.saveLastActiveAccount(account);
+        document.store.saveLastActiveAccountName(account.screen_name);
 
         this.updateView('x-config');
       }

@@ -46,6 +46,35 @@
   (function() {
     "use strict";
 
+
+    function transformData(data) {
+      console.info('[channel] transformData', data);
+
+      if (!$.isDefined(data)) {
+        return [];
+      }
+
+      return data
+        // flatten [[tweetsForSource1], [tweetsForSource2], ...]
+        .reduce((all, current) => {
+          return all.concat(current);
+        }, [])
+        // unify tweet into unique objects
+        .map((tweet) => {
+          return document.cache.getCurrentAccountTweet(tweet);
+        })
+        // Transform created_at field into Date object
+        .map((tweet) => {
+          tweet.created_at = new Date(tweet.created_at);
+          return tweet;
+        })
+        // sort by created_at
+        .sort((a, b) => {
+          return b.created_at - a.created_at;
+        });
+    }
+
+
     var template = document.currentScript.ownerDocument.querySelector('template');
 
     class Channel extends XElement {
@@ -54,12 +83,16 @@
         this.config = null;
         this.data = [];
         this.fetching = false;
+        this.no_more_earlier_tweet = false;
 
         // scroll event
         var $tweets = this.$('#tweets');
         $tweets.handle('scroll', () => {
           if ($tweets.scrollTop + $tweets.offsetHeight + 10 >= $tweets.scrollHeight) {
-            this.fetchMore();
+            console.debug('scroll to bottom');
+            if (!this.no_more_earlier_tweet) {
+              this.fetchMore();
+            }
           }
         });
       }
@@ -81,7 +114,7 @@
       }
 
       fetchMore() {
-        console.debug('scroll to bottom');
+        console.info('[channel] fetchMore');
         if (this.fetching) {
           console.log('This channel is fetching, skip.');
           return;
@@ -128,38 +161,10 @@
         }
       }
 
-      transformData(data) {
-        console.info('[channel] transformData', data);
-
-        if (!$.isDefined(data)) {
-          return [];
-        }
-
-        return data
-          // flatten [[tweetsForSource1], [tweetsForSource2], ...]
-          .reduce((all, current) => {
-            return all.concat(current);
-          }, [])
-          // unify tweet into unique objects
-          .map((tweet) => {
-            return document.cache.getCurrentAccountTweet(tweet);
-          })
-          // Transform created_at field into Date object
-          .map((tweet) => {
-            tweet.created_at = new Date(tweet.created_at);
-            return tweet;
-          })
-          // sort by created_at
-          .sort((a, b) => {
-            return b.created_at - a.created_at;
-          });
-      }
-
       appendData(data) {
         console.info('[channel] appendData', data);
 
-        // append data
-        var new_data = this.transformData(data)
+        var new_data = transformData(data)
           // remove duplicated tweet
           .filter((tweet) => {
             for (var i = this.data.length - 1; i >= 0; i--) {
@@ -169,6 +174,14 @@
             }
             return true; // keep this
           });
+
+        if (new_data.length === 0) {
+          // no more new data to append
+          this.no_more_earlier_tweet = true;
+          return;
+        }
+
+        // append data
         this.data = [].concat(this.data, new_data);
 
         new_data.forEach((tweet) => {

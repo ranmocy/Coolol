@@ -31,7 +31,7 @@
   class Store {
 
     static log() {
-      if (!document.debug) {
+      if (document.debug) {
         console.debug.apply(console, arguments);
       }
     }

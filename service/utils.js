@@ -64,11 +64,14 @@ window.$ = (function() {
         obj.__callbacks = [];
       }
       if (typeof callback !== 'function') {
-        console.error('[utils]', 'registerObjectCallback', 'callback is not a function', callback);
+        console.error('[utils] registerObjectCallback', 'callback is not a function', callback);
         Notify.error(`[utils] registerObjectCallback: callback is not a function!`);
         return;
       }
       obj.__callbacks.push(callback);
+      if (obj.__callbacks.length >= 50) {
+        console.warn('[utils] registerObjectCallback: obj has over 50 callbacks!', obj);
+      }
       return obj;
     },
 

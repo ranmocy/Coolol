@@ -3,24 +3,11 @@
 
   // Cache is storage lives only in memory
   class Cache extends Store {
-    getJSON(field, default_value) {
-      if (!(field in this.storage)) {
-        this.storage[field] = default_value;
-      }
-      return this.storage[field];
+    getLocalStorageItem() {
+      return null;
     }
 
-    saveJSON(field, value) {
-      var old_value = this.storage[field];
-      this.storage[field] = value;
-      Cache.log('[cache] saveJSON:', field, value, this.callbacks);
-      if (this.callbacks[field]) {
-        Cache.log('[cache] trigger callbacks', field);
-        this.callbacks[field].forEach((callback) => {
-          callback(value, old_value);
-        });
-      }
-      return value;
+    saveLocalStorageItem() {
     }
   }
 
@@ -43,6 +30,24 @@
       }
       return this.getClient(account);
     }
+  });
+
+  /*
+  Tweet = {
+    <screen_name>: {
+      <tweet_id>: <Tweet>
+    }
+  }
+  */
+  Cache.addAccessToAccountField('tweets', Cache.defaultValueFactoryFactory({}));
+  cache.extends({
+    getCurrentAccountTweet: function(tweet) {
+      var tweets = this.getTweets(document.account);
+      if (!(tweet.id in tweets)) {
+        tweets[tweet.id] = tweet;
+      }
+      return tweets[tweet.id];
+    },
   });
 
 

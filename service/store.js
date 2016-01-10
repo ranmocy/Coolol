@@ -85,7 +85,7 @@
     static addAccessToAccountField(field_name, factory) {
       var capitalized = $.camelize(field_name);
       var field = field_name + 's';
-      var account_default_factory = function() {};
+      var account_default_factory = this.defaultValueFactoryFactory({});
 
       var getAllMethodName = `getAll${capitalized}s`;
       var getMethodName = `get${capitalized}`;
@@ -131,7 +131,7 @@
       // delete
       this.prototype[deleteAllMethodName] = function() {
         Store.log(`[store] ${deleteAllMethodName}:`);
-        this.saveJSON(field_name, account_default_factory());
+        this.saveJSON(field, account_default_factory());
       };
       this.prototype[deleteMethodName] = function(account) {
         var values = this[getAllMethodName]();
@@ -169,11 +169,14 @@
       Store.log('[store] register:', field, this.callbacks);
     }
 
+    // Don't call saveJSON! Calls may infinitely loop.
+    // We don't have to save the default value to local storage,
+    // since we can create the same/similar one every time.
     getJSON(field, factory) {
-      if (this.storage[field]) {
+      if (field in this.storage) {
         return this.storage[field];
       }
-      var data = JSON.parse(localStorage.getItem(field));
+      var data = this.getLocalStorageItem(field);
       if (! $.isDefined(data)) {
         data = factory();
       }
@@ -182,10 +185,10 @@
     }
 
     saveJSON(field, value) {
-      var old_value = this.storage[field];
+      var old_value = this.getJSON(field, Store.defaultValueFactoryFactory(value));
       this.storage[field] = value;
-      localStorage.setItem(field, JSON.stringify(value));
-      Store.log('[store] saveJSON:', field, value, this.callbacks);
+      this.saveLocalStorageItem(field, value);
+      Store.log('[store] saveJSON:', field, value, old_value, this.callbacks);
       if (this.callbacks[field]) {
         Store.log('[store] trigger callbacks', field);
         this.callbacks[field].forEach((callback) => {
@@ -193,6 +196,20 @@
         });
       }
       return value;
+    }
+
+    getLocalStorageItem(field) {
+      try {
+        return JSON.parse(localStorage.getItem(field));
+      } catch (e) {
+        console.error('[storage] getLocalStorageItem: broken data, drop it.');
+        localStorage.removeItem(field);
+        return undefined;
+      }
+    }
+
+    saveLocalStorageItem(field, value) {
+      return localStorage.setItem(field, JSON.stringify(value));
     }
   }
 
@@ -251,8 +268,8 @@
     },
 
     updateAllAccounts: function() {
-      Store.log('[store] updateAllAccounts:', accounts);
       var accounts = this.getAllAccounts();
+      Store.log('[store] updateAllAccounts:', accounts);
       for (var screen_name in accounts) {
         this.updateAccount(accounts[screen_name]);
       }

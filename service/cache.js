@@ -29,7 +29,11 @@
         throw "[cache] getTwitterClient: account/token/token_secret is null!";
       }
       return this.getClient(account);
-    }
+    },
+
+    saveTwitterClient: function(account, client) {
+      this.saveClient(account, client);
+    },
   });
 
   /*

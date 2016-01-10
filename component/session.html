@@ -101,7 +101,7 @@
               token: reply.oauth_token,
               token_secret: reply.oauth_token_secret
             };
-            document.store.saveTwitterClient(account, this.current_client);
+            document.cache.saveTwitterClient(account, this.current_client);
             document.store.updateAccount(account);
             document.store.resetConfig(account);
 

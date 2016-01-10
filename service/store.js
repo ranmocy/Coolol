@@ -202,7 +202,7 @@
       try {
         return JSON.parse(localStorage.getItem(field));
       } catch (e) {
-        console.error('[storage] getLocalStorageItem: broken data, drop it.');
+        console.error('[storage] getLocalStorageItem: broken data, drop it.', field);
         localStorage.removeItem(field);
         return undefined;
       }

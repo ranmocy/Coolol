@@ -45,7 +45,7 @@ window.Twitter = (function() {
     };
   }
 
-  class Cache {
+  class TweetCache {
     constructor(func) {
       this.func = func;
       this.value = null;
@@ -56,7 +56,7 @@ window.Twitter = (function() {
       var now = new Date();
       return new Promise((resolve, reject) => {
         if (this.timestamp !== null && ((now - this.timestamp) < CACHE_LIFETIME_MS)) {
-          // Cache is valid!
+          // TweetCache is valid!
           resolve(this.value);
         } else {
           // Otherwise fetch it!
@@ -71,7 +71,7 @@ window.Twitter = (function() {
       this.client = new Codebird();
       this.client.setConsumerKey(CONSUMER_KEY, CONSUMER_SECRET);
       this.setToken(token, token_secret);
-      this.cache = {}; // String => Cache
+      this.cache = {}; // String => TweetCache
     }
 
     setToken(token, secret) {
@@ -118,7 +118,7 @@ window.Twitter = (function() {
       }
       var key = hashKey(source, params);
       if (!(key in this.cache)) {
-        this.cache[key] = new Cache(fetchPromiseFuncFactory(this.client, source, params));
+        this.cache[key] = new TweetCache(fetchPromiseFuncFactory(this.client, source, params));
       }
       return this.cache[key].getValuePromise();
     }
@@ -128,7 +128,9 @@ window.Twitter = (function() {
       if (!$.isDefined(params)) {
         params = {};
       }
-      return fetchPromiseFuncFactory(this.client, source, params)();
+      return new Promise((resolve, reject) => {
+        fetchPromiseFuncFactory(this.client, source, params)(resolve, reject);
+      });
     }
   }
 

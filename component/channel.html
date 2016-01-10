@@ -52,7 +52,7 @@
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
-        this.data = null;
+        this.data = [];
         this.fetching = false;
       }
 
@@ -81,28 +81,45 @@
           console.log('This channel is fetching, skip.');
           return;
         }
-        this.fetching = true;
         try {
+          this.fetching = true;
           this.$('#loading').show();
-          // TODO
+
+          // get the earlest tweet id in this channel
+          var earlest_tweet_id;
+          if (this.data) {
+            earlest_tweet_id = this.data[this.data.length - 1].id_str;
+            console.log('[channel] fetchMore: earlest_tweet_id', earlest_tweet_id);
+            // Alternative: this.$('#tweets').lastChild.dataset.tweetId
+          }
+
+          // fetch more data
+          var client = document.cache.getTwitterClient(document.account);
+          var source_promises = $.mapKeyValue(this.config.sources, (source, params) => {
+            params = Object.assign({}, params, {
+              max_id: earlest_tweet_id,
+            });
+            return client.fetch(source, params);
+          });
+          return Promise.all(source_promises)
+            .then((data) => {
+              this.appendData(data);
+              return data;
+            });
         } finally {
           this.fetching = false;
+          this.$('#loading').hide();
         }
       }
 
-      setData(data) {
-        console.info('[channel] setData', data);
+      transformData(data) {
+        console.info('[channel] transformData', data);
 
         if (!$.isDefined(data)) {
-          data = [];
+          return [];
         }
 
-        this.data = data;
-
-        // Remove all children
-        $.removeAllChildren(this.$('#tweets'));
-
-        data
+        return data
           // flatten [[tweetsForSource1], [tweetsForSource2], ...]
           .reduce((all, current) => {
             return all.concat(current);
@@ -119,19 +136,64 @@
           // sort by created_at
           .sort((a, b) => {
             return b.created_at - a.created_at;
-          })
-          // create tweet elements
-          .forEach((tweet) => {
-            this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
           });
+      }
+
+      clearData() {
+        console.info('[channel] clearData');
+        this.data = [];
+        $.removeAllChildren(this.$('#tweets'));
+      }
+
+      setData(data) {
+        console.info('[channel] setData', data);
+
+        // Remove all children
+        $.removeAllChildren(this.$('#tweets'));
+
+        // transform data
+        this.data = this.transformData(data);
+
+        // create tweet elements
+        this.data.forEach((tweet) => {
+          this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
+        });
 
         // scroll event
-        var tweetsElem = this.$('#tweets');
-        tweetsElem.handle('scroll', () => {
-          if (tweetsElem.scrollTop + tweetsElem.offsetHeight + 10 >= tweetsElem.scrollHeight) {
+        var $tweets = this.$('#tweets');
+        $tweets.handle('scroll', () => {
+          if ($tweets.scrollTop + $tweets.offsetHeight + 10 >= $tweets.scrollHeight) {
             this.fetchMore();
           }
         });
+
+        // hide loading
+        this.$('#loading').hide();
+
+        return this;
+      }
+
+      appendData(data) {
+        console.info('[channel] appendData', data);
+
+        // append data
+        var new_data = this.transformData(data)
+          // remove duplicated tweet
+          .filter((tweet) => {
+            for (var i = this.data.length - 1; i >= 0; i--) {
+              if (this.data[i].id_str === tweet.id_str) {
+                return false; // don't keep this
+              }
+            }
+            return true; // keep this
+          });
+        console.debug(new_data);
+        this.data = [].concat(this.data, new_data);
+
+        new_data.forEach((tweet) => {
+          this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
+        });
+
 
         // hide loading
         this.$('#loading').hide();

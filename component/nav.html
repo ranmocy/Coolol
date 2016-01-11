@@ -11,11 +11,18 @@
       position: relative;
       z-index: 100;
     }
+    #logo img {
+      position: relative;
+      top: 4px;
+      height: 32px;
+      width: 32px;
+    }
     #logo a {
       line-height: 50px;
       font-size: 30px;
       font-weight: bold;
       color: #424d54;
+      padding: 0;
     }
     #control-panel {
       float: right;
@@ -71,7 +78,12 @@
   </style>
 
   <nav>
-    <span id="logo"><a href="#sessions">Coolol</a></span>
+    <span id="logo">
+      <a href="#sessions">
+        <img src="icons/icon-64.png">
+        Coolol
+      </a>
+    </span>
     <span id="control-panel">
       <a id="open-compose" class="menu fa fa-pencil-square-o" href="#"></a>
       <a id="refresh-board" class="menu" href="#">

@@ -52,6 +52,7 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 * Auto refresh
 * Prepends tweet when publish new tweet.
 * Add GIF indicator
+* Support Direct-Message
 
    [codebirdMapping]: https://github.com/jublonet/codebird-js#mapping-api-methods-to-codebird-function-calls (Codebird API Mapping)
    [twitterApi]: https://dev.twitter.com/rest/public (Twitter REST API)

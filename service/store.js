@@ -7,23 +7,29 @@
     "channels": [{
       "name": "Home",
       "sources": {
-        "statuses_homeTimeline": {}
+        "statuses_homeTimeline": {},
       },
     }, {
       "name": "Mentions",
       "sources": {
-        "statuses_mentionsTimeline": {}
+        "statuses_mentionsTimeline": {},
+      },
+    }, {
+      "name": "Direct Messages",
+      "sources": {
+        "directMessages": {},
+        "directMessages_sent": {},
       },
     }, {
       "name": "Mix sources",
       "sources": {
         "statuses_homeTimeline": {},
-        "statuses_userTimeline": { "user_id": "ranmocy" }
+        "statuses_userTimeline": { "user_id": "ranmocy" },
       },
     }, {
       "name": "My tweets",
       "sources": {
-        "statuses_userTimeline": { "user_id": "me" }
+        "statuses_userTimeline": { "user_id": "me" },
       }
     }]
   };

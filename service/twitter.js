@@ -3,7 +3,6 @@ window.Twitter = (function() {
 
   const CONSUMER_KEY = "vbUQPCkkyFYUiomrSk9Nnysh0";
   const CONSUMER_SECRET = "2EEZCi4nDKHK8rc4Y43iBQ3Nl9HSLbmaZeVigip1grhcmL8ajF";
-  const REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 mins
   const CACHE_LIFETIME_MS = 5 * 1000; // 5 seconds
 
   function hashKey(source, params) {

@@ -4,7 +4,22 @@
       margin: 0 1em;
     }
     #preview {
+      position: relative;
+    }
+    #preview-img {
       height: 200px;
+    }
+    #preview-indicator {
+      position: absolute;
+      left: 5px;
+      bottom: 5px;
+      padding: 3px;
+      color: white;
+      background-color: rgba(0,0,0,0.3);
+      border: 1px solid #888;
+      border-radius: 3px;
+      font-family: sans-serif;
+      font-size: 12px;
     }
     #background {
       background-color: rgba(0, 0, 0, 0.6);
@@ -23,7 +38,10 @@
       transform: translate(-50%, -50%);
     }
   </style>
-  <img id="preview">
+  <div id="preview">
+    <img id="preview-img">
+    <span id="preview-indicator">GIF</span>
+  </div>
   <div id="background">
     <img id="image">
     <video autoplay loop id="video">
@@ -43,12 +61,13 @@
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
         this.media = null;
         this.$('#background').hide();
+        this.$('#preview-indicator').hide();
       }
 
       setMedia(media) {
         this.media = media;
 
-        this.$('#preview').src = media.media_url_https;
+        this.$('#preview-img').src = media.media_url_https;
         this.$('#preview').handle('click', () => {
           console.log('media', media);
           this.$('#background').show();
@@ -57,6 +76,7 @@
         if (media.type === 'animated_gif' && media.video_info && media.video_info.variants) {
           this.$('#video source').src = media.video_info.variants[0].url;
           this.$('#video source').type = media.video_info.variants[0].content_type;
+          this.$('#preview-indicator').show();
         } else {
           this.$('#image').src = media.media_url_https;
         }

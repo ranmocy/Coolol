@@ -51,7 +51,6 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 * Re-auth when token invalid
 * Auto refresh
 * Prepends tweet when publish new tweet.
-* Add GIF indicator
 * Support Direct-Message
 * Add filter to config
 

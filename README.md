@@ -1,10 +1,10 @@
 # Coolol
 
-Coolol is a fully customizable twitter client based on JavaScript ES6 without any backend. It communicates with Twitter server directly. So you don"t have to sign up or give your token to me. Everything stays and only stays in your browser.
+Coolol is a fully customizable twitter client based on JavaScript ES6 without any backend. It communicates with Twitter server directly. So you don't have to sign up or give your token to me. Everything stays and only stays in your browser.
 
 Open [Coolol.Me](http://coolol.me) and you are ready to go.
 
-Notice: I only test in latest Google Chrome. May or may not support other browser in the future. But contribution is welcomed.
+*Notice*: I only test in latest Google Chrome. May or may not support other browser in the future. But contribution is welcomed.
 
 It allows you to write a config like:
 

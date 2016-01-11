@@ -1,7 +1,7 @@
 (function() {
   "use strict";
 
-  const CURRENT_VERSION = '0.0.3';
+  const CURRENT_VERSION = '0.1.0';
   const DEFAULT_CONFIG =
   {
     "channels": [{

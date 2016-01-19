@@ -60,7 +60,9 @@
         // create all channels
         var allChannelsPromises = this.config.channels.map((channel_config) => {
           var channel_filters = $.isDefined(channel_config.filters) ? channel_config.filters : [];
-          channel_config.filters = [].concat(channel_filters, board_filters);
+          channel_config = Object.assign({}, channel_config, {
+            filters: [].concat(channel_filters, board_filters),
+          });
           var $channel = document.createElement('x-channel').setConfig(channel_config);
           this.$('#channels').appendChild($channel);
           return $channel.refresh();

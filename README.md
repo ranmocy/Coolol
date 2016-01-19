@@ -72,20 +72,26 @@ It allows you to write a config like:
 }
 ```
 
+### Sources
+
 Name of sources come from [Codebird convention][codebirdMapping] based on [Twitter API][twitterApi]
+
+### Filters
 
 Rule of filters are pure JavaScript expression returns a boolean.
 If the expression returns true, the corresponding tweet will be removed from the channel.
 
 Pre-defined variables:
-1. **tweet**: The tweet object to determine, fetched from Twitter server.
-2. **sender**: The user object of the tweet sender/creator. Typical fields to be used: `sender.id_str`, `sender.screen_name`.
-3. **receiver**: The user object of the tweet receiver. Used in replying tweet, or direct message. Would be empty object `{}` in other cases.
+
+1. **`tweet`**: The tweet object to determine, fetched from Twitter server.
+2. **`sender`**: The user object of the tweet sender/creator. Typical fields to be used: `sender.id_str`, `sender.screen_name`.
+3. **`receiver`**: The user object of the tweet receiver. Used in replying tweet, or direct message. Would be empty object `{}` in other cases.
 
 Pre-defined functions:
-1. **isBetweenUser(user1, user2)**: returns true if the tweet is a conversation between `user1` and `user2`.
-2. **tweetContains(keyword)**: returns true if the tweet body contains the given keyword.
-3. **tweetContainsAny(keyword1, keyword2, ...)**: returns true if the tweet body contains any given keyword.
+
+1. **`isBetweenUser(user1, user2)`**: returns true if the tweet is a conversation between `user1` and `user2`.
+2. **`tweetContains(keyword)`**: returns true if the tweet body contains the given keyword.
+3. **`tweetContainsAny(keyword1, keyword2, ...)`**: returns true if the tweet body contains any given keyword.
 
 
 # Local Usage
@@ -98,7 +104,7 @@ Pre-defined functions:
 
 # TODO list
 
-* Support Direct-Message
+* Support Direct-Message composition
 * Re-auth when token invalid
 * Auto refresh
 * Prepends tweet when publish new tweet.

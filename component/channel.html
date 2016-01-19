@@ -175,6 +175,67 @@
             return true; // keep this
           });
 
+        // apply filters from config
+        if ($.isDefined(this.config.filters)) {
+          this.config.filters.forEach((filter_rule) => {
+            var filter_func = function(tweet) {
+              // prepare DSL for filter rule
+              var sender, receiver; // variables
+              var isBetweenUser, tweetContains, tweetContainsAny; // functions
+
+              switch ($.tweetType(tweet)) {
+                case 'direct_message': {
+                  sender = tweet.sender;
+                  receiver = tweet.recipient;
+                  break;
+                }
+                case 'reply': {
+                  sender = tweet.user;
+                  receiver = {
+                    screen_name: tweet.in_reply_to_screen_name,
+                    id: tweet.in_reply_to_user_id,
+                    id_str: tweet.in_reply_to_user_id_str,
+                  };
+                  break;
+                }
+                default: {
+                  // Types: retweet, quoted_retweet, tweet
+                  sender = tweet.user;
+                  receiver = {};
+                }
+              }
+
+              isBetweenUser = function(user1, user2) {
+                return (sender.screen_name === user1 && receiver.screen_name === user2) ||
+                (sender.screen_name === user2 && receiver.screen_name === user1);
+              };
+              tweetContains = function(keyword) {
+                return tweet.text.indexOf(keyword) > 0;
+              };
+              tweetContainsAny = function() {
+                for (var i = 0; i < arguments.length; i++) {
+                  if (tweetContains(arguments[i])) {
+                    return true;
+                  }
+                }
+                return false;
+              };
+
+              try {
+                return eval(filter_rule);
+              } catch (e) {
+                console.error('Error when apply filter rule:', filter_rule, tweet, e);
+                // start debugger for user
+                debugger; // jshint ignore: line
+                return false; // keep the tweet by default
+              }
+            };
+            new_data = new_data.filter((tweet) => {
+              return !filter_func(tweet); // filter_func returns true means remove the tweet.
+            });
+          });
+        }
+
         if (new_data.length === 0) {
           // no more new data to append
           this.no_more_earlier_tweet = true;

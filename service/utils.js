@@ -58,6 +58,40 @@ window.$ = (function() {
       });
     },
 
+    /* Tweet */
+    isReplyTweet: function(tweet) {
+      return $.isDefined(tweet.in_reply_to_screen_name);
+    },
+
+    isRetweet: function(tweet) {
+      return $.isDefined(tweet.retweeted_status);
+    },
+
+    isQuotedRetweet: function(tweet) {
+      return tweet.is_quote_status && $.isDefined(tweet.quoted_status); // in case quoted tweets chain
+    },
+
+    isDirectMessage: function(tweet) {
+      return $.isDefined(tweet.sender_screen_name);
+    },
+
+    tweetType: function(tweet) {
+      // order sensitive
+      if ($.isDirectMessage(tweet)) {
+        return 'direct_message';
+      }
+      if ($.isQuotedRetweet(tweet)) {
+        return 'quoted_retweet';
+      }
+      if ($.isRetweet(tweet)) {
+        return 'retweet';
+      }
+      if ($.isReplyTweet(tweet)) {
+        return 'reply';
+      }
+      return 'tweet';
+    },
+
     /* Callbacks */
     registerObjectCallback: function(obj, callback) {
       if (!$.isDefined(obj.__callbacks)) {

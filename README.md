@@ -49,7 +49,6 @@ Name of sources come from [Codebird convention][codebirdMapping] based on [Twitt
 # TODO list
 
 * Support Direct-Message
-* Add filter to config
 * Re-auth when token invalid
 * Auto refresh
 * Prepends tweet when publish new tweet.

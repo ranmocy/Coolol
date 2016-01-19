@@ -9,6 +9,9 @@
       "sources": {
         "statuses_homeTimeline": {},
       },
+      "filters": [
+        "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
+      ],
     }, {
       "name": "Mentions",
       "sources": {
@@ -26,6 +29,10 @@
         "statuses_homeTimeline": {},
         "statuses_userTimeline": { "user_id": "ranmocy" },
       },
+      "filters": [
+        "isBetweenUser('ranmocy', 'CathellieAir')",
+        "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'",
+      ],
     }, {
       "name": "My tweets",
       "sources": {

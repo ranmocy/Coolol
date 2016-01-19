@@ -4,6 +4,9 @@
   const CURRENT_VERSION = '0.1.0';
   const DEFAULT_CONFIG =
   {
+    "filters": [
+      "isBetweenUser('ranmocy', 'CathellieAir')",
+    ],
     "channels": [{
       "name": "Home",
       "sources": {
@@ -30,7 +33,6 @@
         "statuses_userTimeline": { "user_id": "ranmocy" },
       },
       "filters": [
-        "isBetweenUser('ranmocy', 'CathellieAir')",
         "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'",
       ],
     }, {

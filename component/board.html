@@ -54,8 +54,13 @@
         // Remove all children
         $.removeAllChildren(this.$('#channels'));
 
-        // recreate all children
+        // merge filter to channels config
+        var board_filters = $.isDefined(this.config.filters) ? this.config.filters : [];
+
+        // create all channels
         var allChannelsPromises = this.config.channels.map((channel_config) => {
+          var channel_filters = $.isDefined(channel_config.filters) ? channel_config.filters : [];
+          channel_config.filters = [].concat(channel_filters, board_filters);
           var $channel = document.createElement('x-channel').setConfig(channel_config);
           this.$('#channels').appendChild($channel);
           return $channel.refresh();

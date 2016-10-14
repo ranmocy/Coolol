@@ -30,7 +30,7 @@
       "name": "Mix sources",
       "sources": {
         "statuses_homeTimeline": {},
-        "statuses_userTimeline": { "user_id": "ranmocy" },
+        "statuses_userTimeline": { "screen_name": "ranmocy" },
       },
       "filters": [
         "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'",

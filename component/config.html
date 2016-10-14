@@ -50,7 +50,7 @@
           this.trigger('switchView', 'board', document.account);
         } catch (e) {
           console.error('saveConfig failed', e);
-          Notify.error(e);
+          Notify.warn(e);
         }
       }
 

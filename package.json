@@ -2,7 +2,6 @@
   "jspm": {
     "dependencies": {
       "jublonet/codebird-js": "github:jublonet/codebird-js@^2.6.0",
-      "mousetrap": "npm:mousetrap@^1.5.3",
       "twitter-text": "npm:twitter-text@^1.13.2"
     },
     "devDependencies": {

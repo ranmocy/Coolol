@@ -1,8 +1,6 @@
 {
   "jspm": {
     "dependencies": {
-      "ace": "github:ajaxorg/ace-builds@^1.2.0",
-      "josdejong/jsoneditor": "github:josdejong/jsoneditor@^4.2.1",
       "jublonet/codebird-js": "github:jublonet/codebird-js@^2.6.0",
       "mousetrap": "npm:mousetrap@^1.5.3",
       "twitter-text": "npm:twitter-text@^1.13.2"

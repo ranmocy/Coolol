@@ -1,20 +1,22 @@
-<!-- it need duplicated in index.html and here? -->
-<script src="../vendor/jsoneditor@4.2.1/jsoneditor.min.js"></script>
-
 <template>
   <style>
-    /* Relative to the url, which is the directory of index.html */
-    @import "../vendor/jsoneditor@4.2.1/jsoneditor.min.css";
+    :host {
+      display: block;
+      width: 80%;
+      margin: auto;
+    }
     #editor {
-      width: 400px;
-      height: 400px;
+      width: 100%;
+      height: 50em;
     }
   </style>
 
-  <div id="editor"></div>
+  <textarea id="editor"></textarea>
 
-  <button type="button" id="save">Save</button>
-  <button type="button" id="reset">Reset to default</button>
+  <div id="actions">
+    <button type="button" id="save">Save</button>
+    <button type="button" id="reset">Reset to default</button>
+  </div>
 </template>
 
 <script type="text/javascript">
@@ -30,29 +32,40 @@
         this.$('#save').handle('click', this.saveConfig.bind(this));
         this.$('#reset').handle('click', this.resetConfig.bind(this));
 
-        this.editor = new JSONEditor(this.$('#editor'), {
-          mode: 'code'
-        });
+        this.editor = this.$('#editor');
         this.loadConfig();
       }
 
       loadConfig() {
         var config = document.store.getConfig(document.account);
-        this.editor.set(config);
+        this.setConfig(config);
         console.log("Config loaded:", config);
       }
 
       saveConfig() {
-        var config = this.editor.get();
-        document.store.saveConfig(document.account, config);
-        console.log("Config saved.", JSON.stringify(config));
-        this.trigger('switchView', 'board', document.account);
+        try {
+          var config = this.getConfig();
+          document.store.saveConfig(document.account, config);
+          console.log("Config saved.", config);
+          this.trigger('switchView', 'board', document.account);
+        } catch (e) {
+          console.error('saveConfig failed', e);
+          Notify.error(e);
+        }
       }
 
       resetConfig() {
         var config = document.store.resetConfig(document.account);
-        this.editor.set(config);
+        this.setConfig(config);
         console.log("Config reseted.");
+      }
+
+      getConfig() {
+        return JSON.parse(this.editor.value);
+      }
+
+      setConfig(config) {
+        this.editor.value = JSON.stringify(config, null, '\t');
       }
     }
 

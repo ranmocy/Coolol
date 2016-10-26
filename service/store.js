@@ -230,6 +230,48 @@
       }
     }]
   };
+  const CONFIG_VERIFIER_TEMPLATE = {
+    'filters_optional': [
+      '',
+    ],
+    'channels': [
+      {
+        'name': '',
+        'sources': {
+          '': {},
+        },
+        'filters_optional': [
+          '',
+        ]
+      }
+    ]
+  };
+  /* Returns array of error messages. */
+  function verifyConfigWithTemplate(template, config) {
+    let error_messages = [];
+    if ($.isDefined(template)) {
+      if ($.isDefined(config)) {
+        if ($.isObject(template)) {
+          if ($.isObject(config)) {
+
+          } else {
+            error_messages.push('config needs to be an object.');
+          }
+        } else if ($.isArray(template)) {
+
+        } else if ($.isString(template)) {
+
+        } else {
+          console.warn('Unknown template?' +
+                       JSON.stringify(template).replace('_optional', ''));
+        }
+      } else {
+        error_messages.push('Required config missing, template:' +
+                            JSON.stringify(template).replace('_optional', ''));
+      }
+    }
+    return error_messages;
+  }
   /*
   Config = {
     <screen_name>: {
@@ -247,43 +289,7 @@
   Store.addAccessToAccountField('config', Store.defaultValueFactoryFactory({}));
   store.extends({
     verifyConfig: function(config) {
-      let error_messages = [];
-
-      if (!$.isObject(config)) {
-        error_messages.push('config needs to be an object.');
-        return error_messages;
-      }
-
-      if (config['filters']) {
-        if ($.isArray(config['filters'])) {
-          for (let filter of config['filters']) {
-            if (!$.isString(filter)) {
-              error_messages.push('global filter needs to be a string:' + filter);
-            }
-          }
-        } else {
-          error_messages.push('global filters need to be an array.');
-        }
-      }
-
-      let channels = config['channels'];
-      if (channels) {
-        if ($.isArray(channels)) {
-          for (let channel of channels) {
-            if ($.isObject(channel)) {
-
-            } else {
-              error_messages.push('channel needs to be an object');
-            }
-          }
-        } else {
-          error_messages.push('channels need to be an array');
-        }
-      } else {
-        error_messages.push('channels need to be defined.');
-      }
-
-      return error_messages;
+      return verifyConfigWithTemplate(CONFIG_VERIFIER_TEMPLATE, config);
     },
 
     resetConfig: function(account) {

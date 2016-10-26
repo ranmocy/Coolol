@@ -15,18 +15,19 @@
 
     // Add methods for application level field in format of `{value: <factory()>}`
     static addAccessToAppField(field_name, factory) {
-      var capitalized = $.camelize(field_name);
-      var field = field_name;
+      let capitalized = $.camelize(field_name);
+      let field = field_name;
 
-      var getMethodName = `get${capitalized}`;
-      var saveMethodName = `save${capitalized}`;
-      var deleteMethodName = `delete${capitalized}`;
-      var registerMethodName = `register${capitalized}`;
+      let getMethodName = `get${capitalized}`;
+      let saveMethodName = `save${capitalized}`;
+      let deleteMethodName = `delete${capitalized}`;
+      let registerMethodName = `register${capitalized}`;
+      let unregisterMethodName = `unregister${capitalized}`;
 
 
       // read
       this.prototype[getMethodName] = function() {
-        var value = this.getJSON(field, factory);
+        let value = this.getJSON(field, factory);
         Store.log(`[store] ${getMethodName}:`, value);
         return value;
       };
@@ -40,9 +41,9 @@
 
       // delete
       this.prototype[deleteMethodName] = function() {
-        var old_value = this[getMethodName]();
+        let old_value = this[getMethodName]();
         Store.log(`[store] ${deleteMethodName}:`, old_value);
-        this.saveJSON(field, factory);
+        this.saveJSON(field, factory());
         return old_value;
       };
 
@@ -50,33 +51,36 @@
       this.prototype[registerMethodName] = function(callback) {
         return this.register(field, callback);
       };
+      this.prototype[unregisterMethodName] = function(callback) {
+        return this.unregister(field, callback);
+      };
 
       return field_name;
     }
 
     // Add methods for account level field in format of `{<screen_name>: <factory()>}`
     static addAccessToAccountField(field_name, factory) {
-      var capitalized = $.camelize(field_name);
-      var field = field_name + 's';
-      var account_default_factory = this.defaultValueFactoryFactory({});
+      let capitalized = $.camelize(field_name);
+      let field = field_name + 's';
 
-      var getAllMethodName = `getAll${capitalized}s`;
-      var getMethodName = `get${capitalized}`;
-      var saveAllMethodName = `saveAll${capitalized}s`;
-      var saveMethodName = `save${capitalized}`;
-      var deleteAllMethodName = `deleteAll${capitalized}s`;
-      var deleteMethodName = `delete${capitalized}`;
-      var registerMethodName = `register${capitalized}s`;
+      let getAllMethodName = `getAll${capitalized}s`;
+      let getMethodName = `get${capitalized}`;
+      let saveAllMethodName = `saveAll${capitalized}s`;
+      let saveMethodName = `save${capitalized}`;
+      let deleteAllMethodName = `deleteAll${capitalized}s`;
+      let deleteMethodName = `delete${capitalized}`;
+      let registerMethodName = `register${capitalized}s`;
+      let unregisterMethodName = `unregister${capitalized}s`;
 
       // read
       this.prototype[getAllMethodName] = function() {
         // the default value of whole field is always {}, because they are all saved in account space
-        var values = this.getJSON(field, account_default_factory);
+        let values = this.getJSON(field, factory);
         Store.log(`[store] ${getAllMethodName}:`, values);
         return values;
       };
       this.prototype[getMethodName] = function(account) {
-        var value = this[getAllMethodName]()[account.screen_name];
+        let value = this[getAllMethodName]()[account.screen_name];
         Store.log(`[store] ${getMethodName}:`, account.screen_name, value);
         if ($.isDefined(value)) {
           return value;
@@ -94,7 +98,7 @@
         return new_value;
       };
       this.prototype[saveMethodName] = function(account, new_value) {
-        var values = this[getAllMethodName]();
+        let values = this[getAllMethodName]();
         Store.log(`[store] ${saveMethodName}:`, account.screen_name, new_value);
         values[account.screen_name] = new_value;
         this.saveJSON(field, values);
@@ -104,11 +108,11 @@
       // delete
       this.prototype[deleteAllMethodName] = function() {
         Store.log(`[store] ${deleteAllMethodName}:`);
-        this.saveJSON(field, account_default_factory());
+        this.saveJSON(field, factory());
       };
       this.prototype[deleteMethodName] = function(account) {
-        var values = this[getAllMethodName]();
-        var old_value = values[account.screen_name];
+        let values = this[getAllMethodName]();
+        let old_value = values[account.screen_name];
         Store.log(`[store] ${deleteMethodName}:`, account.screen_name, old_value);
         if ($.isDefined(old_value)) {
           delete values[account.screen_name];
@@ -120,6 +124,9 @@
       // register
       this.prototype[registerMethodName] = function(callback) {
         return this.register(field, callback);
+      };
+      this.prototype[unregisterMethodName] = function(callback) {
+        return this.unregister(field, callback);
       };
 
       return field_name;
@@ -135,11 +142,13 @@
     }
 
     register(field, callback) {
-      if (!this.callbacks[field]) {
-        this.callbacks[field] = [];
-      }
-      this.callbacks[field].push(callback);
-      Store.log('[store] register:', field, this.callbacks);
+      $.registerObjectCallback(this.callbacks[field], callback);
+      Store.log('[store] register:', field, callback);
+    }
+
+    unregister(field, callback) {
+      $.unregisterObjectCallback(this.callbacks[field], callback);
+      Store.log('[store] unregister:', field, callback);
     }
 
     // Don't call saveJSON! Calls may infinitely loop.
@@ -149,25 +158,22 @@
       if (field in this.storage) {
         return this.storage[field];
       }
-      var data = this.getLocalStorageItem(field);
+      let data = this.getLocalStorageItem(field);
       if (! $.isDefined(data)) {
         data = factory();
       }
       this.storage[field] = data;
+      this.callbacks[field] = this.callbacks[field] || {value: data};
       return data;
     }
 
     saveJSON(field, value) {
-      var old_value = this.getJSON(field, Store.defaultValueFactoryFactory(value));
+      let old_value = this.getJSON(field, Store.defaultValueFactoryFactory(value));
       this.storage[field] = value;
+      this.callbacks[field] = this.callbacks[field] || {};
       this.saveLocalStorageItem(field, value);
       Store.log('[store] saveJSON:', field, value, old_value, this.callbacks);
-      if (this.callbacks[field]) {
-        Store.log('[store] trigger callbacks', field);
-        this.callbacks[field].forEach((callback) => {
-          callback(value, old_value);
-        });
-      }
+      $.updateObject(this.callbacks[field], {value: value});
       return value;
     }
 
@@ -187,7 +193,7 @@
   }
 
 
-  var store = new Store();
+  let store = new Store();
 
 
   const DEFAULT_CONFIG =
@@ -402,7 +408,7 @@
         screen_name: account.screen_name,
       }).then((reply) => {
         Store.log('[store] get user info', reply);
-        var new_account = Object.assign({}, account, reply); // keep old info as much as possible
+        let new_account = Object.assign({}, account, reply); // keep old info as much as possible
         if (account.screen_name !== new_account.screen_name) {
           Store.log('[store] screen_name is changed!');
           this.deleteAccount(account);
@@ -412,9 +418,9 @@
     },
 
     updateAllAccounts: function() {
-      var accounts = this.getAllAccounts();
+      let accounts = this.getAllAccounts();
       Store.log('[store] updateAllAccounts:', accounts);
-      for (var screen_name in accounts) {
+      for (let screen_name in accounts) {
         this.updateAccount(accounts[screen_name]);
       }
     },
@@ -439,8 +445,8 @@
       var require_reconfig = false;
       if (old_version_str) {
         // Not first time, check version code
-        var version = version_str.split('.');
-        var old_version = old_version_str.split('.');
+        let version = version_str.split('.');
+        let old_version = old_version_str.split('.');
         if (version.length !== old_version.length || version[0] !== old_version[0]) {
           // Major update, backward incompatible, config need update
           require_reconfig = true;

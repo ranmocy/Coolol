@@ -118,9 +118,15 @@
         this.$('#open-compose').handle('click', this.trigger.bind(this, 'openCompose'));
         this.$('#switch-session').handle('click', this.trigger.bind(this, 'switchView', 'session'));
         this.$('#account-manage').handle('click', this.trigger.bind(this, 'switchView', 'session'));
+      }
 
+      attachedCallback() {
+        document.store.registerAccounts(this.attachedCallback.bind(this));
         this.updateAccountList();
-        document.store.registerAccounts(this.updateAccountList.bind(this));
+      }
+
+      detachedCallback() {
+        document.store.unregisterAccounts(this.attachedCallback.bind(this));
       }
 
       updateNav(board) {
@@ -150,7 +156,7 @@
         }
       }
 
-      updateAccountList() {
+      /*private*/ updateAccountList() {
         $.removeAllChildren(this.$('#account-list'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.info('[nav] list account item', screen_name);

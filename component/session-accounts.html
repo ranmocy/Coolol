@@ -21,12 +21,18 @@
     class SessionAccounts extends XElement {
       createdCallback() {
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
+      }
 
-        document.store.registerAccounts(this.refresh.bind(this));
+      attachedCallback() {
+        document.store.registerAccounts(this.attachedCallback.bind(this));
         this.refresh();
       }
 
-      refresh() {
+      detachedCallback() {
+        document.store.unregisterAccounts(this.attachedCallback.bind(this));
+      }
+
+      /*private*/ refresh() {
         $.removeAllChildren(this.$('#accounts'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.log('[SessionAccounts] refresh', screen_name);

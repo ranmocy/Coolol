@@ -211,11 +211,11 @@
                 (sender.screen_name === user2 && receiver.screen_name === user1);
               };
               tweetContains = function(keyword) {
-                return tweet.text.indexOf(keyword) > 0;
+                return tweet.text.indexOf(keyword) >= 0;
               };
               tweetContainsAny = function() {
-                for (var i = 0; i < arguments.length; i++) {
-                  if (tweetContains(arguments[i])) {
+                for (let keyword of arguments) {
+                  if (tweetContains(keyword)) {
                     return true;
                   }
                 }
@@ -232,7 +232,9 @@
               }
             };
             new_data = new_data.filter((tweet) => {
-              return !filter_func(tweet); // filter_func returns true means remove the tweet.
+              // filter_func returns true means remove the tweet.
+              // however Array.filter needs function to return false to remove the tweet.
+              return !filter_func(tweet);
             });
           });
         }

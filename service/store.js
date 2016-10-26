@@ -302,27 +302,32 @@
   Version = <CURRENT_VERSION>
   */
   Store.addAccessToAppField('version', Store.defaultValueFactoryFactory(CURRENT_VERSION));
-  store.registerVersion((version_str, old_version_str) => {
-    if (! $.isDefined(old_version_str)) {
-      // First time app launched, cleanup everything.
-      store.deleteAllConfigs();
-      store.deleteAllAccounts();
-      return;
-    }
-    var version = version_str.split('.');
-    var old_version = old_version_str.split('.');
-    if (version.length !== old_version.length || version[0] !== old_version[0]) {
-      // Major update, backward incompatible, drop everything
-      console.warn("ATTENTION: Backward incompatible update finished, your config may need updates and your account may need re-authorize!");
-      if ($.isDefined(Notify)) {
-        Notify.warn("ATTENTION: Backward incompatible update finished, your config may need updates and your account may need re-authorize!");
+  store.extends({
+    updateVersionCode: function() {
+      let old_version_str = this.getVersion();
+      let version_str = CURRENT_VERSION;
+      var require_reconfig = false;
+      if (old_version_str) {
+        // Not first time, check version code
+        var version = version_str.split('.');
+        var old_version = old_version_str.split('.');
+        if (version.length !== old_version.length || version[0] !== old_version[0]) {
+          // Major update, backward incompatible, config need update
+          require_reconfig = true;
+        } else if (version[1] !== old_version[1]) {
+          // Minor update, featuers extended, drop caches
+        }
+        // Bug fixes update, do nothing
+      } else {
+        // First time app launched, cleanup everything.
+        localStorage.clear();
       }
-    } else if (version[1] !== old_version[1]) {
-      // Minor update, featuers extended, drop caches
-    }
-    // Bug fixes update, do nothing
+
+      // Update finished, save version
+      this.saveVersion(CURRENT_VERSION);
+      return require_reconfig;
+    },
   });
-  store.saveVersion(CURRENT_VERSION);
 
   // Exported
   window.Store = Store;

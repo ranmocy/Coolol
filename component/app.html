@@ -40,10 +40,20 @@
 
         this.handleActions(['openCompose', 'openComposeForReply', 'openComposeForRetweet', 'switchView']);
 
+        // initialize storage
+        let require_reconfig = document.store.updateVersionCode();
+        if (require_reconfig) {
+          console.warn("ATTENTION: Backward incompatible update finished, your config may need updates!");
+          Notify.warn("ATTENTION: Major update, please update your config.");
+          this.switchSession();
+          return;
+        }
         document.store.updateAllAccounts();
 
         // init view
-        window.onpopstate = (event) => { this.loadLastView(event.state); };
+        window.onpopstate = (event) => {
+          this.loadLastView(event.state);
+        };
         this.loadLastView(window.location);
       }
 

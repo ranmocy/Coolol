@@ -230,19 +230,63 @@
       }
     }]
   };
+  const CONFIG_SPEC = {
+    name: 'entire config',
+    type: 'object',
+    required: {
+      channels: {
+        name: 'channels',
+        type: 'array',
+        elements: {
+          name: 'channel',
+          type: 'object',
+          required: {
+            name: {
+              name: 'channel name',
+              type: 'string',
+            },
+            sources: {
+              name: 'channel sources',
+              type: 'object',
+              values: {
+                name: 'channel source parameters',
+                type: 'object'
+              }
+            }
+          },
+          optional: {
+            filters: {
+              name: 'channel filters',
+              type: 'array',
+              elements: {
+                name: 'channel filter rule',
+                type: 'string',
+              }
+            }
+          }
+        }
+      }
+    },
+    optional: {
+      filters: {
+        name: 'global filters',
+        type: 'array',
+        elements: {
+          name: 'global filter rule',
+          type: 'string',
+        }
+      }
+    }
+  };
   const CONFIG_VERIFIER_TEMPLATE = {
-    'filters_optional': [
-      '',
-    ],
+    'filters_optional': [''],
     'channels': [
       {
         'name': '',
         'sources': {
           '': {},
         },
-        'filters_optional': [
-          '',
-        ]
+        'filters_optional': ['']
       }
     ]
   };

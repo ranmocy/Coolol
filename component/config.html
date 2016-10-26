@@ -68,28 +68,23 @@
       }
 
       saveConfig() {
-        try {
-          let config = this.getConfig();
-          let error_messages = document.store.verifyConfig(config);
-          if (error_messages && error_messages.length > 0) {
-            console.log('config format error:', error_messages);
-            $.removeAllChildren(this.$errors);
-            for (let message of error_messages) {
-              let $li = document.createElement('li');
-              $li.textContent = message;
-              this.$errors.appendChild($li);
-            }
-            this.$errors.show();
-            return;
+        let config = this.getConfig();
+        let error_messages = document.store.verifyConfig(config);
+        if (error_messages && error_messages.length > 0) {
+          console.log('config format error:', error_messages);
+          $.removeAllChildren(this.$errors);
+          for (let message of error_messages) {
+            let $li = document.createElement('li');
+            $li.textContent = message;
+            this.$errors.appendChild($li);
           }
-          this.$errors.hide();
-          document.store.saveConfig(document.account, config);
-          console.log("Config saved.", config);
-          this.trigger('switchView', 'board', document.account);
-        } catch (e) {
-          console.error('saveConfig failed', e);
-          Notify.warn(e);
+          this.$errors.show();
+          return;
         }
+        this.$errors.hide();
+        document.store.saveConfig(document.account, config);
+        console.log("Config saved.", config);
+        this.trigger('switchView', 'board', document.account);
       }
 
       resetConfig() {

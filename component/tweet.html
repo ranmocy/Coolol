@@ -104,12 +104,12 @@
         if (this.tweet == null) {
           throw new Error('tweet is null');
         }
-        $.registerObjectCallback(this.tweet, this.attachedCallback.bind(this));
+        $.registerObjectCallback(this.tweet, this);
         this.refresh();
       }
 
       detachedCallback() {
-        $.unregisterObjectCallback(this.tweet, this.attachedCallback.bind(this));
+        $.unregisterObjectCallback(this.tweet, this);
       }
 
       setTweet(tweet) {

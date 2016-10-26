@@ -108,31 +108,47 @@ window.$ = (function() {
       return 'tweet';
     },
 
-    /* Callbacks */
-    registerObjectCallback: function(obj, callback) {
-      if (typeof callback !== 'function') {
-        console.error('[utils] registerObjectCallback', 'callback is not a function', callback);
-        Notify.error(`Operation failed on object callback.`);
+    /*
+    Registers ELEMENT to the OBJ.
+    When OBJ changes, ELEMENT.attachedCallback() will be called.
+    */
+    registerObjectCallback: function(obj, element) {
+      if (!(element instanceof XElement)) {
+        console.error('[utils] registerObjectCallback', 'Register data callback has to be an custom element', element);
+        Notify.error(`Operation failed on registering object.`);
         return;
       }
+
       if (!$.isDefined(obj.__callbacks)) {
         obj.__callbacks = new Set();
       }
-      obj.__callbacks.add(callback);
+      obj.__callbacks.add(element);
       if (obj.__callbacks.size >= 50) {
         console.warn('[utils] registerObjectCallback: obj has over 50 callbacks!', obj);
       }
       return obj;
     },
 
-    unregisterObjectCallback: function(obj, callback) {
+    /*
+    Unregisters ELEMENT from OBJ.
+    */
+    unregisterObjectCallback: function(obj, element) {
+      if (!(element instanceof XElement)) {
+        console.error('[utils] unregisterObjectCallback', 'Unregister data callback has to be an custom element', element);
+        Notify.error(`Operation failed on unregister object.`);
+        return;
+      }
       if (!$.isDefined(obj.__callbacks)) {
         obj.__callbacks = new Set();
       }
-      obj.__callbacks.delete(callback);
+      obj.__callbacks.delete(element);
       return obj;
     },
 
+    /*
+    Update OBJ with NEW_FIELDS,
+    and trigger all callback elements with ELEMENT.attachedCallback(OBJ).
+    */
     updateObject: function(obj, new_fields) {
       Object.assign(obj, new_fields);
       if ($.isDefined(obj.__callbacks)) {
@@ -141,12 +157,12 @@ window.$ = (function() {
         console.debug("Updated obj: ", obj, "trigger callbacks.", obj.__callbacks);
         let callbacks = obj.__callbacks;
         obj.__callbacks = new Set();
-        callbacks.forEach((callback) => {
-          if (typeof callback === 'function') {
-            callback(obj);
+        callbacks.forEach((element) => {
+          if (element instanceof XElement) {
+            element.attachedCallback(obj);
           } else {
-            console.error('[utils]', 'updateObject', 'callback is not a function', callback);
-            Notify.error(`Operation failed on object callback.`);
+            console.error('[utils]', 'updateObject', 'callback is not a custom element', element);
+            Notify.error(`Operation failed on update object.`);
           }
         });
       }

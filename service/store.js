@@ -48,11 +48,11 @@
       };
 
       // register
-      this.prototype[registerMethodName] = function(callback) {
-        return this.register(field, callback);
+      this.prototype[registerMethodName] = function(element) {
+        return this.register(field, element);
       };
-      this.prototype[unregisterMethodName] = function(callback) {
-        return this.unregister(field, callback);
+      this.prototype[unregisterMethodName] = function(element) {
+        return this.unregister(field, element);
       };
 
       return field_name;
@@ -122,11 +122,11 @@
       };
 
       // register
-      this.prototype[registerMethodName] = function(callback) {
-        return this.register(field, callback);
+      this.prototype[registerMethodName] = function(element) {
+        return this.register(field, element);
       };
-      this.prototype[unregisterMethodName] = function(callback) {
-        return this.unregister(field, callback);
+      this.prototype[unregisterMethodName] = function(element) {
+        return this.unregister(field, element);
       };
 
       return field_name;
@@ -141,14 +141,27 @@
       return Object.assign(this, fields_object);
     }
 
-    register(field, callback) {
-      $.registerObjectCallback(this.callbacks[field], callback);
-      Store.log('[store] register:', field, callback);
+    /*
+    Registers ELEMENT to the FIELD.
+    When data in FIELD changes, element.attachedCallback() will be called.
+    */
+    register(field, element) {
+      if (!(element instanceof XElement)) {
+        throw 'Register data callback has to be an custom element';
+      }
+      $.registerObjectCallback(this.callbacks[field], element);
+      Store.log('[store] register:', field, element);
     }
 
-    unregister(field, callback) {
-      $.unregisterObjectCallback(this.callbacks[field], callback);
-      Store.log('[store] unregister:', field, callback);
+    /*
+    Unregisters ELEMENT from FIELD.
+    */
+    unregister(field, element) {
+      if (!(element instanceof XElement)) {
+        throw 'Unregister data callback has to be an custom element';
+      }
+      $.unregisterObjectCallback(this.callbacks[field], element);
+      Store.log('[store] unregister:', field, element);
     }
 
     // Don't call saveJSON! Calls may infinitely loop.

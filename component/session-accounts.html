@@ -24,12 +24,12 @@
       }
 
       attachedCallback() {
-        document.store.registerAccounts(this.attachedCallback.bind(this));
+        document.store.registerAccounts(this);
         this.refresh();
       }
 
       detachedCallback() {
-        document.store.unregisterAccounts(this.attachedCallback.bind(this));
+        document.store.unregisterAccounts(this);
       }
 
       /*private*/ refresh() {

@@ -169,6 +169,10 @@
           console.info('[app] switchBoard: config is empty, switch to config view.');
           Notify.info('You need to setup config first.');
           this.switchConfig(document.account);
+        } else if (document.store.verifyConfig(config).length > 0) {
+          console.info('[app] switchBoard: Config invalid, switch to config view.', document.store.verifyConfig(config));
+          Notify.error('Config is invalid, please check it first.');
+          this.switchConfig(document.account);
         } else {
           this.switchLoading();
           document.cache.getTwitterClient(account)

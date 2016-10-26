@@ -59,7 +59,7 @@
 
         // create all channels
         var allChannelsPromises = this.config.channels.map((channel_config) => {
-          var channel_filters = $.isDefined(channel_config.filters) ? channel_config.filters : [];
+          var channel_filters =  channel_config.filters || [];
           channel_config = Object.assign({}, channel_config, {
             filters: [].concat(channel_filters, board_filters),
           });

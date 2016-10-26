@@ -75,7 +75,7 @@
     }
 
 
-    var template = document.currentScript.ownerDocument.querySelector('template');
+    let template = document.currentScript.ownerDocument.querySelector('template');
 
     class Channel extends XElement {
       createdCallback() {
@@ -86,7 +86,7 @@
         this.no_more_earlier_tweet = false;
 
         // scroll event
-        var $tweets = this.$('#tweets');
+        let $tweets = this.$('#tweets');
         $tweets.handle('scroll', () => {
           if ($tweets.scrollTop + $tweets.offsetHeight + 10 >= $tweets.scrollHeight) {
             console.debug('scroll to bottom');
@@ -110,7 +110,7 @@
         this.data = [];
         $.removeAllChildren(this.$('#tweets'));
 
-        this.fetchMore();
+        return this.fetchMore();
       }
 
       fetchMore() {
@@ -123,22 +123,23 @@
           this.fetching = true;
           this.$('#loading').show();
 
-          var extra_params = {
+          let extra_params = {
             count: 50,
           };
 
           // get the earlest tweet id in this channel
           if (this.data.length > 0) {
-            var earlest_tweet_id = this.data[this.data.length - 1].id_str;
+            let earlest_tweet_id = this.data[this.data.length - 1].id_str;
             console.log('[channel] fetchMore: earlest_tweet_id', earlest_tweet_id);
             // Alternative: this.$('#tweets').lastChild.dataset.tweetId
             extra_params.max_id = earlest_tweet_id;
           }
 
           // fetch more data
-          var client = document.cache.getTwitterClient(document.account);
-          var source_promises = $.mapKeyValue(this.config.sources, (source, params) => {
-            params = Object.assign({}, extra_params, params);
+          let client = document.cache.getTwitterClient(document.account);
+          let source_promises = this.config.sources.map((source_vector) => {
+            let source = source_vector[0];
+            let params = Object.assign({}, extra_params, source_vector[1]);
             return client.fetch(source, params);
           });
           return Promise.all(source_promises)
@@ -155,6 +156,7 @@
           // exit fetching status
           this.fetching = false;
           this.$('#loading').hide();
+          debugger
 
           console.error('[channel] fetchMore: error during fetching!', e);
           Notify.error('Error during fetching more tweets!');
@@ -164,7 +166,7 @@
       appendData(data) {
         console.info('[channel] appendData', data);
 
-        var new_data = transformData(data)
+        let new_data = transformData(data)
           // remove duplicated tweet
           .filter((tweet) => {
             for (var i = this.data.length - 1; i >= 0; i--) {
@@ -178,7 +180,7 @@
         // apply filters from config
         if ($.isDefined(this.config.filters)) {
           this.config.filters.forEach((filter_rule) => {
-            var filter_func = function(tweet) {
+            let filter_func = function(tweet) {
               // prepare DSL for filter rule
               var sender, receiver; // variables
               var isBetweenUser, tweetContains, tweetContainsAny; // functions

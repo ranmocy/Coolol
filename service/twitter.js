@@ -74,7 +74,9 @@ window.Twitter = (function() {
     }
 
     setToken(token, secret) {
-      console.debug('Set token: ', token, secret);
+      if (document.debug) {
+        console.debug('Set token: ', token, secret);
+      }
       this.client.setToken(token, secret);
     }
 

@@ -62,6 +62,7 @@
     static addAccessToAccountField(field_name, factory) {
       let capitalized = $.camelize(field_name);
       let field = field_name + 's';
+      let account_default_factory = this.defaultValueFactoryFactory({});
 
       let getAllMethodName = `getAll${capitalized}s`;
       let getMethodName = `get${capitalized}`;
@@ -75,7 +76,7 @@
       // read
       this.prototype[getAllMethodName] = function() {
         // the default value of whole field is always {}, because they are all saved in account space
-        let values = this.getJSON(field, factory);
+        let values = this.getJSON(field, account_default_factory);
         Store.log(`[store] ${getAllMethodName}:`, values);
         return values;
       };
@@ -108,7 +109,7 @@
       // delete
       this.prototype[deleteAllMethodName] = function() {
         Store.log(`[store] ${deleteAllMethodName}:`);
-        this.saveJSON(field, factory());
+        this.saveJSON(field, account_default_factory());
       };
       this.prototype[deleteMethodName] = function(account) {
         let values = this[getAllMethodName]();
@@ -149,6 +150,7 @@
       if (!(element instanceof XElement)) {
         throw 'Register data callback has to be an custom element';
       }
+      this.callbacks[field] = this.callbacks[field] || {};
       $.registerObjectCallback(this.callbacks[field], element);
       Store.log('[store] register:', field, element);
     }
@@ -160,6 +162,7 @@
       if (!(element instanceof XElement)) {
         throw 'Unregister data callback has to be an custom element';
       }
+      this.callbacks[field] = this.callbacks[field] || {};
       $.unregisterObjectCallback(this.callbacks[field], element);
       Store.log('[store] unregister:', field, element);
     }
@@ -167,13 +170,13 @@
     // Don't call saveJSON! Calls may infinitely loop.
     // We don't have to save the default value to local storage,
     // since we can create the same/similar one every time.
-    getJSON(field, factory) {
+    getJSON(field, default_value_factory) {
       if (field in this.storage) {
         return this.storage[field];
       }
-      let data = this.getLocalStorageItem(field);
+      var data = this.getLocalStorageItem(field);
       if (! $.isDefined(data)) {
-        data = factory();
+        data = default_value_factory();
       }
       this.storage[field] = data;
       this.callbacks[field] = this.callbacks[field] || {value: data};

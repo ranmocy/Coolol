@@ -100,7 +100,27 @@
         this.tweet = null;
       }
 
-      setReplyTo(screen_name) {
+      attachedCallback() {
+        if (this.tweet == null) {
+          throw new Error('tweet is null');
+        }
+        $.registerObjectCallback(this.tweet, this.attachedCallback.bind(this));
+        this.refresh();
+      }
+
+      detachedCallback() {
+        $.unregisterObjectCallback(this.tweet, this.attachedCallback.bind(this));
+      }
+
+      setTweet(tweet) {
+        if (this.tweet) {
+          throw new Error('tweet has already been set:' + this.tweet.tweetId);
+        }
+        this.tweet = tweet;
+        return this;
+      }
+
+      /*private*/ setReplyTo(screen_name) {
         $$$reply.$('.screen-name').textContent = screen_name;
 
         var $container = this.$('#reply');
@@ -109,7 +129,7 @@
         return this;
       }
 
-      setRetweeted(user) {
+      /*private*/ setRetweeted(user) {
         $$$retweeted.$('.avatar').src = user.profile_image_url_https;
         $$$retweeted.$('.name').textContent = user.name;
         $$$retweeted.$('.screen-name').textContent = user.screen_name;
@@ -120,7 +140,7 @@
         return this;
       }
 
-      setCreator(user) {
+      /*private*/ setCreator(user) {
         $$$creator.$('.avatar').src = user.profile_image_url_https;
         $$$creator.$('.name').textContent = user.name;
         $$$creator.$('.screen-name').textContent = user.screen_name;
@@ -131,7 +151,7 @@
         return this;
       }
 
-      setText(text) {
+      /*private*/ setText(text) {
         var entities = [];
         [this.tweet.entities, this.tweet.extended_entities].forEach((obj) => {
           if ($.isDefined(obj)) {
@@ -149,7 +169,7 @@
         return this;
       }
 
-      setMedia(entities, extended_entities) {
+      /*private*/ setMedia(entities, extended_entities) {
         var media = [];
         if (extended_entities && extended_entities.media) {
           media = extended_entities.media;
@@ -163,18 +183,15 @@
         return this;
       }
 
-      setBody(tweet) {
+      /*private*/ setBody(tweet) {
         this.setCreator(tweet.user);
         this.setText(tweet.text);
         this.setMedia(tweet.entities, tweet.extended_entities);
         return this;
       }
 
-      setTweet(tweet) {
-        // when tweet object is changed, refresh the UI
-        $.registerObjectCallback(tweet, this.setTweet.bind(this));
-
-        this.tweet = tweet;
+      /*private*/ refresh() {
+        let tweet = this.tweet;
         this.dataset.tweetId = tweet.id_str;
         if ($.isDefined(tweet.current_user_retweet)) {
           this.dataset.currentUserRetweetId = tweet.current_user_retweet.id_str;
@@ -213,8 +230,6 @@
         } else {
           this.setBody(tweet);
         }
-
-        return this;
       }
     }
 

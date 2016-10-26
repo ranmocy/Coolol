@@ -40,7 +40,8 @@
         ["HTML template", "'content' in document.createElement('template')"],
         ["shadow dom", "typeof document.body.createShadowRoot === 'function'"],
         ["arrow function", "(() => {});"],
-        ["Promise", "'Promise' in window"]
+        ["Promise", "'Promise' in window"],
+        ["Set", "new Set([1,2,3])"]
       ];
       var features_missing = features.filter(function(feature) {
         try {

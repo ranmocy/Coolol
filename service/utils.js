@@ -110,35 +110,43 @@ window.$ = (function() {
 
     /* Callbacks */
     registerObjectCallback: function(obj, callback) {
-      if (!$.isDefined(obj.__callbacks)) {
-        obj.__callbacks = [];
-      }
       if (typeof callback !== 'function') {
         console.error('[utils] registerObjectCallback', 'callback is not a function', callback);
-        Notify.error(`[utils] registerObjectCallback: callback is not a function!`);
+        Notify.error(`Operation failed on object callback.`);
         return;
       }
-      obj.__callbacks.push(callback);
-      if (obj.__callbacks.length >= 50) {
+      if (!$.isDefined(obj.__callbacks)) {
+        obj.__callbacks = new Set();
+      }
+      obj.__callbacks.add(callback);
+      if (obj.__callbacks.size >= 50) {
         console.warn('[utils] registerObjectCallback: obj has over 50 callbacks!', obj);
       }
       return obj;
     },
 
-    updateObject: function(obj, newFields) {
-      Object.assign(obj, newFields);
+    unregisterObjectCallback: function(obj, callback) {
+      if (!$.isDefined(obj.__callbacks)) {
+        obj.__callbacks = new Set();
+      }
+      obj.__callbacks.delete(callback);
+      return obj;
+    },
+
+    updateObject: function(obj, new_fields) {
+      Object.assign(obj, new_fields);
       if ($.isDefined(obj.__callbacks)) {
         // call all the callbacks and remove these callbacks.
         // it's the callbacks' duty to re-register
         console.debug("Updated obj: ", obj, "trigger callbacks.", obj.__callbacks);
-        var callbacks = obj.__callbacks;
-        obj.__callbacks = [];
+        let callbacks = obj.__callbacks;
+        obj.__callbacks = new Set();
         callbacks.forEach((callback) => {
           if (typeof callback === 'function') {
             callback(obj);
           } else {
             console.error('[utils]', 'updateObject', 'callback is not a function', callback);
-            Notify.error(`[utils] updateObject: callback is not a function!`);
+            Notify.error(`Operation failed on object callback.`);
           }
         });
       }

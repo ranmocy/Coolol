@@ -10,10 +10,17 @@
       width: 100%;
       height: 80%;
     }
+    #errors {
+      border: 2px solid #c44;
+      background: #e88;
+      padding: 1em 2em;
+      margin: 1em;
+      color: white;
+    }
   </style>
 
   <textarea id="editor"></textarea>
-
+  <ul id="errors"></ul>
   <div id="actions">
     <button type="button" id="save">Save</button>
     <button type="button" id="reset">Reset to default</button>
@@ -24,7 +31,7 @@
   (function() {
     "use strict";
 
-    var template = document.currentScript.ownerDocument.querySelector('template');
+    let template = document.currentScript.ownerDocument.querySelector('template');
 
     class Config extends XElement {
       createdCallback() {
@@ -33,19 +40,34 @@
         this.$('#save').handle('click', this.saveConfig.bind(this));
         this.$('#reset').handle('click', this.resetConfig.bind(this));
 
-        this.editor = this.$('#editor');
+        this.$editor = this.$('#editor');
+        this.$errors = this.$('#errors');
+
+        this.$errors.hide();
         this.loadConfig();
       }
 
       loadConfig() {
-        var config = document.store.getConfig(document.account);
+        let config = document.store.getConfig(document.account);
         this.setConfig(config);
         console.log("Config loaded:", config);
       }
 
       saveConfig() {
         try {
-          var config = this.getConfig();
+          let config = this.getConfig();
+          let error_messages = document.store.verifyConfig(config);
+          if (error_messages && error_messages.length > 0) {
+            console.log('config format error:', error_messages);
+            $.removeAllChildren(this.$errors);
+            for (let message of error_messages) {
+              let $li = document.createElement('li');
+              $li.textContent = message;
+              this.$errors.appendChild($li);
+            }
+            this.$errors.show();
+            return;
+          }
           document.store.saveConfig(document.account, config);
           console.log("Config saved.", config);
           this.trigger('switchView', 'board', document.account);
@@ -56,17 +78,17 @@
       }
 
       resetConfig() {
-        var config = document.store.resetConfig(document.account);
+        let config = document.store.resetConfig(document.account);
         this.setConfig(config);
         console.log("Config reseted.");
       }
 
       getConfig() {
-        return JSON.parse(this.editor.value);
+        return JSON.parse(this.$editor.value);
       }
 
       setConfig(config) {
-        this.editor.value = JSON.stringify(config, null, '\t');
+        this.$editor.value = JSON.stringify(config, null, '\t');
       }
     }
 

@@ -34,6 +34,10 @@ window.$ = (function() {
       return (typeof(o) === 'object');
     },
 
+    isArray: function(a) {
+      return Array.isArray(a);
+    },
+
     forEachKeyValue: function(obj, callback) {
       Object.keys(obj).forEach((key) => {
         callback(key, obj[key]);

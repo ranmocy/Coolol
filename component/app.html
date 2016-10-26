@@ -100,7 +100,7 @@
         screen_name = document.store.getLastActiveAccountName();
         console.info('[app] active account from store', screen_name);
         if (screen_name in accounts) {
-          this.switchView('board', accounts[screen_name]);
+          this.switchBoard(accounts[screen_name]);
         } else {
           console.info('[app] last active account is not valid', screen_name, screen_names);
           // fallback, show sessions page
@@ -108,7 +108,7 @@
         }
       }
 
-      // Switch view after initialization
+      // Switch view and update URL
       switchView(view) {
         var method_name, title, url, args = Array.from(arguments).slice(1), screen_name;
         console.info('[app] switchView', view, args, window.location);
@@ -159,7 +159,7 @@
         this.$('x-compose').openComposeForRetweet(tweet);
       }
 
-      switchBoard(account) {
+      /*private*/ switchBoard(account) {
         console.info('[app] switchBoard', account && account.screen_name);
         document.account = account;
         document.store.saveLastActiveAccountName(account.screen_name);
@@ -168,7 +168,7 @@
         if (!$.isDefined(config) || Object.keys(config).length === 0) {
           console.info('[app] switchBoard: config is empty, switch to config view.');
           Notify.info('You need to setup config first.');
-          this.switchView('config', document.account);
+          this.switchConfig(document.account);
         } else {
           this.switchLoading();
           document.cache.getTwitterClient(account)
@@ -183,7 +183,7 @@
         }
       }
 
-      switchConfig(account) {
+      /*private*/ switchConfig(account) {
         console.info('[app] switchConfig', account && account.screen_name);
         document.account = account;
         document.store.saveLastActiveAccountName(account.screen_name);
@@ -191,16 +191,16 @@
         this.updateView('x-config');
       }
 
-      switchSession() {
+      /*private*/ switchSession() {
         document.account = null;
         this.updateView('x-session');
       }
 
-      switchLoading() {
+      /*private*/ switchLoading() {
         this.updateView('content').setAttribute('select', '#loading');
       }
 
-      updateView(elem_name, pass_elem_to_nav) {
+      /*private*/ updateView(elem_name, pass_elem_to_nav) {
         console.info(`[app] updateView ${elem_name}`);
         $.removeAllChildren(this.$('#main'));
         var $elem = document.createElement(elem_name);

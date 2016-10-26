@@ -248,6 +248,46 @@
   */
   Store.addAccessToAccountField('config', Store.defaultValueFactoryFactory({}));
   store.extends({
+    verifyConfig: function(config) {
+      let error_messages = [];
+
+      if (!$.isObject(config)) {
+        error_messages.push('config needs to be an object.');
+        return error_messages;
+      }
+
+      if (config['filters']) {
+        if ($.isArray(config['filters'])) {
+          for (let filter of config['filters']) {
+            if (!$.isString(filter)) {
+              error_messages.push('global filter needs to be a string:' + filter);
+            }
+          }
+        } else {
+          error_messages.push('global filters need to be an array.');
+        }
+      }
+
+      let channels = config['channels'];
+      if (channels) {
+        if ($.isArray(channels)) {
+          for (let channel of channels) {
+            if ($.isObject(channel)) {
+
+            } else {
+              error_messages.push('channel needs to be an object');
+            }
+          }
+        } else {
+          error_messages.push('channels need to be an array');
+        }
+      } else {
+        error_messages.push('channels need to be defined.');
+      }
+
+      return error_messages;
+    },
+
     resetConfig: function(account) {
       this.saveConfig(account, DEFAULT_CONFIG);
       return DEFAULT_CONFIG;

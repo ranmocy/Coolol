@@ -278,62 +278,58 @@
       }
     }
   };
-  const CONFIG_VERIFIER_TEMPLATE = {
-    'filters_optional': [''],
-    'channels': [
-      {
-        'name': '',
-        'sources': {
-          '': {},
-        },
-        'filters_optional': ['']
-      }
-    ]
-  };
+  function createTypeErroMessage(name, type, config) {
+    return `${name} needs to be ${type}, instead it is ${JSON.stringify(config)}`;
+  }
   /* Returns array of error messages. */
-  function verifyConfigWithTemplate(template, config) {
+  function verifyConfigWithSpec(spec, config) {
     let error_messages = [];
-    let template_str = JSON.stringify(template).replace('_optional', '');
-    if ($.isDefined(template)) {
-      if ($.isDefined(config)) {
+    if (!$.isDefined(spec)) {
+      return error_messages;
+    }
+    if (!$.isDefined(config)) {
+      error_messages.push(`${spec.name} is required`);
+      return error_messages;
+    }
 
-        if ($.isString(template)) {
-          if ($.isString(config)) {
-            // nothing to do right now
-          } else {
-            error_messages.push('config needs to be a string, instead it\'s ' + config);
-          }
-        } else if ($.isArray(template)) {
-          if ($.isArray(config)) {
-            let template_elem = template[0];
-            for (let sub_config of config) {
-              error_messages.concat(verifyConfigWithTemplate(template_elem, sub_config));
-            }
-          } else {
-            error_messages.push('config needs to be an array, template:' + template_str);
-          }
-        } else if ($.isObject(template)) {
-          if ($.isObject(config)) {
-            for (let [key, sub_template] of $.entries(template)) {
-              let index = key.search('_optional');
-              let optional = index > 0;
-              let sub_key = optional ? key.substring(0, index) : key;
-              if (config[sub_key]) {
-                error_messages.concat(verifyConfigWithTemplate(sub_template, config[sub_key]));
-              } else if (!optional) {
-                error_messages.push(`key '${sub_key}' is required, template: ${template_str}`);
-              }
-            }
-          } else {
-            error_messages.push('config needs to be an object, template:' + template_str);
+    switch(spec.type) {
+      case 'string':
+        if (!$.isString(config)) {
+          error_messages.push(createTypeErroMessage(spec.name, 'a string', config));
+        }
+        break;
+      case 'array':
+        if ($.isArray(config)) {
+          let elements_spec = spec.elements;
+          for (let sub_config of config) {
+            error_messages = error_messages.concat(verifyConfigWithSpec(elements_spec, sub_config));
           }
         } else {
-          console.warn('Unknown template?' + template_str);
+          error_messages.push(createTypeErroMessage(spec.name, 'an array', config));
         }
-      } else {
-        error_messages.push('Required config missing, template:' + template_str);
-      }
+        break;
+      case 'object':
+        if ($.isObject(config)) {
+          for (let [sub_key, sub_spec] of $.entries(spec.required)) {
+            if (config[sub_key]) {
+              error_messages = error_messages.concat(verifyConfigWithSpec(sub_spec, config[sub_key]));
+            } else {
+              error_messages.push(`${spec.name} requires key '${sub_key}'`);
+            }
+          }
+          for (let [sub_key, sub_spec] of $.entries(spec.optional)) {
+            if (config[sub_key]) {
+              error_messages = error_messages.concat(verifyConfigWithSpec(sub_spec, config[sub_key]));
+            }
+          }
+        } else {
+          error_messages.push(createTypeErroMessage(spec.name, 'an object', config));
+        }
+        break;
+      default:
+        console.warn('Unknown spec type', spec);
     }
+
     return error_messages;
   }
   /*
@@ -353,7 +349,7 @@
   Store.addAccessToAccountField('config', Store.defaultValueFactoryFactory({}));
   store.extends({
     verifyConfig: function(config) {
-      return verifyConfigWithTemplate(CONFIG_VERIFIER_TEMPLATE, config);
+      return verifyConfigWithSpec(CONFIG_SPEC, config);
     },
 
     resetConfig: function(account) {

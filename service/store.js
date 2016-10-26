@@ -219,6 +219,7 @@
       "sources": [
         ["statuses_homeTimeline", {}],
         ["statuses_userTimeline", { "screen_name": "ranmocy" }],
+        ["statuses_userTimeline", { "screen_name": "CathellieAir" }]
       ],
       "filters": [
         "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'",

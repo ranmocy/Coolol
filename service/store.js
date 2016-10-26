@@ -249,25 +249,45 @@
   /* Returns array of error messages. */
   function verifyConfigWithTemplate(template, config) {
     let error_messages = [];
+    let template_str = JSON.stringify(template).replace('_optional', '');
     if ($.isDefined(template)) {
       if ($.isDefined(config)) {
-        if ($.isObject(template)) {
-          if ($.isObject(config)) {
 
+        if ($.isString(template)) {
+          if ($.isString(config)) {
+            // nothing to do right now
           } else {
-            error_messages.push('config needs to be an object.');
+            error_messages.push('config needs to be a string, instead it\'s ' + config);
           }
         } else if ($.isArray(template)) {
-
-        } else if ($.isString(template)) {
-
+          if ($.isArray(config)) {
+            let template_elem = template[0];
+            for (let sub_config of config) {
+              error_messages.concat(verifyConfigWithTemplate(template_elem, sub_config));
+            }
+          } else {
+            error_messages.push('config needs to be an array, template:' + template_str);
+          }
+        } else if ($.isObject(template)) {
+          if ($.isObject(config)) {
+            for (let [key, sub_template] of $.entries(template)) {
+              let index = key.search('_optional');
+              let optional = index > 0;
+              let sub_key = optional ? key.substring(0, index) : key;
+              if (config[sub_key]) {
+                error_messages.concat(verifyConfigWithTemplate(sub_template, config[sub_key]));
+              } else if (!optional) {
+                error_messages.push(`key '${sub_key}' is required, template: ${template_str}`);
+              }
+            }
+          } else {
+            error_messages.push('config needs to be an object, template:' + template_str);
+          }
         } else {
-          console.warn('Unknown template?' +
-                       JSON.stringify(template).replace('_optional', ''));
+          console.warn('Unknown template?' + template_str);
         }
       } else {
-        error_messages.push('Required config missing, template:' +
-                            JSON.stringify(template).replace('_optional', ''));
+        error_messages.push('Required config missing, template:' + template_str);
       }
     }
     return error_messages;

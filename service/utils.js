@@ -38,6 +38,18 @@ window.$ = (function() {
       return Array.isArray(a);
     },
 
+    isString: function(s) {
+      return (typeof(s) === 'string');
+    },
+
+    entries: function*(obj) {
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          yield [key, obj[key]];
+        }
+      }
+    },
+
     forEachKeyValue: function(obj, callback) {
       Object.keys(obj).forEach((key) => {
         callback(key, obj[key]);

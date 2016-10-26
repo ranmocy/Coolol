@@ -68,6 +68,7 @@
             this.$errors.show();
             return;
           }
+          this.$errors.hide();
           document.store.saveConfig(document.account, config);
           console.log("Config saved.", config);
           this.trigger('switchView', 'board', document.account);

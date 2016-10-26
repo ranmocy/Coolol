@@ -31,7 +31,7 @@ window.$ = (function() {
     },
 
     isObject: function(o) {
-      return (typeof(o) === 'object');
+      return (typeof(o) === 'object' && o.constructor === Object);
     },
 
     isArray: function(a) {

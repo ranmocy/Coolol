@@ -28,45 +28,66 @@ It allows you to write a config like:
   "channels": [
     {
       "name": "Home",
-      "sources": {
-        "statuses_homeTimeline": {}
-      },
+      "sources": [
+        [
+          "statuses_homeTimeline",
+          {}
+        ]
+      ],
       "filters": [
         "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
       ]
     },
     {
       "name": "Mentions",
-      "sources": {
-        "statuses_mentionsTimeline": {}
-      }
+      "sources": [
+        [
+          "statuses_mentionsTimeline",
+          {}
+        ]
+      ]
     },
     {
       "name": "Direct Messages",
-      "sources": {
-        "directMessages": {},
-        "directMessages_sent": {}
-      }
+      "sources": [
+        [
+          "directMessages",
+          {}
+        ],
+        [
+          "directMessages_sent",
+          {}
+        ]
+      ]
     },
     {
       "name": "Mix sources",
-      "sources": {
-        "statuses_homeTimeline": {},
-        "statuses_userTimeline": {
-          "user_id": "ranmocy"
-        }
-      },
+      "sources": [
+        [
+          "statuses_homeTimeline",
+          {}
+        ],
+        [
+          "statuses_userTimeline",
+          {
+            "screen_name": "ranmocy"
+          }
+        ]
+      ],
       "filters": [
         "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'"
       ]
     },
     {
       "name": "My tweets",
-      "sources": {
-        "statuses_userTimeline": {
-          "user_id": "me"
-        }
-      }
+      "sources": [
+        [
+          "statuses_userTimeline",
+          {
+            "user_id": "me"
+          }
+        ]
+      ]
     }
   ]
 }

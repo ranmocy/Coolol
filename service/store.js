@@ -197,37 +197,37 @@
     ],
     "channels": [{
       "name": "Home",
-      "sources": {
-        "statuses_homeTimeline": {},
-      },
+      "sources": [
+        ["statuses_homeTimeline", {}],
+      ],
       "filters": [
         "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
       ],
     }, {
       "name": "Mentions",
-      "sources": {
-        "statuses_mentionsTimeline": {},
-      },
+      "sources": [
+        ["statuses_mentionsTimeline", {}],
+      ],
     }, {
       "name": "Direct Messages",
-      "sources": {
-        "directMessages": {},
-        "directMessages_sent": {},
-      },
+      "sources": [
+        ["directMessages", {}],
+        ["directMessages_sent", {}],
+      ],
     }, {
       "name": "Mix sources",
-      "sources": {
-        "statuses_homeTimeline": {},
-        "statuses_userTimeline": { "screen_name": "ranmocy" },
-      },
+      "sources": [
+        ["statuses_homeTimeline", {}],
+        ["statuses_userTimeline", { "screen_name": "ranmocy" }],
+      ],
       "filters": [
         "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'",
       ],
     }, {
       "name": "My tweets",
-      "sources": {
-        "statuses_userTimeline": { "user_id": "me" },
-      }
+      "sources": [
+        ["statuses_userTimeline", { "user_id": "me" }],
+      ]
     }]
   };
   const CONFIG_SPEC = {
@@ -247,11 +247,21 @@
             },
             sources: {
               name: 'channel sources',
-              type: 'object',
-              values: {
-                name: 'channel source parameters',
-                type: 'object'
-              }
+              type: 'array',
+              elements: {
+                name: 'channel source',
+                type: 'vector',
+                values: [
+                  {
+                    name: 'channel source API name',
+                    type: 'string'
+                  },
+                  {
+                    name: 'channel source API parameters',
+                    type: 'object'
+                  }
+                ]
+              },
             }
           },
           optional: {
@@ -306,6 +316,20 @@
           }
         } else {
           error_messages.push(createTypeErroMessage(spec.name, 'an array', config));
+        }
+        break;
+      case 'vector':
+        if ($.isArray(config)) {
+          let sub_specs = spec.values;
+          if (sub_specs.length === config.length) {
+            for (var index = 0; index < sub_specs.length; index++) {
+              error_messages = error_messages.concat(verifyConfigWithSpec(sub_specs[index], config[index]));
+            }
+          } else {
+            error_messages.push(`${spec.name} requires array with length ${sub_specs.length}, instead of ${config.length}`);
+          }
+        } else {
+          error_messages.push(createTypeErroMessage(spec.name, 'a vector', config));
         }
         break;
       case 'object':

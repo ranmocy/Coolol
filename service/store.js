@@ -1,48 +1,6 @@
 (function() {
   "use strict";
 
-  const CURRENT_VERSION = '0.2.0';
-  const DEFAULT_CONFIG =
-  {
-    "filters": [
-      "isBetweenUser('ranmocy', 'CathellieAir')",
-    ],
-    "channels": [{
-      "name": "Home",
-      "sources": {
-        "statuses_homeTimeline": {},
-      },
-      "filters": [
-        "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
-      ],
-    }, {
-      "name": "Mentions",
-      "sources": {
-        "statuses_mentionsTimeline": {},
-      },
-    }, {
-      "name": "Direct Messages",
-      "sources": {
-        "directMessages": {},
-        "directMessages_sent": {},
-      },
-    }, {
-      "name": "Mix sources",
-      "sources": {
-        "statuses_homeTimeline": {},
-        "statuses_userTimeline": { "screen_name": "ranmocy" },
-      },
-      "filters": [
-        "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'",
-      ],
-    }, {
-      "name": "My tweets",
-      "sources": {
-        "statuses_userTimeline": { "user_id": "me" },
-      }
-    }]
-  };
-
   class Store {
 
     static log() {
@@ -232,6 +190,46 @@
   var store = new Store();
 
 
+  const DEFAULT_CONFIG =
+  {
+    "filters": [
+      "isBetweenUser('ranmocy', 'CathellieAir')",
+    ],
+    "channels": [{
+      "name": "Home",
+      "sources": {
+        "statuses_homeTimeline": {},
+      },
+      "filters": [
+        "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
+      ],
+    }, {
+      "name": "Mentions",
+      "sources": {
+        "statuses_mentionsTimeline": {},
+      },
+    }, {
+      "name": "Direct Messages",
+      "sources": {
+        "directMessages": {},
+        "directMessages_sent": {},
+      },
+    }, {
+      "name": "Mix sources",
+      "sources": {
+        "statuses_homeTimeline": {},
+        "statuses_userTimeline": { "screen_name": "ranmocy" },
+      },
+      "filters": [
+        "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'",
+      ],
+    }, {
+      "name": "My tweets",
+      "sources": {
+        "statuses_userTimeline": { "user_id": "me" },
+      }
+    }]
+  };
   /*
   Config = {
     <screen_name>: {
@@ -338,6 +336,7 @@
   Store.addAccessToAppField('last_active_account_name', Store.defaultValueFactoryFactory(''));
 
 
+  const CURRENT_VERSION = '0.2.0';
   /*
   Version = <CURRENT_VERSION>
   */

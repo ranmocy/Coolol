@@ -18,7 +18,7 @@
     }
   </style>
   <div id="background">
-    <video autoplay loop id="video">
+    <video autoplay loop controls id="video">
       <source></source>
     </video>
     <img id="image">
@@ -47,14 +47,16 @@
           case 'video':
           case 'animated_gif':
             if (media.video_info && media.video_info.variants) {
+              // media.video_info.duration_millis;
+              var bitrate = 0;
               for (let info of media.video_info.variants) {
-                if (info.content_type === 'video/mp4') {
+                if (info.content_type === 'video/mp4' && info.bitrate > bitrate) {
                   var $video = this.$('#video source');
                   $video.src = info.url;
                   $video.type = info.content_type;
-                  return this;
                 }
               }
+              return this;
             }
         }
 

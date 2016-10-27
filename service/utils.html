@@ -1,4 +1,5 @@
-window.$ = (function() {
+<script type="text/javascript">
+(function() {
   "use strict";
 
   var $ = Object.assign(function() {
@@ -317,5 +318,6 @@ window.$ = (function() {
     };
   }
 
-  return $;
+  window.$ = $;
 })();
+</script>

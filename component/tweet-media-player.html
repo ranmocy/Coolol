@@ -48,7 +48,7 @@
           case 'animated_gif':
             if (media.video_info && media.video_info.variants) {
               // media.video_info.duration_millis;
-              var bitrate = 0;
+              var bitrate = -1;
               for (let info of media.video_info.variants) {
                 if (info.content_type === 'video/mp4' && info.bitrate > bitrate) {
                   var $video = this.$('#video source');

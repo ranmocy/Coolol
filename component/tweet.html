@@ -194,6 +194,7 @@
 
       /*private*/ refresh() {
         let tweet = this.tweet;
+
         this.dataset.tweetId = tweet.id_str;
         if ($.isDefined(tweet.current_user_retweet)) {
           this.dataset.currentUserRetweetId = tweet.current_user_retweet.id_str;

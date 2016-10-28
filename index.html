@@ -41,7 +41,8 @@
         ["shadow dom", "typeof document.body.createShadowRoot === 'function'"],
         ["arrow function", "(() => {});"],
         ["Promise", "'Promise' in window"],
-        ["Set", "new Set([1,2,3])"]
+        ["Set", "new Set([1,2,3])"],
+        ["Indexed DB", "typeof(indexedDB) !== 'undefined'"],
       ];
       var features_missing = features.filter(function(feature) {
         try {

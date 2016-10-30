@@ -2,7 +2,128 @@
 (function() {
   "use strict";
 
+  function getRequestPromise(request) {
+    return new Promise((resolve, reject) => {
+      request.onsuccess = (event) => {
+        resolve(event.target.result);
+      };
+      request.onerror = (event) => {
+        reject(event.target.errorCode);
+      };
+    });
+  }
+
+  function getTransactionPromise(transaction) {
+    console.log('create!');
+    return new Promise((resolve, reject) => {
+      transaction.oncomplete = () => {
+        console.log('success');
+        resolve();
+      };
+      transaction.onerror = (event) => {
+        console.log('error');
+        reject(event.target.errorCode);
+      };
+    });
+  }
+
+  let getDB = (function() {
+    var global_db;
+
+    return function() {
+      if ($.isDefined(global_db)) {
+        return Promise.resolve(global_db);
+      }
+      if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
+        throw 'No account is logged in!';
+      }
+      let request = window.indexedDB.open(`Coolol_${document.account.screen_name}`, 1);
+      request.onupgradeneeded = (event) => {
+        let db = event.target.result;
+        switch (event.oldVersion) {
+          case 0:
+            db.createObjectStore('tweet', {keyPath: 'id_str'});
+          // fall through
+        }
+      };
+      return getRequestPromise(request).then((db) => {
+        global_db = db;
+        return db;
+      });
+    };
+  })();
+
+
   class Store {
+
+    static addTableAccess(table_name) {
+      let capitalized = $.camelize(table_name);
+
+      let getMethodName = `get${capitalized}`;
+      let putMethodName = `put${capitalized}`;
+      let deleteMethodName = `delete${capitalized}`;
+      let registerMethodName = `register${capitalized}`;
+      let unregisterMethodName = `unregister${capitalized}`;
+
+      // read
+      this.prototype[getMethodName] = function(key) {
+        return getDB().then((db) => {
+          let request = db
+            .transaction([table_name], 'readonly')
+            .objectStore(table_name)
+            .get(key);
+          return getRequestPromise(request);
+        });
+      };
+      this.prototype[`${getMethodName}s`] = function(keys) {
+        return getDB().then((db) => {
+          let object_store = db
+            .transaction([table_name], 'readonly')
+            .objectStore(table_name);
+          return Promise.all(keys.map((id_str) => {
+            return getRequestPromise(object_store.get(id_str));
+          }));
+        });
+      };
+
+      // write
+      this.prototype[putMethodName] = function(tweet) {
+        return getDB().then((db) => {
+          let request = db.transaction(['tweet'], 'readwrite')
+            .objectStore('tweet')
+            .put(tweet);
+          return getRequestPromise(request);
+        });
+      };
+      this.prototype[`${putMethodName}s`] = function(tweets) {
+        return getDB().then((db) => {
+          let transaction = db.transaction(['tweet'], 'readwrite');
+          let tweet_store = transaction.objectStore('tweet');
+          for (let tweet of tweets) {
+            tweet_store.put(tweet);
+          }
+          return getTransactionPromise(transaction);
+        });
+      };
+
+      // delete
+      this.prototype[deleteMethodName] = function() {
+        let old_value = this[getMethodName]();
+        Store.log(`[store] ${deleteMethodName}:`, old_value);
+        this.saveJSON(table_name, factory());
+        return old_value;
+      };
+
+      // register
+      this.prototype[registerMethodName] = function(element) {
+        return this.register(table_name, element);
+      };
+      this.prototype[unregisterMethodName] = function(element) {
+        return this.unregister(table_name, element);
+      };
+
+      return table_name;
+    }
 
     static log() {
       if (document.debug) {

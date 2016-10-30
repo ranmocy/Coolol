@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Coolol Spec</title>
+  <meta http-equiv="Content-Type" charset="utf-8">
+  <meta name="description" content="Coolol spec.">
+  <link rel="author" href="https://plus.google.com/+WanzhangSheng"/>
+  <link rel="publisher" href="https://plus.google.com/+WanzhangSheng"/>
+  <link rel="icon" type="image/png" href="icons/icon-32.png" />
+
+  <link rel="import" href="../service/utils.html">
+  <link rel="import" href="../service/html.html">
+  <link rel="import" href="../service/store.html">
+  <link rel="import" href="../service/cache.html">
+  <link rel="import" href="../service/twitter.html">
+
+  <style type="text/css">
+    ul {
+      list-style-type: hebrew;
+    }
+    li {
+      padding: 0.5em 1em;
+    }
+    li.success {
+      background: #75e275;
+    }
+    li.failed {
+      background: #e22;
+    }
+  </style>
+
+  <script type="text/javascript">
+    window.new_test_suite = function(src_name) {
+      let name = src_name.split('/').pop();
+      let $wrapper = document.createElement('fieldset');
+      $wrapper.innerHTML = `<legend>${name}</legend><ul></ul>`;
+      document.body.$('main').appendChild($wrapper);
+      return $wrapper.$('ul');
+    };
+    window.new_test = function($suite, name) {
+      let $test = document.createElement('li');
+      $test.textContent = name;
+      $suite.appendChild($test);
+      return $test;
+    };
+  </script>
+</head>
+<body>
+  <h1>Coolol Spec</h1>
+
+  <main>
+
+  </main>
+
+  <script src="cache_spec.js"></script>
+</body>
+</html>

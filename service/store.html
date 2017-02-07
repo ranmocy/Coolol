@@ -583,16 +583,16 @@
     updateVersionCode: function() {
       let old_version_str = this.getVersion();
       let version_str = CURRENT_VERSION;
-      var require_reconfig = false;
+      let need_reset_config = false;
       if (old_version_str) {
         // Not first time, check version code
         let version = version_str.split('.');
         let old_version = old_version_str.split('.');
         if (version.length !== old_version.length || version[0] !== old_version[0]) {
           // Major update, backward incompatible, config need update
-          require_reconfig = true;
+          need_reset_config = true;
         } else if (version[1] !== old_version[1]) {
-          // Minor update, featuers extended, drop caches
+          // Minor update, features extended, drop caches
         }
         // Bug fixes update, do nothing
       } else {
@@ -602,7 +602,7 @@
 
       // Update finished, save version
       this.saveVersion(CURRENT_VERSION);
-      return require_reconfig;
+      return need_reset_config;
     },
   });
 

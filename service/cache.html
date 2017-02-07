@@ -23,7 +23,7 @@
   Cache.addAccessToAccountField('client', (account) => {
     return new Twitter(account.token, account.token_secret);
   });
-  cache.extends({
+  cache.extend({
     getTwitterClient: function(account) {
       if (!account || !account.token || !account.token_secret) {
         console.error('[cache] getTwitterClient:', account);
@@ -46,7 +46,7 @@
   }
   */
   Cache.addAccessToAccountField('tweets', Cache.defaultValueFactoryFactory({}));
-  cache.extends({
+  cache.extend({
     getCurrentAccountTweet: function(tweet) {
       var tweets = this.getTweets(document.account);
       if (!(tweet.id in tweets)) {

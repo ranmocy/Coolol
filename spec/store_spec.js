@@ -19,7 +19,7 @@ function getRequestPromise(request) {
 
 document.account = {screen_name: 'ranmocy'};
 
-let cache = document.cache;
+let store = document.store;
 
 let tweets = [
   {id_str: '1234', text: 'I love it.'},
@@ -28,10 +28,10 @@ let tweets = [
 ];
 
 console.debug('start!');
-cache
+store
   .putTweets(tweets)
   .then(() => {
-    return cache.getTweets(['3123', '1234', '4444']);
+    return store.getTweets(['3123', '1234', '4444']);
   })
   .then((tweets) => {
     console.debug('read', tweets);

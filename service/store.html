@@ -27,12 +27,12 @@
     });
   }
 
-  let getDB = (function() {
-    let global_db;
+  let getAccountDB = (function() {
+    let account_db;
 
     return async function() {
-      if ($.isDefined(global_db)) {
-        return global_db;
+      if ($.isDefined(account_db)) {
+        return account_db;
       }
       if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
         throw 'No account is logged in!';
@@ -46,8 +46,8 @@
             // fall through
         }
       };
-      global_db = await getRequestPromise(request);
-      return global_db;
+      account_db = await getRequestPromise(request);
+      return account_db;
     };
   })();
 
@@ -65,7 +65,7 @@
 
       // read
       this.prototype[getMethodName] = async function(key) {
-        let db = await getDB();
+        let db = await getAccountDB();
         let request = db
           .transaction([table_name], 'readonly')
           .objectStore(table_name)
@@ -73,7 +73,7 @@
         return await getRequestPromise(request);
       };
       this.prototype[`${getMethodName}s`] = async function(keys) {
-        let db = await getDB();
+        let db = await getAccountDB();
         let object_store = db
           .transaction([table_name], 'readonly')
           .objectStore(table_name);
@@ -84,7 +84,7 @@
 
       // write
       this.prototype[putMethodName] = async function(object) {
-        let db = await getDB();
+        let db = await getAccountDB();
         let request = db
           .transaction([table_name], 'readwrite')
           .objectStore(table_name)
@@ -92,7 +92,7 @@
         return await getRequestPromise(request);
       };
       this.prototype[`${putMethodName}s`] = async function(objects) {
-        let db = await getDB();
+        let db = await getAccountDB();
         let transaction = db.transaction([table_name], 'readwrite');
         let object_store = transaction.objectStore(table_name);
         for (let object of objects) {
@@ -103,14 +103,14 @@
 
       // delete
       this.prototype[deleteMethodName] = async function(key) {
-        let db = await getDB();
+        let db = await getAccountDB();
         let request = db.transaction([table_name], 'write')
           .objectStore(table_name)
           .delete(key);
         return await getRequestPromise(request);
       };
       this.prototype[`${deleteMethodName}s`] = async function() {
-        let db = await getDB();
+        let db = await getAccountDB();
         let request = db.transaction([table_name], 'write')
           .objectStore(table_name)
           .clear();

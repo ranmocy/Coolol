@@ -27,29 +27,35 @@
     });
   }
 
-  let getAccountDB = (function() {
-    let account_db;
-
-    return async function() {
-      if ($.isDefined(account_db)) {
-        return account_db;
+  /** @returns {IDBDatabase} */
+  async function getGlobalDB() {
+    let request = window.indexedDB.open(`Coolol`, 1);
+    request.onupgradeneeded = (event) => {
+      let db = event.target.result;
+      switch (event.oldVersion) {
+        case 0:
+        // fall through
       }
-      if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
-        throw 'No account is logged in!';
-      }
-      let request = window.indexedDB.open(`Coolol_${document.account.screen_name}`, 1);
-      request.onupgradeneeded = (event) => {
-        let db = event.target.result;
-        switch (event.oldVersion) {
-          case 0:
-            db.createObjectStore('tweet', {keyPath: 'id_str'});
-            // fall through
-        }
-      };
-      account_db = await getRequestPromise(request);
-      return account_db;
     };
-  })();
+    return await getRequestPromise(request);
+  }
+
+  /** @returns {IDBDatabase} */
+  async function getAccountDB() {
+    if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
+      throw 'No account is logged in!';
+    }
+    let request = window.indexedDB.open(`Coolol_${document.account.screen_name}`, 1);
+    request.onupgradeneeded = (event) => {
+      let db = event.target.result;
+      switch (event.oldVersion) {
+        case 0:
+          db.createObjectStore('tweet', {keyPath: 'id_str'});
+          // fall through
+      }
+    };
+    return await getRequestPromise(request);
+  }
 
 
   class Store {
@@ -104,14 +110,14 @@
       // delete
       this.prototype[deleteMethodName] = async function(key) {
         let db = await getAccountDB();
-        let request = db.transaction([table_name], 'write')
+        let request = db.transaction([table_name], 'readwrite')
           .objectStore(table_name)
           .delete(key);
         return await getRequestPromise(request);
       };
       this.prototype[`${deleteMethodName}s`] = async function() {
         let db = await getAccountDB();
-        let request = db.transaction([table_name], 'write')
+        let request = db.transaction([table_name], 'readwrite')
           .objectStore(table_name)
           .clear();
         return await getRequestPromise(request);

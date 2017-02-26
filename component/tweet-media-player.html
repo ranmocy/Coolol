@@ -42,20 +42,26 @@
       setMedia(media) {
         this.media = media;
 
+        // Only click on the background dismiss the player
         this.$('#background').handle('click', this.detach.bind(this));
+        this.$('#video').handle('click');
 
         switch(media.type) {
           case 'video':
           case 'animated_gif':
             if (media.video_info && media.video_info.variants) {
               // media.video_info.duration_millis;
-              let bitrate = -1;
+              let bitrate = -1, best_info = null;
               for (let info of media.video_info.variants) {
                 if (info.content_type === 'video/mp4' && info.bitrate > bitrate) {
-                  let $video = this.$('#video source');
-                  $video.src = info.url;
-                  $video.type = info.content_type;
+                  bitrate = info.bitrate;
+                  best_info = info;
                 }
+              }
+              if (best_info !== null) {
+                let $video = this.$('#video source');
+                $video.src = best_info.url;
+                $video.type = best_info.content_type;
               }
               return this;
             }

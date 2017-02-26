@@ -62,7 +62,7 @@
 </template>
 
 <template id="retweeted">
-  <img class="avatar" />
+  <img class="avatar" src=""/>
   <span class="name"></span>
   <span class="handle">
     (<span class="screen-name"></span>)
@@ -71,7 +71,7 @@
 </template>
 
 <template id="creator">
-  <img class="avatar" />
+  <img class="avatar" src=""/>
   <span class="name"></span>
   <span class="handle">
     (<span class="screen-name"></span>)
@@ -83,13 +83,14 @@
   (function() {
     "use strict";
 
-    var $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet').content;
-    var $$$retweeted = document.currentScript.ownerDocument.querySelector('template#retweeted').content;
-    var $$$reply = document.currentScript.ownerDocument.querySelector('template#reply').content;
-    var $$$creator = document.currentScript.ownerDocument.querySelector('template#creator').content;
+    const $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet').content;
+    const $$$retweeted = document.currentScript.ownerDocument.querySelector('template#retweeted').content;
+    const $$$reply = document.currentScript.ownerDocument.querySelector('template#reply').content;
+    const $$$creator = document.currentScript.ownerDocument.querySelector('template#creator').content;
 
     class Tweet extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$tweet, true));
 
         this.$('#container').handle('mouseenter', () => {
@@ -102,7 +103,7 @@
         this.tweet = null;
       }
 
-      attachedCallback() {
+      connectedCallback() {
         if (this.tweet == null) {
           throw new Error('tweet is null');
         }
@@ -110,7 +111,7 @@
         this.refresh();
       }
 
-      detachedCallback() {
+      disconnectedCallback() {
         $.unregisterObjectCallback(this.tweet, this);
       }
 
@@ -125,7 +126,7 @@
       /*private*/ setReplyTo(screen_name) {
         $$$reply.$('.screen-name').textContent = screen_name;
 
-        var $container = this.$('#reply');
+        let $container = this.$('#reply');
         $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$reply, true));
         return this;
@@ -136,7 +137,7 @@
         $$$retweeted.$('.name').textContent = user.name;
         $$$retweeted.$('.screen-name').textContent = user.screen_name;
 
-        var $container = this.$('#retweeted');
+        let $container = this.$('#retweeted');
         $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$retweeted, true));
         return this;
@@ -147,14 +148,14 @@
         $$$creator.$('.name').textContent = user.name;
         $$$creator.$('.screen-name').textContent = user.screen_name;
 
-        var $container = this.$('#creator');
+        let $container = this.$('#creator');
         $.removeAllChildren($container);
         $container.appendChild(document.importNode($$$creator, true));
         return this;
       }
 
       /*private*/ setText(text) {
-        var entities = [];
+        let entities = [];
         [this.tweet.entities, this.tweet.extended_entities].forEach((obj) => {
           if ($.isDefined(obj)) {
             entities = Object.keys(obj).reduce((all, key) => {
@@ -172,7 +173,7 @@
       }
 
       /*private*/ setMedia(entities, extended_entities) {
-        var media = [];
+        let media = [];
         if (extended_entities && extended_entities.media) {
           media = extended_entities.media;
         } else if (entities && entities.media) {
@@ -219,7 +220,7 @@
 
         // if it's a quoted tweet
         if ($.isQuotedRetweet(tweet)) {
-          var original_tweet = document.createElement('x-tweet');
+          let original_tweet = document.createElement('x-tweet');
           original_tweet.className = "quoted";
           original_tweet.setTweet(tweet.quoted_status);
           this.$('#body').appendChild(original_tweet);
@@ -236,6 +237,6 @@
       }
     }
 
-    document.registerElement("x-tweet", Tweet);
+    window.customElements.define("x-tweet", Tweet);
   })();
 </script>

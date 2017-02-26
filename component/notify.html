@@ -62,9 +62,10 @@
   (function() {
     'use strict';
 
-    var $$$item = document.currentScript.ownerDocument.querySelector('template#notify-item');
+    const $$$item = document.currentScript.ownerDocument.querySelector('template#notify-item');
     class NotifyItemElement extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$item.content, true));
 
         this.$('#close').handle('click', this.close.bind(this));
@@ -83,11 +84,12 @@
         this.parentElement.removeChild(this);
       }
     }
-    document.registerElement("x-notify-item", NotifyItemElement);
+    window.customElements.define("x-notify-item", NotifyItemElement);
 
-    var $$$notify = document.currentScript.ownerDocument.querySelector('template#notify');
+    const $$$notify = document.currentScript.ownerDocument.querySelector('template#notify');
     class NotifyElement extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$notify.content, true));
         window.Notify = this;
       }
@@ -96,8 +98,8 @@
         if (! $.isDefined(time)) {
           time = 5000; // 5s as default
         }
-        var $item = document.createElement('x-notify-item').setMessage(msg, level);
-        var $container = this.$('#container');
+        let $item = document.createElement('x-notify-item').setMessage(msg, level);
+        let $container = this.$('#container');
         $container.insertBefore($item, $container.firstChild);
 
         // set auto dismiss
@@ -125,6 +127,6 @@
         return this.notify(msg, 'error', 0);
       }
     }
-    document.registerElement("x-notify", NotifyElement);
+    window.customElements.define("x-notify", NotifyElement);
   })();
 </script>

@@ -36,10 +36,11 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#board').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template#board').content;
 
     class Board extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
 
         this.config = document.store.getConfig(document.account);
@@ -55,15 +56,15 @@
         $.removeAllChildren(this.$('#channels'));
 
         // merge filter to channels config
-        var board_filters = $.isDefined(this.config.filters) ? this.config.filters : [];
+        let board_filters = $.isDefined(this.config.filters) ? this.config.filters : [];
 
         // create all channels
-        var allChannelsPromises = this.config.channels.map((channel_config) => {
-          var channel_filters =  channel_config.filters || [];
+        let allChannelsPromises = this.config.channels.map((channel_config) => {
+          let channel_filters =  channel_config.filters || [];
           channel_config = Object.assign({}, channel_config, {
             filters: [].concat(channel_filters, board_filters),
           });
-          var $channel = document.createElement('x-channel').setConfig(channel_config);
+          let $channel = document.createElement('x-channel').setConfig(channel_config);
           this.$('#channels').appendChild($channel);
           return $channel.refresh();
         });
@@ -79,6 +80,6 @@
       }
     }
 
-    document.registerElement("x-board", Board);
+    window.customElements.define("x-board", Board);
   })();
 </script>

@@ -25,7 +25,7 @@
     }
   </style>
   <span id="preview">
-    <img id="preview-img">
+    <img id="preview-img" src="">
     <span id="preview-indicator"></span>
   </span>
   <div id="player"></div>
@@ -35,10 +35,11 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-media').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-media').content;
 
     class TweetMedium extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
         this.media = null;
       }
@@ -69,6 +70,6 @@
       }
     }
 
-    document.registerElement("x-tweet-media", TweetMedium);
+    window.customElements.define("x-tweet-media", TweetMedium);
   })();
 </script>

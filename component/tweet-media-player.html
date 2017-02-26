@@ -19,9 +19,9 @@
   </style>
   <div id="background">
     <video autoplay loop controls id="video">
-      <source></source>
+      <source src=""/>
     </video>
-    <img id="image">
+    <img id="image" src="">
   </div>
 </template>
 
@@ -29,10 +29,11 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-media-player').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-media-player').content;
 
     class TweetMediumPlayer extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
         this.media = null;
         this.show();
@@ -48,10 +49,10 @@
           case 'animated_gif':
             if (media.video_info && media.video_info.variants) {
               // media.video_info.duration_millis;
-              var bitrate = -1;
+              let bitrate = -1;
               for (let info of media.video_info.variants) {
                 if (info.content_type === 'video/mp4' && info.bitrate > bitrate) {
-                  var $video = this.$('#video source');
+                  let $video = this.$('#video source');
                   $video.src = info.url;
                   $video.type = info.content_type;
                 }
@@ -66,6 +67,6 @@
       }
     }
 
-    document.registerElement("x-tweet-media-player", TweetMediumPlayer);
+    window.customElements.define("x-tweet-media-player", TweetMediumPlayer);
   })();
 </script>

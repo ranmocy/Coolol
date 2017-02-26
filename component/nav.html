@@ -7,7 +7,7 @@
       height: 50px;
       padding: 0 20px;
       background-color: #fefefe;
-      box-shadow: #eee 0px 3px 5px;
+      box-shadow: #eee 0 3px 5px;
       position: relative;
       z-index: 100;
     }
@@ -108,10 +108,11 @@
   (function() {
     "use strict";
 
-    var $$$nav = document.currentScript.ownerDocument.querySelector('template#nav').content;
+    const $$$nav = document.currentScript.ownerDocument.querySelector('template#nav').content;
 
     class Nav extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$nav, true));
 
         this.$('#logo').handle('click', this.trigger.bind(this, 'switchView', 'session'));
@@ -120,12 +121,12 @@
         this.$('#account-manage').handle('click', this.trigger.bind(this, 'switchView', 'session'));
       }
 
-      attachedCallback() {
+      connectedCallback() {
         document.store.registerAccounts(this);
         this.updateAccountList();
       }
 
-      detachedCallback() {
+      disconnectedCallback() {
         document.store.unregisterAccounts(this);
       }
 
@@ -165,6 +166,6 @@
       }
     }
 
-    document.registerElement('x-nav', Nav);
+    window.customElements.define('x-nav', Nav);
   })();
 </script>

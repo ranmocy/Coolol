@@ -16,19 +16,20 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts').content;
 
     class SessionAccounts extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
       }
 
-      attachedCallback() {
+      connectedCallback() {
         document.store.registerAccounts(this);
         this.refresh();
       }
 
-      detachedCallback() {
+      disconnectedCallback() {
         document.store.unregisterAccounts(this);
       }
 
@@ -36,12 +37,12 @@
         $.removeAllChildren(this.$('#accounts'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.log('[SessionAccounts] refresh', screen_name);
-          var $node = document.createElement('x-session-accounts-item').setAccount(account);
+          let $node = document.createElement('x-session-accounts-item').setAccount(account);
           this.$('#accounts').appendChild($node);
         });
       }
     }
 
-    document.registerElement("x-session-accounts", SessionAccounts);
+    window.customElements.define("x-session-accounts", SessionAccounts);
   })();
 </script>

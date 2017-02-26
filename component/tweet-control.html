@@ -30,10 +30,11 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-control').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-control').content;
 
     class TweetControl extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
 
         this.$('#reply-button').handle('click', () => {
@@ -72,9 +73,9 @@
           return;
         }
         // un-retweet
-        var client = document.cache.getTwitterClient(document.account);
-        var retweeted_status = this.tweet.retweeted_status ? this.tweet.retweeted_status : this.tweet;
-        var un_retweet_func = (current_user_retweet_id_str) => {
+        let client = document.cache.getTwitterClient(document.account);
+        let retweeted_status = this.tweet.retweeted_status ? this.tweet.retweeted_status : this.tweet;
+        let un_retweet_func = (current_user_retweet_id_str) => {
           client
             .post("statuses_destroy_ID", {
               id: current_user_retweet_id_str
@@ -101,7 +102,7 @@
       }
 
       favorite() {
-        var api;
+        let api;
         if (this.tweet.favorited) {
           api = "favorites_destroy";
         } else {
@@ -121,6 +122,6 @@
       }
     }
 
-    document.registerElement("x-tweet-control", TweetControl);
+    window.customElements.define("x-tweet-control", TweetControl);
   })();
 </script>

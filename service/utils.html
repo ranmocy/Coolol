@@ -2,7 +2,7 @@
 (function() {
   "use strict";
 
-  var $ = Object.assign(function() {
+  let $ = Object.assign(function() {
     return document.querySelector.apply(document, arguments);
   }, {
     /* DOM */
@@ -160,7 +160,7 @@
         obj.__callbacks = new Set();
         callbacks.forEach((element) => {
           if (element instanceof XElement) {
-            element.attachedCallback(obj);
+            element.connectedCallback(obj);
           } else {
             console.error('[utils]', 'updateObject', 'callback is not a custom element', element);
             Notify.error(`Operation failed on update object.`);
@@ -187,7 +187,7 @@
     },
 
     detach: function() {
-      var parent = this.parentNode;
+      let parent = this.parentNode;
       if (!parent) {
         return;
       }
@@ -217,7 +217,7 @@
     },
 
     trigger: function(eventName) {
-      var parameters = Array.from(arguments).slice(1);
+      let parameters = Array.from(arguments).slice(1);
       console.log('trigger', eventName, parameters);
       this.dispatchEvent(new CustomEvent(eventName, {
         detail: parameters
@@ -254,22 +254,22 @@
   /* A function is implemented in order to follow the standard Adapter pattern */
   function $http(url) {
     // A small example of object
-    var core = {
+    let core = {
 
       // Method that performs the Ajax request
       ajax: function(method, url, args) {
 
         // Creating a promise
-        var promise = new Promise(function(resolve, reject) {
+        let promise = new Promise(function(resolve, reject) {
 
           // Instantiates the XMLHttpRequest
-          var client = new XMLHttpRequest();
-          var uri = url;
+          let client = new XMLHttpRequest();
+          let uri = url;
 
           if (args && (method === 'POST' || method === 'PUT')) {
             uri += '?';
-            var argcount = 0;
-            for (var key in args) {
+            let argcount = 0;
+            for (let key in args) {
               if (args.hasOwnProperty(key)) {
                 if (argcount++) {
                   uri += '&';

@@ -11,7 +11,7 @@
      * For auto completion purpose.
      */
     createShadowRoot() {
-      return super.createShadowRoot();
+      return this.attachShadow({mode: 'open'});
     }
   }
 

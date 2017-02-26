@@ -56,7 +56,7 @@
     <div id="body">
       <div id="reply-to"></div>
       <form id="tweet" action="#" method="post">
-        <textarea id="text" rows="8" cols="40"></textarea>
+        <textarea id="text" rows="8" cols="40" title="Compose a tweet"></textarea>
         <button type="button" id="submit">Tweet</button>
       </form>
     </div>
@@ -67,10 +67,11 @@
   (function() {
     "use strict";
 
-    var $$$compose = document.currentScript.ownerDocument.querySelector('template#compose');
+    const $$$compose = document.currentScript.ownerDocument.querySelector('template#compose');
 
     class Compose extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$compose.content, true));
 
         this.handle('click', this.hide.bind(this));
@@ -120,13 +121,13 @@
           if (this.params.status === '') {
             return this.retweet();
           }
-          var tweet = this.quoted_status;
+          let tweet = this.quoted_status;
           // This is the only link that can be determined as quoted status
           this.params.status += ` https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`;
         }
 
         console.log('[compose] submit:', this.params);
-        var client = document.cache.getTwitterClient(document.account);
+        let client = document.cache.getTwitterClient(document.account);
         client
           .post("statuses_update", this.params)
           .then((reply) => {
@@ -172,6 +173,6 @@
       }
     }
 
-    document.registerElement('x-compose', Compose);
+    window.customElements.define('x-compose', Compose);
   })();
 </script>

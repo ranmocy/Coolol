@@ -36,7 +36,7 @@
     }
   </style>
 
-  <textarea id="editor"></textarea>
+  <textarea id="editor" title="Config editor"></textarea>
   <ul id="errors"></ul>
   <div id="actions">
     <button type="button" id="save">Save</button>
@@ -48,10 +48,11 @@
   (function() {
     "use strict";
 
-    let template = document.currentScript.ownerDocument.querySelector('template');
+    const template = document.currentScript.ownerDocument.querySelector('template');
 
     class Config extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
 
         this.$('#save').handle('click', this.saveConfig.bind(this));
@@ -105,6 +106,6 @@
       }
     }
 
-    document.registerElement("x-config", Config);
+    window.customElements.define("x-config", Config);
   })();
 </script>

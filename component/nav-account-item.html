@@ -25,7 +25,7 @@
   </style>
   <li id="account">
     <a id="item" href="#">
-      <img id="avatar" />
+      <img id="avatar" src=""/>
       <span id="name"></span>
     </a>
   </li>
@@ -35,10 +35,11 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#nav-accounts-item').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template#nav-accounts-item').content;
 
     class NavAccountsItem extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
       }
 
@@ -54,6 +55,6 @@
       }
     }
 
-    document.registerElement("x-nav-accounts-item", NavAccountsItem);
+    window.customElements.define("x-nav-accounts-item", NavAccountsItem);
   })();
 </script>

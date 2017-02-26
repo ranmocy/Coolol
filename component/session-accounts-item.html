@@ -53,10 +53,11 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts-item').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts-item').content;
 
     class SessionAccountsItem extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
       }
 
@@ -76,6 +77,6 @@
       }
     }
 
-    document.registerElement("x-session-accounts-item", SessionAccountsItem);
+    window.customElements.define("x-session-accounts-item", SessionAccountsItem);
   })();
 </script>

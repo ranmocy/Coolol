@@ -75,10 +75,11 @@
     }
 
 
-    let template = document.currentScript.ownerDocument.querySelector('template');
+    const template = document.currentScript.ownerDocument.querySelector('template');
 
     class Channel extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode(template.content, true));
         this.config = null;
         this.data = [];
@@ -260,6 +261,6 @@
       }
     }
 
-    document.registerElement("x-channel", Channel);
+    window.customElements.define("x-channel", Channel);
   })();
 </script>

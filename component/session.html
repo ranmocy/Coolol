@@ -56,10 +56,11 @@
   (function() {
     "use strict";
 
-    var $$$template = document.currentScript.ownerDocument.querySelector('template').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template').content;
 
     class Session extends XElement {
-      createdCallback() {
+      constructor() {
+        super();
         this.createShadowRoot().appendChild(document.importNode($$$template, true));
 
         this.$('#add').handle('click', this.add.bind(this));
@@ -94,7 +95,7 @@
               Notify.error(`[session] verify account failed: ${reply}`);
               return;
             }
-            var account = {
+            let account = {
               user_id: reply.user_id,
               screen_name: reply.screen_name,
               name: reply.name,
@@ -112,6 +113,6 @@
       }
     }
 
-    document.registerElement("x-session", Session);
+    window.customElements.define("x-session", Session);
   })();
 </script>

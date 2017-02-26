@@ -32,7 +32,7 @@
   (function() {
     "use strict";
 
-    var template = document.currentScript.ownerDocument.querySelector('template');
+    const template = document.currentScript.ownerDocument.querySelector('template');
 
     class App extends XElement {
       createdCallback() {
@@ -41,8 +41,8 @@
         this.handleActions(['openCompose', 'openComposeForReply', 'openComposeForRetweet', 'switchView']);
 
         // initialize storage
-        let require_reconfig = document.store.updateVersionCode();
-        if (require_reconfig) {
+        let require_reconfiguration = document.store.updateVersionCode();
+        if (require_reconfiguration) {
           console.warn("ATTENTION: Backward incompatible update finished, your config may need updates!");
           Notify.warn("ATTENTION: Major update, please update your config.");
           this.switchSession();
@@ -57,7 +57,10 @@
         this.loadLastView(window.location);
       }
 
-      // First time loading
+      /**
+       * First time loading
+       * @param {Location} location
+       */
       loadLastView(location) {
         console.info('[app] loadLastView', location);
         if (!location) {
@@ -70,18 +73,18 @@
         document.account = null;
 
         // get screen_names
-        var accounts = document.store.getAllAccounts();
-        var screen_names = Object.keys(accounts);
+        let accounts = document.store.getAllAccounts();
+        let screen_names = Object.keys(accounts);
         if (!$.isDefined(screen_names) || screen_names.length === 0) {
           console.info('[app] no speficified account, go to sessions');
           return this.switchSession();
         }
 
         // get current screen_name
-        var screen_name;
+        let screen_name;
         // try parse from url
         if (location.hash.startsWith('#@')) {
-          var parts = location.hash.substr(2).split('/');
+          let parts = location.hash.substr(2).split('/');
           screen_name = parts[0];
           console.info('[app] active account from url', screen_name);
 
@@ -164,7 +167,7 @@
         document.account = account;
         document.store.saveLastActiveAccountName(account.screen_name);
 
-        var config = document.store.getConfig(account);
+        let config = document.store.getConfig(account);
         if (!$.isDefined(config) || Object.keys(config).length === 0) {
           console.info('[app] switchBoard: config is empty, switch to config view.');
           Notify.info('You need to setup config first.');
@@ -207,7 +210,7 @@
       /*private*/ updateView(elem_name, pass_elem_to_nav) {
         console.info(`[app] updateView ${elem_name}`);
         $.removeAllChildren(this.$('#main'));
-        var $elem = document.createElement(elem_name);
+        let $elem = document.createElement(elem_name);
         this.$('#main').appendChild($elem);
         this.$('x-nav').updateNav(pass_elem_to_nav ? $elem : undefined);
         return $elem;

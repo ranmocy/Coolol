@@ -6,6 +6,13 @@
     $(query) {
       return this.shadowRoot.querySelector(query);
     }
+
+    /**
+     * For auto completion purpose.
+     */
+    createShadowRoot() {
+      return super.createShadowRoot();
+    }
   }
 
   window.XElement = XElement;

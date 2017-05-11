@@ -2,7 +2,7 @@
 
 require 'fileutils'
 
-SOURCE = 'github'
+SOURCE = 'origin'
 SOURCE_BRANCH = 'shadow'
 TARGET_BRANCH = 'gh-pages'
 
@@ -13,3 +13,4 @@ def cmd(s, name=nil)
 end
 
 cmd "git push #{SOURCE} #{SOURCE_BRANCH}:#{TARGET_BRANCH}", 'push'
+cmd "firebase deploy"

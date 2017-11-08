@@ -220,7 +220,8 @@
       let parameters = Array.from(arguments).slice(1);
       console.log('trigger', eventName, parameters);
       this.dispatchEvent(new CustomEvent(eventName, {
-        detail: parameters
+        detail: parameters,
+        composed: true, // otherwise it does not cross shadowRoot
       }));
     },
 

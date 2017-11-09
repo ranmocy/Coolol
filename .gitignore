@@ -5,3 +5,4 @@
 /.build/
 /.sass-cache
 /jspm_packages/
+/node_modules/

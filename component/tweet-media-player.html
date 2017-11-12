@@ -35,7 +35,7 @@
     class TweetMediumPlayer extends XElement {
       constructor() {
         super();
-        this.createShadowRoot().appendChild(document.importNode($$$template, true));
+        this.attachShadow({mode: 'closed'}).appendChild(document.importNode($$$template, true));
         this.media = null;
         this.show();
       }

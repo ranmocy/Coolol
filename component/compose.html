@@ -72,7 +72,7 @@
     class Compose extends XElement {
       constructor() {
         super();
-        this.createShadowRoot().appendChild(document.importNode($$$compose.content, true));
+        this.attachShadow({mode: 'closed'}).appendChild(document.importNode($$$compose.content, true));
 
         this.handle('click', this.hide.bind(this));
         this.$('#container').handle('click', null); // stop popup to host

@@ -61,7 +61,7 @@
     class Session extends XElement {
       constructor() {
         super();
-        this.createShadowRoot().appendChild(document.importNode($$$template, true));
+        this.attachShadow({mode: 'closed'}).appendChild(document.importNode($$$template, true));
 
         this.$('#add').handle('click', this.add.bind(this));
         this.$('#verify').handle('click', this.verify.bind(this));

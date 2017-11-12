@@ -113,7 +113,7 @@
     class Nav extends XElement {
       constructor() {
         super();
-        this.createShadowRoot().appendChild(document.importNode($$$nav, true));
+        this.attachShadow({mode: 'closed'}).appendChild(document.importNode($$$nav, true));
 
         this.$('#logo').handle('click', this.trigger.bind(this, 'switchView', 'session'));
         this.$('#open-compose').handle('click', this.trigger.bind(this, 'openCompose'));

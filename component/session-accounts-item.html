@@ -58,7 +58,7 @@
     class SessionAccountsItem extends XElement {
       constructor() {
         super();
-        this.attachShadow({mode: 'closed'}).appendChild(document.importNode($$$template, true));
+        this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$template, true));
       }
 
       setAccount(account) {

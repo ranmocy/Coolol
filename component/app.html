@@ -37,7 +37,7 @@
     class App extends XElement {
       constructor() {
         super();
-        this.attachShadow({mode: 'closed'}).appendChild(document.importNode(template.content, true));
+        this.attachShadow({mode: 'open'}).appendChild(document.importNode(template.content, true));
 
         this.handleActions(['openCompose', 'openComposeForReply', 'openComposeForRetweet', 'switchView']);
 

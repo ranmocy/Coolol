@@ -80,7 +80,7 @@
     class Channel extends XElement {
       constructor() {
         super();
-        this.attachShadow({mode: 'closed'}).appendChild(document.importNode(template.content, true));
+        this.attachShadow({mode: 'open'}).appendChild(document.importNode(template.content, true));
         this.config = null;
         this.data = [];
         this.fetching = false;

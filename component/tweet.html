@@ -91,7 +91,7 @@
     class Tweet extends XElement {
       constructor() {
         super();
-        this.attachShadow({mode: 'closed'}).appendChild(document.importNode($$$tweet, true));
+        this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$tweet, true));
 
         this.$('#container').handle('mouseenter', () => {
           this.$('#control').show();

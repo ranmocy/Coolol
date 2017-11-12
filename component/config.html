@@ -53,7 +53,7 @@
     class Config extends XElement {
       constructor() {
         super();
-        this.attachShadow({mode: 'closed'}).appendChild(document.importNode(template.content, true));
+        this.attachShadow({mode: 'open'}).appendChild(document.importNode(template.content, true));
 
         this.$('#save').handle('click', this.saveConfig.bind(this));
         this.$('#reset').handle('click', this.resetConfig.bind(this));

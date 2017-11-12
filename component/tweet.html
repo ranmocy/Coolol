@@ -12,9 +12,6 @@
     #reply, #retweeted {
       color: #888;
     }
-    #creator {
-      color: green;
-    }
     #body {
       color: black;
     }
@@ -71,11 +68,13 @@
 </template>
 
 <template id="creator">
-  <img class="avatar" src=""/>
-  <span class="name"></span>
-  <span class="handle">
-    (<span class="screen-name"></span>)
-  </span>
+  <a href="#" target="_blank" style="color: green; text-decoration: none;">
+    <img class="avatar" src=""/>
+    <span class="name"></span>
+    <span class="handle">
+      (<span class="screen-name"></span>)
+    </span>
+  </a>
 </template>
 
 
@@ -144,6 +143,7 @@
       }
 
       /*private*/ setCreator(user) {
+        $$$creator.$('a').href = `https://twitter.com/${user.screen_name}`
         $$$creator.$('.avatar').src = user.profile_image_url_https;
         $$$creator.$('.name').textContent = user.name;
         $$$creator.$('.screen-name').textContent = user.screen_name;

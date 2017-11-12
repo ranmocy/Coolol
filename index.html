@@ -24,7 +24,7 @@
   </head>
   <body>
     <x-app>
-      <div id="loading" style="position: fixed; width: 100vw; height: 100vh; z-index: 1000;">
+      <div slot="loading" style="position: fixed; width: 100vw; height: 100vh; z-index: 1000;">
         <div style="position: relative; text-align: center; top: 50%; transform: translateY(-50%);">
           <h1>Loading...</h1>
           <img src="icons/icon-512.png">
@@ -57,8 +57,8 @@
       });
       // Tell user
       if (features_missing.length > 0) {
-        var $loading = document.body.querySelector('#loading');
-        $loading.id = 'error';
+        var $loading = document.body.querySelector('[slot=loading]');
+        $loading.slot = 'error';
         var $container = $loading.querySelector('div');
         $container.querySelector('h1').textContent = "Some JavaScript features are missing!";
         features_missing.forEach(function (feature_desc) {

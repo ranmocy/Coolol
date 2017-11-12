@@ -21,7 +21,7 @@
     }
   </style>
 
-  <content select="#error"></content>
+  <slot name="error"></slot>
   <x-compose></x-compose>
   <x-nav></x-nav>
   <div id="main"></div>
@@ -205,7 +205,7 @@
       }
 
       /*private*/ switchLoading() {
-        this.updateView('content').setAttribute('select', '#loading');
+        this.updateView('slot').setAttribute('name', 'loading');
       }
 
       /*private*/ updateView(elem_name, pass_elem_to_nav) {

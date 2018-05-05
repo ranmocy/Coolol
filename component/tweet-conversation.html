@@ -1,0 +1,93 @@
+<template id="tweet-conversation">
+  <style media="screen">
+    @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
+    i {
+      cursor: pointer;
+    }
+  </style>
+  <div id="replying-info">
+    <span class="reply-to">In reply to:</span>
+    <span class="name"></span>
+    <span class="handle">
+      (<span class="screen-name"></span>)
+    </span>
+    <span class="fetch-older-conversation">
+      <i class="fa fa-level-up" aria-hidden="true"></i>
+    </span>
+  </div>
+
+  <div class="conversation"></div>
+</template>
+
+<script type="text/javascript">
+  (function() {
+    "use strict";
+
+    var $$$tweet_conversation = document.currentScript.ownerDocument.querySelector('template#tweet-conversation');
+
+    class TweetConversation extends XElement {
+      createdCallback() {
+        this.createShadowRoot().appendChild(document.importNode($$$tweet_conversation.content, true));
+
+        this.oldest_conversation_tweet = null;
+        this.$('.fetch-older-conversation i').handle('click', this.getMoreOlderConversations.bind(this, 5));
+      }
+
+      setTweet(tweet) {
+        if (!$.isDefined(this.oldest_conversation_tweet)
+            || this.oldest_conversation_tweet.id_str !== tweet.id_str) {
+          $.removeAllChildren(this.$('.conversation'));
+        }
+        this.setOldestTweet(tweet);
+        return this;
+      }
+
+      /*private*/ setOldestTweet(tweet) {
+        this.oldest_conversation_tweet = tweet;
+        if ($.isReplyTweet(tweet)) {
+          this.setReplyTo(tweet.in_reply_to_screen_name);
+        } else if ($.isDirectMessage(tweet)) {
+          this.setReplyTo(tweet.recipient_screen_name);
+        } else {
+          // no more conversation
+          this.$('#replying-info').hide();
+        }
+      }
+
+      /*private*/ setReplyTo(screen_name) {
+        this.$('#replying-info .screen-name').textContent = screen_name;
+        this.$('#replying-info').show();
+      }
+
+      /*private*/ getMoreOlderConversations(n_more) {
+        if (n_more <= 0) {
+          return;
+        }
+        if (!$.isDefined(this.oldest_conversation_tweet)) {
+          throw "Fetch more conversation before setTweet!"
+        }
+        if (!$.isDefined(this.oldest_conversation_tweet.in_reply_to_status_id_str)) {
+          console.info('no more conversation');
+          return;
+        }
+
+        // TODO: check mem cache first
+        let client = document.cache.getTwitterClient(document.account);
+        client
+          .fetch("statuses_show_ID", {
+            id: this.oldest_conversation_tweet.in_reply_to_status_id_str
+          })
+          .then((tweet) => {
+            let $container = this.$('.conversation');
+            let $tweet = document.createElement('x-tweet').setTweet(tweet).setInsideConversation();
+            $container.insertBefore($tweet, $container.firstChild);
+
+            this.setOldestTweet(tweet);
+            this.getMoreOlderConversations(n_more - 1);
+          });
+      }
+    }
+
+    document.registerElement("x-tweet-conversation", TweetConversation);
+  })();
+</script>

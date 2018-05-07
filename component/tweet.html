@@ -192,6 +192,9 @@
         // Update conversation section
         this.$('#conversation').setTweet(tweet);
 
+        // Show control panel
+        this.$('#control').setTweet(tweet);
+
         // if it's a direct message
         if ($.isDirectMessage(tweet)) {
           this.setCreator(tweet.sender);
@@ -199,9 +202,6 @@
           // no more for DM
           return this;
         }
-
-        // Show control panel
-        this.$('#control').setTweet(tweet);
 
         // if it's a quoted tweet
         if ($.isQuotedRetweet(tweet)) {

@@ -37,9 +37,7 @@
         super();
         this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$template, true));
 
-        this.$('#reply-button').handle('click', () => {
-          this.trigger('openComposeForReply', this.tweet);
-        });
+        this.$('#reply-button').handle('click', this.reply.bind(this));
         this.$('#retweet-button').handle('click', this.retweet.bind(this));
         this.$('#fav-button').handle('click', this.favorite.bind(this));
 
@@ -50,6 +48,14 @@
 
       setTweet(tweet) {
         this.tweet = tweet;
+        if ($.isDirectMessage(tweet)) {
+          this.$('#reply-button').dataset.status = 'disabled';
+          this.$('#retweet-button').dataset.status = 'disabled';
+          this.$('#fav-button').dataset.status = 'disabled';
+          return;
+        }
+
+        this.$('#reply-button').dataset.status = '';
 
         this.$('#retweet-button').dataset.status =
           (this.tweet.user.screen_name === document.account.screen_name) ?
@@ -62,7 +68,19 @@
           (this.tweet.favorited) ? 'favorited' : '';
       }
 
+      reply() {
+        if ($.isDirectMessage(this.tweet)) {
+          // can't retweet direct message
+          return;
+        }
+        this.trigger('openComposeForReply', this.tweet);
+      }
+
       retweet() {
+        if ($.isDirectMessage(this.tweet)) {
+          // can't retweet direct message
+          return;
+        }
         if (this.tweet.user.screen_name === document.account.screen_name) {
           // current user can't retweet his own tweet.
           return;
@@ -102,6 +120,10 @@
       }
 
       favorite() {
+        if ($.isDirectMessage(this.tweet)) {
+          // can't retweet direct message
+          return;
+        }
         let api;
         if (this.tweet.favorited) {
           api = "favorites_destroy";

@@ -10,7 +10,7 @@
     #container {
       padding: 0.5em 1em;
     }
-    #conversation, #retweeted {
+    #conversation > *, #retweeted > * {
       color: #888;
     }
     #body {
@@ -40,8 +40,8 @@
   </style>
 
   <div id="container">
-    <x-tweet-control id="control"></x-tweet-control>
     <x-tweet-conversation id=conversation></x-tweet-conversation>
+    <x-tweet-control id="control"></x-tweet-control>
     <div id="retweeted"></div>
     <div id="creator"></div>
     <div id="body">

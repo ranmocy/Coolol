@@ -46,34 +46,68 @@
   (function() {
     "use strict";
 
+    /**
+     * @param {} filter_rule
+     * @param {Tweet} tweet.
+     * @return {boolean}
+     */
+    function filter_func(filter_rule, tweet) {
+      // prepare DSL for filter rule
+      // noinspection ES6ConvertVarToLetConst
+      var sender, receiver; // variables
+      // noinspection ES6ConvertVarToLetConst
+      var isBetweenUser, tweetContains, tweetContainsAny; // functions
 
-    function transformData(data) {
-      console.info('[channel] transformData', data);
-
-      if (!$.isDefined(data)) {
-        return [];
+      switch ($.tweetType(tweet)) {
+        case 'direct_message': {
+          sender = tweet.sender;
+          receiver = tweet.recipient;
+          break;
+        }
+        case 'reply': {
+          sender = tweet.user;
+          receiver = {
+            screen_name: tweet.in_reply_to_screen_name,
+            id: tweet.in_reply_to_user_id,
+            id_str: tweet.in_reply_to_user_id_str,
+          };
+          break;
+        }
+        default: {
+          // Types: retweet, quoted_retweet, tweet
+          sender = tweet.user;
+          receiver = {};
+        }
       }
 
-      return data
-        // flatten [[tweetsForSource1], [tweetsForSource2], ...]
-        .reduce((all, current) => {
-          return all.concat(current);
-        }, [])
-        // unify tweet into unique objects
-        .map((tweet) => {
-          return document.cache.getCurrentAccountTweet(tweet);
-        })
-        // Transform created_at field into Date object
-        .map((tweet) => {
-          tweet.created_at = new Date(tweet.created_at);
-          return tweet;
-        })
-        // sort by created_at
-        .sort((a, b) => {
-          return b.created_at - a.created_at;
-        });
-    }
+      // noinspection JSUnusedAssignment
+      isBetweenUser = function(user1, user2) {
+        return (sender.screen_name === user1 && receiver.screen_name === user2) ||
+          (sender.screen_name === user2 && receiver.screen_name === user1);
+      };
+      // noinspection JSUnusedAssignment
+      tweetContains = function(keyword) {
+        return tweet.text.indexOf(keyword) >= 0;
+      };
+      // noinspection JSUnusedAssignment
+      tweetContainsAny = function() {
+        for (let keyword of arguments) {
+          if (tweetContains(keyword)) {
+            return true;
+          }
+        }
+        return false;
+      };
 
+      try {
+        return eval(filter_rule);
+      } catch (e) {
+        console.error('Error when apply filter rule:', filter_rule, tweet, e);
+        // start debugger for user
+        debugger; // jshint ignore: line
+        return false; // keep the tweet by default
+      }
+    }
 
     const template = document.currentScript.ownerDocument.querySelector('template');
 
@@ -128,12 +162,12 @@
             count: 50,
           };
 
-          // get the earlest tweet id in this channel
+          // get the earliest tweet id in this channel
           if (this.data.length > 0) {
-            let earlest_tweet_id = this.data[this.data.length - 1].id_str;
-            console.log('[channel] fetchMore: earlest_tweet_id', earlest_tweet_id);
+            let earliest_tweet_id = this.data[this.data.length - 1].id_str;
+            console.log('[channel] fetchMore: earliest_tweet_id', earliest_tweet_id);
             // Alternative: this.$('#tweets').lastChild.dataset.tweetId
-            extra_params.max_id = earlest_tweet_id;
+            extra_params.max_id = earliest_tweet_id;
           }
 
           // fetch more data
@@ -144,14 +178,15 @@
             return client.fetch(source, params);
           });
           return Promise.all(source_promises)
-            .then((data) => {
-              this.appendData(data);
+            .then((new_data) => {
+              new_data = this.transformData(new_data);
+              this.appendData(new_data);
 
               // exit fetching status
               this.fetching = false;
               this.$('#loading').hide();
 
-              return data;
+              return new_data;
             });
         } catch (e) {
           // exit fetching status
@@ -163,99 +198,76 @@
         }
       }
 
-      appendData(data) {
-        console.info('[channel] appendData', data);
+      /**
+       * @param {Tweet[][]} new_data
+       * @return {Tweet[][]}
+       */
+      /*private*/ transformData(new_data) {
+        console.info('[channel] transformData', new_data);
 
-        let new_data = transformData(data)
+        if (!$.isDefined(new_data)) {
+          return [];
+        }
+
+        return new_data
+          // flatten [[tweetsForSource1], [tweetsForSource2], ...]
+          .reduce((all, current) => {
+            return all.concat(current);
+          }, [])
           // remove duplicated tweet
-          .filter((tweet) => {
-            for (var i = this.data.length - 1; i >= 0; i--) {
-              if (this.data[i].id_str === tweet.id_str) {
+          .filter((tweet, index, self) => {
+            for (let i = 0; i < index; i++) {
+              if (self[i].id_str === tweet.id_str) {
                 return false; // don't keep this
               }
             }
             return true; // keep this
-          });
-
-        // apply filters from config
-        if ($.isDefined(this.config.filters)) {
-          this.config.filters.forEach((filter_rule) => {
-            let filter_func = function(tweet) {
-              // prepare DSL for filter rule
-              var sender, receiver; // variables
-              var isBetweenUser, tweetContains, tweetContainsAny; // functions
-
-              switch ($.tweetType(tweet)) {
-                case 'direct_message': {
-                  sender = tweet.sender;
-                  receiver = tweet.recipient;
-                  break;
-                }
-                case 'reply': {
-                  sender = tweet.user;
-                  receiver = {
-                    screen_name: tweet.in_reply_to_screen_name,
-                    id: tweet.in_reply_to_user_id,
-                    id_str: tweet.in_reply_to_user_id_str,
-                  };
-                  break;
-                }
-                default: {
-                  // Types: retweet, quoted_retweet, tweet
-                  sender = tweet.user;
-                  receiver = {};
+          })
+          // transform created_at field into Date object
+          .map((tweet) => {
+            tweet.created_at = new Date(tweet.created_at);
+            return tweet;
+          })
+          // sort by created_at
+          .sort((a, b) => {
+            return b.created_at - a.created_at;
+          })
+          // unify tweet into unique objects
+          .map((tweet) => {
+            return document.cache.getCurrentAccountTweet(tweet);
+          })
+          // apply filters from config
+          .filter((tweet) => {
+            if ($.isDefined(this.config.filters)) {
+              for (let filter_rule of this.config.filters) {
+                // filter_func returns true means remove the tweet.
+                // however Array.filter needs function to return false to remove the tweet.
+                if (filter_func(filter_rule, tweet)) {
+                  return false; // don't keep this
                 }
               }
-
-              isBetweenUser = function(user1, user2) {
-                return (sender.screen_name === user1 && receiver.screen_name === user2) ||
-                (sender.screen_name === user2 && receiver.screen_name === user1);
-              };
-              tweetContains = function(keyword) {
-                return tweet.text.indexOf(keyword) >= 0;
-              };
-              tweetContainsAny = function() {
-                for (let keyword of arguments) {
-                  if (tweetContains(keyword)) {
-                    return true;
-                  }
-                }
-                return false;
-              };
-
-              try {
-                return eval(filter_rule);
-              } catch (e) {
-                console.error('Error when apply filter rule:', filter_rule, tweet, e);
-                // start debugger for user
-                debugger; // jshint ignore: line
-                return false; // keep the tweet by default
-              }
-            };
-            new_data = new_data.filter((tweet) => {
-              // filter_func returns true means remove the tweet.
-              // however Array.filter needs function to return false to remove the tweet.
-              return !filter_func(tweet);
-            });
+            }
+            return true; // keep this
           });
-        }
+      }
 
-        if (new_data.length === 0) {
+      /**
+       * @param {[[Tweet]]} new_data
+       */
+      /*private*/ appendData(data) {
+        console.info('[channel] appendData', data);
+
+        if (data.length === 0) {
           // no more new data to append
           this.no_more_earlier_tweet = true;
           return;
         }
 
         // append data
-        this.data = [].concat(this.data, new_data);
-
-        new_data.forEach((tweet) => {
+        this.data = [].concat(this.data, data);
+        data.forEach((tweet) => {
           this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
         });
-
-
-        // hide loading
-        this.$('#loading').hide();
 
         return this;
       }

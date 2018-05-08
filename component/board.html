@@ -44,7 +44,6 @@
         this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$template, true));
 
         this.config = document.store.getConfig(document.account);
-        this._data = null;
 
         this.refresh();
 
@@ -64,6 +63,7 @@
           channel_config = Object.assign({}, channel_config, {
             filters: [].concat(channel_filters, board_filters),
           });
+          /** @type {Channel} */
           let $channel = document.createElement('x-channel').setConfig(channel_config);
           this.$('#channels').appendChild($channel);
           return $channel.refresh();

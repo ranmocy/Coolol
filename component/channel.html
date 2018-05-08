@@ -89,7 +89,7 @@
         // scroll event
         let $tweets = this.$('#tweets');
         $tweets.handle('scroll', () => {
-          if ($tweets.scrollTop + $tweets.offsetHeight + 10 >= $tweets.scrollHeight) {
+          if ($tweets.scrollTop + $tweets.offsetHeight + 100 >= $tweets.scrollHeight) {
             console.debug('scroll to bottom');
             if (!this.no_more_earlier_tweet) {
               this.fetchMore();

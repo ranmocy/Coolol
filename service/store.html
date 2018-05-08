@@ -1,6 +1,8 @@
 <script type="text/javascript">
-(function() {
+(function () {
   "use strict";
+
+  const T_TWEET = 'tweet';
 
   function getRequestPromise(request) {
     return new Promise((resolve, reject) => {
@@ -50,88 +52,90 @@
       let db = event.target.result;
       switch (event.oldVersion) {
         case 0:
-          db.createObjectStore('tweet', {keyPath: 'id_str'});
-          // fall through
+          db.createObjectStore(T_TWEET, {keyPath: 'id_str'});
+        // fall through
       }
     };
+    return await getRequestPromise(request);
+  }
+
+  async function readFromDb(db, table_name, keys) {
+    let object_store = db
+      .transaction([table_name], 'readonly')
+      .objectStore(table_name);
+    return await Promise.all(keys.map((key) => {
+      return getRequestPromise(object_store.get(key));
+    }));
+  }
+
+  async function updateToDb(db, table_name, objects) {
+    let transaction = db.transaction([table_name], 'readwrite');
+    let object_store = transaction.objectStore(table_name);
+    for (let object of objects) {
+      object_store.put(object);
+    }
+    return await getTransactionPromise(transaction);
+  }
+
+  async function deleteFromDb(db, table_name, keys) {
+    let transaction = db.transaction([table_name], 'readwrite');
+    let object_store = transaction.objectStore(table_name);
+    for (let key of keys) {
+      object_store.delete(key);
+    }
+    return await getTransactionPromise(transaction);
+  }
+
+  async function clearTable(db, table_name) {
+    let request = db.transaction([table_name], 'readwrite')
+      .objectStore(table_name)
+      .clear();
     return await getRequestPromise(request);
   }
 
 
   class Store {
 
-    static addTableAccess(table_name) {
-      let capitalized = $.camelize(table_name);
+    async getTweet(id_str) {
+      let cache = this.getAccountCache(T_TWEET);
+      if (id_str in cache) {
+        return cache[id_str];
+      }
+      return await this.getTweets([id_str]);
+    }
 
-      let getMethodName = `get${capitalized}`;
-      let putMethodName = `put${capitalized}`;
-      let deleteMethodName = `delete${capitalized}`;
-      let registerMethodName = `register${capitalized}`;
-      let unregisterMethodName = `unregister${capitalized}`;
+    async getTweets(id_str_arr) {
+      let db = await getAccountDB();
+      return await readFromDb(db, T_TWEET, id_str_arr);
+    }
 
-      // read
-      this.prototype[getMethodName] = async function(key) {
-        let db = await getAccountDB();
-        let request = db
-          .transaction([table_name], 'readonly')
-          .objectStore(table_name)
-          .get(key);
-        return await getRequestPromise(request);
-      };
-      this.prototype[`${getMethodName}s`] = async function(keys) {
-        let db = await getAccountDB();
-        let object_store = db
-          .transaction([table_name], 'readonly')
-          .objectStore(table_name);
-        return await Promise.all(keys.map((key) => {
-          return getRequestPromise(object_store.get(key));
-        }));
-      };
+    async updateTweet(tweet) {
+      return await this.updateTweets([tweet]);
+    }
 
-      // write
-      this.prototype[putMethodName] = async function(object) {
-        let db = await getAccountDB();
-        let request = db
-          .transaction([table_name], 'readwrite')
-          .objectStore(table_name)
-          .put(object);
-        return await getRequestPromise(request);
-      };
-      this.prototype[`${putMethodName}s`] = async function(objects) {
-        let db = await getAccountDB();
-        let transaction = db.transaction([table_name], 'readwrite');
-        let object_store = transaction.objectStore(table_name);
-        for (let object of objects) {
-          object_store.put(object);
-        }
-        return await getTransactionPromise(transaction);
-      };
+    async updateTweets(tweets) {
+      let db = await getAccountDB();
+      return await updateToDb(db, T_TWEET, tweets);
+    }
 
-      // delete
-      this.prototype[deleteMethodName] = async function(key) {
-        let db = await getAccountDB();
-        let request = db.transaction([table_name], 'readwrite')
-          .objectStore(table_name)
-          .delete(key);
-        return await getRequestPromise(request);
-      };
-      this.prototype[`${deleteMethodName}s`] = async function() {
-        let db = await getAccountDB();
-        let request = db.transaction([table_name], 'readwrite')
-          .objectStore(table_name)
-          .clear();
-        return await getRequestPromise(request);
-      };
+    async deleteTweet(id_str) {
+      return await this.deleteTweet([id_str]);
+    }
 
-      // register
-      this.prototype[registerMethodName] = function(element) {
-        return this.register(table_name, element);
-      };
-      this.prototype[unregisterMethodName] = function(element) {
-        return this.unregister(table_name, element);
-      };
+    async deleteTweets(id_str_arr) {
+      let db = await getAccountDB();
+      return await deleteFromDb(db, T_TWEET, id_str_arr);
+    }
 
-      return table_name;
+    /*private*/ getAccountCache(prefix) {
+      if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
+        throw 'No account is logged in!';
+      }
+      let name = `${prefix}_${document.account.screen_name}`;
+      if (!(name in this.caches)) {
+        this.caches[name] = {};
+      }
+      return this.caches[name];
     }
 
     static log() {
@@ -141,7 +145,9 @@
     }
 
     static defaultValueFactoryFactory(default_value) {
-      return function() { return default_value; };
+      return function () {
+        return default_value;
+      };
     }
 
     // Add methods for application level field in format of `{value: <factory()>}`
@@ -157,21 +163,21 @@
 
 
       // read
-      this.prototype[getMethodName] = function() {
+      this.prototype[getMethodName] = function () {
         let value = this.getJSON(field, factory);
         Store.log(`[store] ${getMethodName}:`, value);
         return value;
       };
 
       // write
-      this.prototype[saveMethodName] = function(new_value) {
+      this.prototype[saveMethodName] = function (new_value) {
         Store.log(`[store] ${saveMethodName}:`, new_value);
         this.saveJSON(field, new_value);
         return new_value;
       };
 
       // delete
-      this.prototype[deleteMethodName] = function() {
+      this.prototype[deleteMethodName] = function () {
         let old_value = this[getMethodName]();
         Store.log(`[store] ${deleteMethodName}:`, old_value);
         this.saveJSON(field, factory());
@@ -179,10 +185,10 @@
       };
 
       // register
-      this.prototype[registerMethodName] = function(element) {
+      this.prototype[registerMethodName] = function (element) {
         return this.register(field, element);
       };
-      this.prototype[unregisterMethodName] = function(element) {
+      this.prototype[unregisterMethodName] = function (element) {
         return this.unregister(field, element);
       };
 
@@ -205,13 +211,13 @@
       let unregisterMethodName = `unregister${capitalized}s`;
 
       // read
-      this.prototype[getAllMethodName] = function() {
+      this.prototype[getAllMethodName] = function () {
         // the default value of whole field is always {}, because they are all saved in account space
         let values = this.getJSON(field, account_default_factory);
         Store.log(`[store] ${getAllMethodName}:`, values);
         return values;
       };
-      this.prototype[getMethodName] = function(account) {
+      this.prototype[getMethodName] = function (account) {
         let value = this[getAllMethodName]()[account.screen_name];
         Store.log(`[store] ${getMethodName}:`, account.screen_name, value);
         if ($.isDefined(value)) {
@@ -224,12 +230,12 @@
       };
 
       // write
-      this.prototype[saveAllMethodName] = function(new_value) {
+      this.prototype[saveAllMethodName] = function (new_value) {
         Store.log(`[store] ${saveAllMethodName}:`, new_value);
         this.saveJSON(field, new_value);
         return new_value;
       };
-      this.prototype[saveMethodName] = function(account, new_value) {
+      this.prototype[saveMethodName] = function (account, new_value) {
         let values = this[getAllMethodName]();
         Store.log(`[store] ${saveMethodName}:`, account.screen_name, new_value);
         values[account.screen_name] = new_value;
@@ -238,11 +244,11 @@
       };
 
       // delete
-      this.prototype[deleteAllMethodName] = function() {
+      this.prototype[deleteAllMethodName] = function () {
         Store.log(`[store] ${deleteAllMethodName}:`);
         this.saveJSON(field, account_default_factory());
       };
-      this.prototype[deleteMethodName] = function(account) {
+      this.prototype[deleteMethodName] = function (account) {
         let values = this[getAllMethodName]();
         let old_value = values[account.screen_name];
         Store.log(`[store] ${deleteMethodName}:`, account.screen_name, old_value);
@@ -254,10 +260,10 @@
       };
 
       // register
-      this.prototype[registerMethodName] = function(element) {
+      this.prototype[registerMethodName] = function (element) {
         return this.register(field, element);
       };
-      this.prototype[unregisterMethodName] = function(element) {
+      this.prototype[unregisterMethodName] = function (element) {
         return this.unregister(field, element);
       };
 
@@ -265,6 +271,7 @@
     }
 
     constructor() {
+      this.caches = {};
       this.storage = {};
       this.callbacks = {};
     }
@@ -306,7 +313,7 @@
         return this.storage[field];
       }
       var data = this.getLocalStorageItem(field);
-      if (! $.isDefined(data)) {
+      if (!$.isDefined(data)) {
         data = default_value_factory();
       }
       this.storage[field] = data;
@@ -344,36 +351,36 @@
 
 
   const DEFAULT_CONFIG =
-  {
-    "filters": [
-      "isBetweenUser('ranmocy', 'CathellieAir')",
-    ],
-    "channels": [{
-      "name": "Home",
-      "sources": [
-        ["statuses_homeTimeline", {}],
-      ],
+    {
       "filters": [
-        "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
+        "isBetweenUser('ranmocy', 'CathellieAir')",
       ],
-    }, {
-      "name": "Mentions",
-      "sources": [
-        ["statuses_mentionsTimeline", {}],
-      ],
-    }, {
-      "name": "Direct Messages",
-      "sources": [
-        ["directMessages", {}],
-        ["directMessages_sent", {}],
-      ],
-    }, {
-      "name": "My tweets",
-      "sources": [
-        ["statuses_userTimeline", { "user_id": "me" }],
-      ]
-    }]
-  };
+      "channels": [{
+        "name": "Home",
+        "sources": [
+          ["statuses_homeTimeline", {}],
+        ],
+        "filters": [
+          "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
+        ],
+      }, {
+        "name": "Mentions",
+        "sources": [
+          ["statuses_mentionsTimeline", {}],
+        ],
+      }, {
+        "name": "Direct Messages",
+        "sources": [
+          ["directMessages", {}],
+          ["directMessages_sent", {}],
+        ],
+      }, {
+        "name": "My tweets",
+        "sources": [
+          ["statuses_userTimeline", {"user_id": "me"}],
+        ]
+      }]
+    };
   const CONFIG_SPEC = {
     name: 'entire config',
     type: 'object',
@@ -432,9 +439,11 @@
       }
     }
   };
+
   function createTypeErroMessage(name, type, config) {
     return `${name} needs to be ${type}, instead it is ${JSON.stringify(config)}`;
   }
+
   /* Returns array of error messages. */
   function verifyConfigWithSpec(spec, config) {
     let error_messages = [];
@@ -446,7 +455,7 @@
       return error_messages;
     }
 
-    switch(spec.type) {
+    switch (spec.type) {
       case 'string':
         if (!$.isString(config)) {
           error_messages.push(createTypeErroMessage(spec.name, 'a string', config));
@@ -500,6 +509,7 @@
 
     return error_messages;
   }
+
   /*
   Config = {
     <screen_name>: {
@@ -516,11 +526,11 @@
   */
   Store.addAccessToAccountField('config', Store.defaultValueFactoryFactory({}));
   store.extend({
-    verifyConfig: function(config) {
+    verifyConfig: function (config) {
       return verifyConfigWithSpec(CONFIG_SPEC, config);
     },
 
-    resetConfig: function(account) {
+    resetConfig: function (account) {
       this.saveConfig(account, DEFAULT_CONFIG);
       return DEFAULT_CONFIG;
     },
@@ -538,7 +548,7 @@
   */
   Store.addAccessToAccountField('account', Store.defaultValueFactoryFactory({}));
   store.extend({
-    updateAccount: function(account) {
+    updateAccount: function (account) {
       Store.log('[store] updateAccount:', account.screen_name);
       document.cache.getTwitterClient(account).fetch('users_show', {
         user_id: account.user_id,
@@ -554,7 +564,7 @@
       });
     },
 
-    updateAllAccounts: function() {
+    updateAllAccounts: function () {
       let accounts = this.getAllAccounts();
       Store.log('[store] updateAllAccounts:', accounts);
       for (let screen_name in accounts) {
@@ -576,7 +586,7 @@
   */
   Store.addAccessToAppField('version', Store.defaultValueFactoryFactory(CURRENT_VERSION));
   store.extend({
-    updateVersionCode: function() {
+    updateVersionCode: function () {
       let old_version_str = this.getVersion();
       let version_str = CURRENT_VERSION;
       let need_reset_config = false;

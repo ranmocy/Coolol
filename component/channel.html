@@ -47,7 +47,7 @@
     "use strict";
 
     /**
-     * @param {} filter_rule
+     * @param {Object} filter_rule
      * @param {Tweet} tweet.
      * @return {boolean}
      */
@@ -178,8 +178,8 @@
             return client.fetch(source, params);
           });
           return Promise.all(source_promises)
-            .then((new_data) => {
-              new_data = this.transformData(new_data);
+            .then(async (new_data) => {
+              new_data = await this.transformData(new_data);
               this.appendData(new_data);
 
               // exit fetching status
@@ -200,9 +200,9 @@
 
       /**
        * @param {Tweet[][]} new_data
-       * @return {Tweet[][]}
+       * @return {Promise<Tweet[][]>}
        */
-      /*private*/ transformData(new_data) {
+      /*private*/ async transformData(new_data) {
         console.info('[channel] transformData', new_data);
 
         if (!$.isDefined(new_data)) {
@@ -255,7 +255,7 @@
        * @param {[[Tweet]]} new_data
        */
       /*private*/ appendData(data) {
-        console.info('[channel] appendData', data);
+        console.info('[channel] appendData');
 
         if (data.length === 0) {
           // no more new data to append

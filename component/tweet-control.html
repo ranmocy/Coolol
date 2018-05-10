@@ -76,7 +76,7 @@
         this.trigger('openComposeForReply', this.tweet);
       }
 
-      retweet() {
+      async retweet() {
         if ($.isDirectMessage(this.tweet)) {
           // can't retweet direct message
           return;
@@ -90,36 +90,31 @@
           this.trigger('openComposeForRetweet', this.tweet);
           return;
         }
-        // un-retweet
+        // The tweet has been retweeted, so un-retweet here
         let client = document.cache.getTwitterClient(document.account);
         let retweeted_status = this.tweet.retweeted_status ? this.tweet.retweeted_status : this.tweet;
-        let un_retweet_func = (current_user_retweet_id_str) => {
-          client
-            .post("statuses_destroy_ID", {
-              id: current_user_retweet_id_str
-            })
-            .then(() => {
-              $.updateObject(retweeted_status, {current_user_retweet: undefined});
-              $.updateObject(this.tweet, {retweeted: false});
-            });
-        };
-        if (retweeted_status.current_user_retweet) {
-          un_retweet_func(retweeted_status.current_user_retweet.id_str);
+        let current_user_retweet_id_str;
+        if (!retweeted_status.current_user_retweet) {
+          let reply = await client.fetch("statuses_show_ID", {
+            id: retweeted_status.id_str,
+            include_my_retweet: 'true', // so that the reply contains current_user_retweet
+          });
+          console.log('[tweet-control]', 'fetched current_user_retweet', reply.current_user_retweet.id_str);
+          Object.assign(retweeted_status, reply);
+          current_user_retweet_id_str = reply.current_user_retweet.id_str;
         } else {
-          client
-            .fetch("statuses_show_ID", {
-              id: retweeted_status.id_str,
-              include_my_retweet: 'true', // so that the reply contains current_user_retweet
-            })
-            .then((reply) => {
-              console.log('[tweet-control]', 'fetched current_user_retweet', reply.current_user_retweet.id_str);
-              $.updateObject(retweeted_status, reply);
-              un_retweet_func(reply.current_user_retweet.id_str);
-            });
+          current_user_retweet_id_str = retweeted_status.current_user_retweet.id_str;
+
         }
+        await client.post("statuses_destroy_ID", {
+          id: current_user_retweet_id_str
+        });
+        $.updateObject(retweeted_status, {current_user_retweet: undefined});
+        $.updateObject(this.tweet, {retweeted: false});
+        await document.store.updateTweet(this.tweet);
       }
 
-      favorite() {
+      async favorite() {
         if ($.isDirectMessage(this.tweet)) {
           // can't retweet direct message
           return;
@@ -130,17 +125,16 @@
         } else {
           api = "favorites_create";
         }
-        document.cache.getTwitterClient(document.account)
-          .post(api, {
+        try {
+          let reply = await document.cache.getTwitterClient(document.account).post(api, {
             id: this.tweet.id_str
-          })
-          .then((reply) => {
-            console.log('[tweet]', api, reply);
-            $.updateObject(this.tweet, reply);
-          }).catch((err) => {
-            console.error('[tweet] failed:', api, err);
-            Notify.error(`[tweet] failed in api ${api}: ${err}`);
           });
+          console.log('[tweet]', api, reply);
+          $.updateObject(this.tweet, reply);
+        } catch (err) {
+          console.error('[tweet] failed:', api, err);
+          Notify.error(`[tweet] failed in api ${api}: ${err}`);
+        }
       }
     }
 

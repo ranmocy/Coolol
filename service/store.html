@@ -99,12 +99,15 @@
       let transaction = db.transaction([T_TWEET], 'readwrite');
       let object_store = transaction.objectStore(T_TWEET);
 
-      for (let tweet of tweets) {
+      tweets = tweets.map((tweet) => {
         let id_str = tweet.id_str;
 
-        // update object_store and cache
+        // unify into same object in cache
         cache[id_str] = cache[id_str] || {};
         $.replaceObject(cache[id_str], tweet);
+        tweet = cache[id_str];
+
+        // update object_store
         object_store.put(tweet);
 
         // trigger listeners' callback
@@ -115,7 +118,10 @@
             element.connectedCallback();
           }
         }
-      }
+
+        return tweet;
+      });
+
       await getTransactionPromise(transaction);
       return tweets;
     }

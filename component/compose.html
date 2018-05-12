@@ -165,7 +165,7 @@
             }
             // trigger callbacks
             Object.assign(this.quoted_status, {retweeted: true});
-            await document.store.updateTweet(this.quoted_status);
+            await document.store.updateTweetAsync(this.quoted_status);
             // reset UI
             this.$('#submit').disabled = false;
             this.clear();

@@ -116,7 +116,7 @@
         });
         Object.assign(retweeted_status, {current_user_retweet: undefined});
         Object.assign(this.tweet, {retweeted: false});
-        await document.store.updateTweet(this.tweet);
+        await document.store.updateTweetAsync(this.tweet);
       }
 
       async favorite() {
@@ -136,7 +136,7 @@
           });
           console.log('[tweet]', api, reply);
           Object.assign(this.tweet, reply);
-          await document.store.updateTweet(this.tweet);
+          await document.store.updateTweetAsync(this.tweet);
         } catch (err) {
           console.error('[tweet] failed:', api, err);
           Notify.error(`[tweet] failed in api ${api}: ${err}`);

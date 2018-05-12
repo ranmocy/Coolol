@@ -231,7 +231,7 @@
           });
 
         // unify tweet into unique objects
-        new_data = await document.store.updateTweets(new_data);
+        new_data = await document.store.updateTweetsAsync(new_data);
 
         return new_data
         // apply filters from config

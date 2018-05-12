@@ -13,6 +13,12 @@
     const KEY_LAST_ACTIVE_ACCOUNT_NAME = "last_active_account_name";
     const KEY_APP_VERSION = "app_version";
 
+    function storeLog() {
+      if (document.debug) {
+        console.debug.apply(console, arguments);
+      }
+    }
+
     function getRequestPromise(request) {
       return new Promise((resolve, reject) => {
         request.onsuccess = (event) => {
@@ -293,7 +299,7 @@
        * @param {string} id_str
        * @return {Tweet}
        */
-      async getTweet(id_str) {
+      async getTweetAsync(id_str) {
         let cache = this.getPerAccountCache(T_TWEET);
         if (!(id_str in cache)) {
           let db = await getPerAccountDB();
@@ -310,15 +316,15 @@
        * @param {Tweet} tweet
        * @return {Tweet}
        */
-      async updateTweet(tweet) {
-        return await this.updateTweets([tweet])[0];
+      async updateTweetAsync(tweet) {
+        return await this.updateTweetsAsync([tweet])[0];
       }
 
       /**
        * @param {Tweet[]} tweets
        * @return {Tweet[]}
        */
-      async updateTweets(tweets) {
+      async updateTweetsAsync(tweets) {
         let cache = this.getPerAccountCache(T_TWEET);
         let db = await getPerAccountDB();
         let transaction = db.transaction([T_TWEET], 'readwrite');
@@ -360,7 +366,7 @@
         let id_str = tweet.id_str;
         listener_map[id_str] = listener_map[id_str] || new Set();
         listener_map[id_str].add(element);
-        Store.log('[store] registerTweet:', element, id_str);
+        storeLog('[store] registerTweet:', element, id_str);
       }
 
       /**
@@ -375,7 +381,7 @@
         let listener_map = this.getPerAccountListenerMap(T_TWEET);
         let id_str = tweet.id_str;
         listener_map[id_str].delete(element);
-        Store.log('[store] unregisterTweet:', element, id_str);
+        storeLog('[store] unregisterTweet:', element, id_str);
       }
 
       // ==================== CONFIG ====================
@@ -497,16 +503,16 @@
        * @return {void}
        */
       updateAccount(account) {
-        Store.log('[store] updateAccount:', account.screen_name);
+        storeLog('[store] updateAccount:', account.screen_name);
         let listener_map = this.getListenerMap(T_ACCOUNT);
         document.cache.getTwitterClient(account).fetch('users_show', {
           user_id: account.user_id,
           screen_name: account.screen_name,
         }).then(async (reply) => {
-          Store.log('[store] get user info', reply);
+          storeLog('[store] get user info', reply);
           let new_account = Object.assign({}, account, reply); // keep old info as much as possible
           if (account.screen_name !== new_account.screen_name) {
-            Store.log('[store] screen_name is changed!');
+            storeLog('[store] screen_name is changed!');
             await this.deleteAccountAsync(account);
           }
           await this.saveAccountAsync(new_account); // save new_account under new_account.screen_name
@@ -521,7 +527,7 @@
        */
       updateAllAccounts() {
         this.getAllAccountsAsync().then(accounts => {
-          Store.log('[store] updateAllAccounts:', accounts);
+          storeLog('[store] updateAllAccounts:', accounts);
           accounts.forEach(account => {
             this.updateAccount(account);
           });
@@ -674,147 +680,14 @@
         }
       }
 
-      static log() {
-        if (document.debug) {
-          console.debug.apply(console, arguments);
-        }
-      }
-
-      static defaultValueFactoryFactory(default_value) {
-        return function () {
-          return default_value;
-        };
-      }
-
-      // Add methods for application level field in format of `{value: <factory()>}`
-      static addAccessToAppField(field_name, factory) {
-        let capitalized = $.camelize(field_name);
-        let field = field_name;
-
-        let getMethodName = `get${capitalized}`;
-        let saveMethodName = `save${capitalized}`;
-        let deleteMethodName = `delete${capitalized}`;
-        let registerMethodName = `register${capitalized}`;
-        let unregisterMethodName = `unregister${capitalized}`;
-
-
-        // read
-        this.prototype[getMethodName] = function () {
-          let value = this.getJSON(field, factory);
-          Store.log(`[store] ${getMethodName}:`, value);
-          return value;
-        };
-
-        // write
-        this.prototype[saveMethodName] = function (new_value) {
-          Store.log(`[store] ${saveMethodName}:`, new_value);
-          this.saveJSON(field, new_value);
-          return new_value;
-        };
-
-        // delete
-        this.prototype[deleteMethodName] = function () {
-          let old_value = this[getMethodName]();
-          Store.log(`[store] ${deleteMethodName}:`, old_value);
-          this.saveJSON(field, factory());
-          return old_value;
-        };
-
-        // register
-        this.prototype[registerMethodName] = function (element) {
-          return this.register(field, element);
-        };
-        this.prototype[unregisterMethodName] = function (element) {
-          return this.unregister(field, element);
-        };
-
-        return field_name;
-      }
-
-      // Add methods for account level field in format of `{<screen_name>: <factory()>}`
       constructor() {
         this.caches = {};
         this.listeners = {};
-
-        this.storage = {};
-        this.callbacks = {};
-      }
-
-      extend(fields_object) {
-        return Object.assign(this, fields_object);
-      }
-
-      /*
-      Registers ELEMENT to the FIELD.
-      When data in FIELD changes, element.attachedCallback() will be called.
-      */
-      register(field, element) {
-        if (!(element instanceof XElement)) {
-          throw 'Register data callback has to be an custom element';
-        }
-        this.callbacks[field] = this.callbacks[field] || {};
-        $.registerObjectCallback(this.callbacks[field], element);
-        Store.log('[store] register:', field, element);
-      }
-
-      /*
-      Unregister ELEMENT from FIELD.
-      */
-      unregister(field, element) {
-        if (!(element instanceof XElement)) {
-          throw 'Unregister data callback has to be an custom element';
-        }
-        this.callbacks[field] = this.callbacks[field] || {};
-        $.unregisterObjectCallback(this.callbacks[field], element);
-        Store.log('[store] unregister:', field, element);
-      }
-
-      // Don't call saveJSON! Calls may infinitely loop.
-      // We don't have to save the default value to local storage,
-      // since we can create the same/similar one every time.
-      getJSON(field, default_value_factory) {
-        if (field in this.storage) {
-          return this.storage[field];
-        }
-        var data = this.getLocalStorageItem(field);
-        if (!$.isDefined(data)) {
-          data = default_value_factory();
-        }
-        this.storage[field] = data;
-        this.callbacks[field] = this.callbacks[field] || {value: data};
-        return data;
-      }
-
-      saveJSON(field, value) {
-        let old_value = this.getJSON(field, Store.defaultValueFactoryFactory(value));
-        this.storage[field] = value;
-        this.callbacks[field] = this.callbacks[field] || {};
-        this.saveLocalStorageItem(field, value);
-        Store.log('[store] saveJSON:', field, value, old_value, this.callbacks);
-        $.updateObject(this.callbacks[field], {value: value});
-        return value;
-      }
-
-      getLocalStorageItem(field) {
-        try {
-          return JSON.parse(localStorage.getItem(field));
-        } catch (e) {
-          console.error('[storage] getLocalStorageItem: broken data, drop it.', field);
-          localStorage.removeItem(field);
-          return undefined;
-        }
-      }
-
-      saveLocalStorageItem(field, value) {
-        return localStorage.setItem(field, JSON.stringify(value));
       }
     }
 
-
-    let store = new Store();
-
     // Exported
     window.Store = Store;
-    document.store = store;
+    document.store = new Store();
   })();
 </script>

@@ -4,17 +4,9 @@
   (function () {
     "use strict";
 
-    class Cache extends Store {
+    class Cache {
       constructor() {
-        super();
         this.twitter_clients = {};
-      }
-
-      getLocalStorageItem() {
-        return null;
-      }
-
-      saveLocalStorageItem() {
       }
 
       getTwitterClient(account) {
@@ -34,18 +26,7 @@
       }
     }
 
-    const cache = new Cache();
-
-    /*
-    Tweet = {
-      <screen_name>: {
-        <tweet_id>: <Tweet>
-      }
-    }
-    */
-    Cache.addAccessToAccountField('tweets', Cache.defaultValueFactoryFactory({}));
-
     // Exported
-    document.cache = cache;
+    document.cache = new Cache();
   })();
 </script>

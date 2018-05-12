@@ -23,11 +23,12 @@
   (function() {
     "use strict";
 
-    var $$$tweet_conversation = document.currentScript.ownerDocument.querySelector('template#tweet-conversation');
+    const $$$tweet_conversation = document.currentScript.ownerDocument.querySelector('template#tweet-conversation');
 
     class TweetConversation extends XElement {
-      createdCallback() {
-        this.createShadowRoot().appendChild(document.importNode($$$tweet_conversation.content, true));
+      constructor() {
+        super();
+        this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$tweet_conversation.content, true));
 
         this.oldest_conversation_tweet = null;
         this.$('.fetch-older-conversation i').handle('click', this.getMoreOlderConversations.bind(this, 5));
@@ -88,6 +89,6 @@
       }
     }
 
-    document.registerElement("x-tweet-conversation", TweetConversation);
+    window.customElements.define("x-tweet-conversation", TweetConversation);
   })();
 </script>

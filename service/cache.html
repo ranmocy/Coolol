@@ -5,38 +5,36 @@
     "use strict";
 
     class Cache extends Store {
+      constructor() {
+        super();
+        this.twitter_clients = {};
+      }
+
       getLocalStorageItem() {
         return null;
       }
 
       saveLocalStorageItem() {
       }
-    }
 
-    const cache = new Cache();
-
-    /*
-    Client = {
-      <screen_name>: [Twitter]
-    }
-    */
-    Cache.addAccessToAccountField('client', (account) => {
-      return new Twitter(account.token, account.token_secret);
-    });
-    cache.extend({
-      getTwitterClient: function (account) {
+      getTwitterClient(account) {
         if (!account || !account.token || !account.token_secret) {
           console.error('[cache] getTwitterClient:', account);
           Notify.error(`[cache] getTwitterClient: ${account.screen_name}`);
           throw "[cache] getTwitterClient: account/token/token_secret is null!";
         }
-        return this.getClient(account);
-      },
+        if (!(account.screen_name in this.twitter_clients)) {
+          this.twitter_clients[account.screen_name] = new Twitter(account.token, account.token_secret);
+        }
+        return this.twitter_clients[account.screen_name];
+      }
 
-      saveTwitterClient: function (account, client) {
-        this.saveClient(account, client);
-      },
-    });
+      saveTwitterClient(account, client) {
+        this.twitter_clients[account.screen_name] = client;
+      }
+    }
+
+    const cache = new Cache();
 
     /*
     Tweet = {

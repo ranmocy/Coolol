@@ -209,7 +209,7 @@
           return [];
         }
 
-        return new_data
+        new_data = new_data
           // flatten [[tweetsForSource1], [tweetsForSource2], ...]
           .reduce((all, current) => {
             return all.concat(current);
@@ -222,11 +222,12 @@
               }
             }
             return true; // keep this
-          })
-          // unify tweet into unique objects
-          .map((tweet) => {
-            return document.cache.getCurrentAccountTweet(tweet);
-          })
+          });
+
+        // unify tweet into unique objects
+        new_data = await document.store.updateTweets(new_data);
+
+        return new_data
           // apply filters from config
           .filter((tweet) => {
             if ($.isDefined(this.config.filters)) {

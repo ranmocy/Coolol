@@ -103,6 +103,18 @@
               Notify.error(`[session] verify account failed: ${reply}`);
               return;
             }
+
+            // clear pin code
+            this.$('#pin-code').value = "";
+
+            /**
+             * @typedef {User} Account
+             * @property {int} user_id
+             * @property {string} screen_name
+             * @property {string} name
+             * @property {string} token
+             * @property {string} token_secret
+             */
             let account = {
               user_id: reply.user_id,
               screen_name: reply.screen_name,

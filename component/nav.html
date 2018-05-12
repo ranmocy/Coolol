@@ -172,9 +172,11 @@
       /*private*/
       updateAccountList() {
         $.removeAllChildren(this.$('#account-list'));
-        $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
-          console.info('[nav] list account item', screen_name);
-          this.$('#account-list').appendChild(document.createElement('x-nav-accounts-item').setAccount(account));
+        document.store.getAllAccountsAsync().then(accounts => {
+          accounts.forEach(account => {
+            console.info('[nav] list account item', account.screen_name);
+            this.$('#account-list').appendChild(document.createElement('x-nav-accounts-item').setAccount(account));
+          });
         });
       }
     }

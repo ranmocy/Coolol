@@ -2,9 +2,11 @@
   (function () {
     "use strict";
 
+    /** @typedef {"tweet"|"config"|"account"} TableName */
+    const SINGLETON_KEY = '0';
     const T_TWEET = 'tweet';
     const T_CONFIG = 'config';
-    const KEY_CONFIG = 0;
+    const T_ACCOUNT = 'account';
 
     function getRequestPromise(request) {
       return new Promise((resolve, reject) => {
@@ -35,6 +37,7 @@
         let db = event.target.result;
         switch (event.oldVersion) {
           case 0:
+            db.createObjectStore(T_ACCOUNT, {keyPath: 'screen_name'});
           // fall through
         }
       };
@@ -42,10 +45,10 @@
     }
 
     /**
-     * @param {User} [account=document.account]
+     * @param {Account} [account=document.account]
      * @returns {IDBDatabase}
      */
-    async function getAccountDB(account) {
+    async function getPerAccountDB(account) {
       if (!$.isDefined(account)) {
         account = document.account;
       }
@@ -60,7 +63,7 @@
             db.createObjectStore(T_TWEET, {keyPath: 'id_str'});
           // fall through
           case 1:
-            db.createObjectStore(T_CONFIG)
+            db.createObjectStore(T_CONFIG);
           // fall through
         }
       };
@@ -194,7 +197,10 @@
       return `${name} needs to be ${type}, instead it is ${JSON.stringify(config)}`;
     }
 
-    /* Returns array of error messages. */
+    /**
+     * Returns array of error messages.
+     * @return {string[]}
+     */
     function verifyConfigWithSpec(spec, config) {
       let error_messages = [];
       if (!$.isDefined(spec)) {
@@ -262,14 +268,16 @@
 
     class Store {
 
+      // ==================== TWEET ====================
+
       /**
        * @param {string} id_str
        * @return {Tweet}
        */
       async getTweet(id_str) {
-        let cache = this.getAccountCache(T_TWEET);
+        let cache = this.getPerAccountCache(T_TWEET);
         if (!(id_str in cache)) {
-          let db = await getAccountDB();
+          let db = await getPerAccountDB();
           let request = db
             .transaction([T_TWEET], 'readonly')
             .objectStore(T_TWEET)
@@ -292,13 +300,12 @@
        * @return {Tweet[]}
        */
       async updateTweets(tweets) {
-        let cache = this.getAccountCache(T_TWEET);
-        let listeners = this.getAccountListeners(T_TWEET);
-
-        let db = await getAccountDB();
+        let cache = this.getPerAccountCache(T_TWEET);
+        let db = await getPerAccountDB();
         let transaction = db.transaction([T_TWEET], 'readwrite');
         let object_store = transaction.objectStore(T_TWEET);
 
+        let listener_map = this.getPerAccountListenerMap(T_TWEET);
         tweets = tweets.map((tweet) => {
           let id_str = tweet.id_str;
 
@@ -311,13 +318,7 @@
           object_store.put(tweet);
 
           // trigger listeners' callback
-          if (id_str in listeners) {
-            let old = new Set(listeners[id_str]);
-            listeners[id_str] = new Set();
-            for (let element of old) {
-              element.connectedCallback();
-            }
-          }
+          this.triggerListeners(listener_map, id_str);
 
           return tweet;
         });
@@ -329,69 +330,78 @@
       /**
        * Registers ELEMENT to the TWEET.
        * When TWEET changes, element.attachedCallback() will be called.
+       * @param {XElement} element
+       * @param {Tweet} tweet
        */
       registerTweet(element, tweet) {
         if (!(element instanceof XElement)) {
           throw 'Register tweet callback has to be an custom element';
         }
-        let listeners = this.getAccountListeners(T_TWEET);
+        let listener_map = this.getPerAccountListenerMap(T_TWEET);
         let id_str = tweet.id_str;
-        listeners[id_str] = listeners[id_str] || new Set();
-        listeners[id_str].add(element);
+        listener_map[id_str] = listener_map[id_str] || new Set();
+        listener_map[id_str].add(element);
         Store.log('[store] registerTweet:', element, id_str);
       }
 
       /**
        * Unregister ELEMENT from TWEET.
+       * @param {XElement} element
+       * @param {Tweet} tweet
        */
       unregisterTweet(element, tweet) {
         if (!(element instanceof XElement)) {
           throw 'Unregister tweet callback has to be an custom element';
         }
-        let listeners = this.getAccountListeners(T_TWEET);
+        let listener_map = this.getPerAccountListenerMap(T_TWEET);
         let id_str = tweet.id_str;
-        listeners[id_str].delete(element);
+        listener_map[id_str].delete(element);
         Store.log('[store] unregisterTweet:', element, id_str);
       }
 
+      // ==================== CONFIG ====================
+
+      // noinspection JSMethodCanBeStatic
       /**
-       * @param {User} account
+       * @param {Account} account
        * @return {Config}
        */
       async getConfigAsync(account) {
-        let db = await getAccountDB(account);
+        let db = await getPerAccountDB(account);
         let request = db
           .transaction([T_CONFIG], 'readonly')
           .objectStore(T_CONFIG)
-          .get(KEY_CONFIG);
+          .get(SINGLETON_KEY);
         return await getRequestPromise(request);
       }
 
+      // noinspection JSMethodCanBeStatic
       /**
-       * @param {User} account
+       * @param {Account} account
        * @param {Config} config
        * @return {Config}
        */
       async saveConfigAsync(account, config) {
-        let db = await getAccountDB(account);
+        let db = await getPerAccountDB(account);
         let request = db
           .transaction([T_CONFIG], 'readwrite')
           .objectStore(T_CONFIG)
-          .put(config, KEY_CONFIG);
+          .put(config, SINGLETON_KEY);
         await getRequestPromise(request);
         return config;
       }
 
+      // noinspection JSMethodCanBeStatic
       /**
-       * @param {User} config
-       * @return {boolean}
+       * @param {Account} config
+       * @return {string[]}
        */
       verifyConfig(config) {
         return verifyConfigWithSpec(CONFIG_SPEC, config);
       }
 
       /**
-       * @param {User} account
+       * @param {Account} account
        * @return {Config}
        */
       async resetConfigAsync(account) {
@@ -399,12 +409,132 @@
         return DEFAULT_CONFIG;
       }
 
+      // noinspection JSMethodCanBeStatic
+      /**
+       * @param {Account} account
+       * @return {void}
+       */
+      async deleteConfigAsync(account) {
+        let db = await getPerAccountDB(account);
+        let request = db
+          .transaction([T_CONFIG], 'readwrite')
+          .objectStore(T_CONFIG)
+          .delete(SINGLETON_KEY);
+        await getRequestPromise(request);
+      }
+
+      // ==================== ACCOUNT ====================
+
+      // noinspection JSMethodCanBeStatic
+      /**
+       * @param {Account} account
+       */
+      async saveAccountAsync(account) {
+        let db = await getGlobalDB();
+        let request = db
+          .transaction([T_ACCOUNT], 'readwrite')
+          .objectStore(T_ACCOUNT)
+          .put(account);
+        await getRequestPromise(request);
+        return account;
+      }
+
+      // noinspection JSMethodCanBeStatic
+      /**
+       * @return {Account[]}
+       */
+      async getAllAccountsAsync() {
+        let db = await getGlobalDB();
+        let request = db
+          .transaction([T_ACCOUNT], 'readwrite')
+          .objectStore(T_ACCOUNT)
+          .getAll();
+        return await getRequestPromise(request);
+      }
+
+      // noinspection JSMethodCanBeStatic
+      /**
+       * @param {Account} account
+       */
+      async deleteAccountAsync(account) {
+        let db = await getGlobalDB();
+        let request = db
+          .transaction([T_ACCOUNT], 'readwrite')
+          .objectStore(T_ACCOUNT)
+          .delete(account.screen_name);
+        await getRequestPromise(request);
+        // trigger callbacks
+        let listener_map = this.getListenerMap(T_ACCOUNT);
+        this.triggerListeners(listener_map, SINGLETON_KEY);
+      };
+
+      /**
+       * @param {Account} account
+       * @return {void}
+       */
+      updateAccount(account) {
+        Store.log('[store] updateAccount:', account.screen_name);
+        let listener_map = this.getListenerMap(T_ACCOUNT);
+        document.cache.getTwitterClient(account).fetch('users_show', {
+          user_id: account.user_id,
+          screen_name: account.screen_name,
+        }).then(async (reply) => {
+          Store.log('[store] get user info', reply);
+          let new_account = Object.assign({}, account, reply); // keep old info as much as possible
+          if (account.screen_name !== new_account.screen_name) {
+            Store.log('[store] screen_name is changed!');
+            await this.deleteAccountAsync(account);
+          }
+          await this.saveAccountAsync(new_account); // save new_account under new_account.screen_name
+
+          // trigger callbacks
+          this.triggerListeners(listener_map, SINGLETON_KEY);
+        });
+      }
+
+      /**
+       * @return {void}
+       */
+      updateAllAccounts() {
+        this.getAllAccountsAsync().then(accounts => {
+          Store.log('[store] updateAllAccounts:', accounts);
+          accounts.forEach(account => {
+            this.updateAccount(account);
+          });
+        });
+      }
+
+      /**
+       * @param {XElement} element
+       */
+      registerAccounts(element) {
+        this.getAccountsListeners().add(element);
+      }
+
+      /**
+       * @param {XElement} element
+       */
+      unregisterAccounts(element) {
+        this.getAccountsListeners().delete(element);
+      }
+
+      /** @return {Set.<XElement>} */
+      getAccountsListeners() {
+        let listener_map = this.getListenerMap(T_ACCOUNT);
+        if (!(SINGLETON_KEY in listener_map)) {
+          listener_map[SINGLETON_KEY] = new Set();
+        }
+        return listener_map[SINGLETON_KEY];
+      }
+
+      // ==================== PRIVATE ====================
+
       /**
        * @private
-       * @param {string} prefix
+       * @param {TableName} prefix
        * @return {Object.<string, Object>} cache
        */
-      getAccountCache(prefix) {
+      getPerAccountCache(prefix) {
         if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
           throw 'No account is logged in!';
         }
@@ -417,18 +547,42 @@
 
       /**
        * @private
-       * @param {string} prefix
-       * @return {Set.<XElement>} listeners
+       * @param {TableName} prefix
+       * @return {Map.<string, Set.<XElement>>} listeners
        */
-      getAccountListeners(prefix) {
+      getPerAccountListenerMap(prefix) {
         if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
           throw 'No account is logged in!';
         }
         let name = `${prefix}_${document.account.screen_name}`;
+        return this.getListenerMap(name);
+      }
+
+      /**
+       * @private
+       * @param {string} name
+       * @return {Map.<string, Set.<XElement>>} listeners
+       */
+      getListenerMap(name) {
         if (!(name in this.listeners)) {
           this.listeners[name] = {};
         }
         return this.listeners[name];
+      }
+
+      /**
+       * @private
+       * @param {Map.<string, Set.<XElement>>} listener_map
+       * @param {string} key
+       */
+      triggerListeners(listener_map, key) {
+        if (SINGLETON_KEY in listener_map) {
+          let old = new Set(listener_map[SINGLETON_KEY]);
+          listener_map[SINGLETON_KEY] = new Set();
+          for (let element of old) {
+            element.connectedCallback();
+          }
+        }
       }
 
       static log() {
@@ -489,80 +643,6 @@
       }
 
       // Add methods for account level field in format of `{<screen_name>: <factory()>}`
-      static addAccessToAccountField(field_name, factory) {
-        let capitalized = $.camelize(field_name);
-        let field = field_name + 's';
-        let account_default_factory = this.defaultValueFactoryFactory({});
-
-        let getAllMethodName = `getAll${capitalized}s`;
-        let getMethodName = `get${capitalized}`;
-        let saveAllMethodName = `saveAll${capitalized}s`;
-        let saveMethodName = `save${capitalized}`;
-        let deleteAllMethodName = `deleteAll${capitalized}s`;
-        let deleteMethodName = `delete${capitalized}`;
-        let registerMethodName = `register${capitalized}s`;
-        let unregisterMethodName = `unregister${capitalized}s`;
-
-        // read
-        this.prototype[getAllMethodName] = function () {
-          // the default value of whole field is always {}, because they are all saved in account space
-          let values = this.getJSON(field, account_default_factory);
-          Store.log(`[store] ${getAllMethodName}:`, values);
-          return values;
-        };
-        this.prototype[getMethodName] = function (account) {
-          let value = this[getAllMethodName]()[account.screen_name];
-          Store.log(`[store] ${getMethodName}:`, account.screen_name, value);
-          if ($.isDefined(value)) {
-            return value;
-          } else if ($.isDefined(factory)) {
-            return this[saveMethodName](account, factory(account));
-          } else {
-            return null;
-          }
-        };
-
-        // write
-        this.prototype[saveAllMethodName] = function (new_value) {
-          Store.log(`[store] ${saveAllMethodName}:`, new_value);
-          this.saveJSON(field, new_value);
-          return new_value;
-        };
-        this.prototype[saveMethodName] = function (account, new_value) {
-          let values = this[getAllMethodName]();
-          Store.log(`[store] ${saveMethodName}:`, account.screen_name, new_value);
-          values[account.screen_name] = new_value;
-          this.saveJSON(field, values);
-          return new_value;
-        };
-
-        // delete
-        this.prototype[deleteAllMethodName] = function () {
-          Store.log(`[store] ${deleteAllMethodName}:`);
-          this.saveJSON(field, account_default_factory());
-        };
-        this.prototype[deleteMethodName] = function (account) {
-          let values = this[getAllMethodName]();
-          let old_value = values[account.screen_name];
-          Store.log(`[store] ${deleteMethodName}:`, account.screen_name, old_value);
-          if ($.isDefined(old_value)) {
-            delete values[account.screen_name];
-          }
-          this.saveJSON(field, values);
-          return old_value;
-        };
-
-        // register
-        this.prototype[registerMethodName] = function (element) {
-          return this.register(field, element);
-        };
-        this.prototype[unregisterMethodName] = function (element) {
-          return this.unregister(field, element);
-        };
-
-        return field_name;
-      }
-
       constructor() {
         this.caches = {};
         this.listeners = {};
@@ -643,43 +723,6 @@
 
 
     let store = new Store();
-
-    /*
-    Accounts = {
-      <screen_name>: {
-        'screen_name': '@NAME',
-        'token': 'TOKEN',
-        'token_secret': 'TOKEN_SECRET'
-      }
-    }
-    */
-    Store.addAccessToAccountField('account', Store.defaultValueFactoryFactory({}));
-    store.extend({
-      updateAccount: function (account) {
-        Store.log('[store] updateAccount:', account.screen_name);
-        document.cache.getTwitterClient(account).fetch('users_show', {
-          user_id: account.user_id,
-          screen_name: account.screen_name,
-        }).then((reply) => {
-          Store.log('[store] get user info', reply);
-          let new_account = Object.assign({}, account, reply); // keep old info as much as possible
-          if (account.screen_name !== new_account.screen_name) {
-            Store.log('[store] screen_name is changed!');
-            this.deleteAccount(account);
-          }
-          this.saveAccount(new_account, new_account); // save new_account under new_account.screen_name
-        });
-      },
-
-      updateAllAccounts: function () {
-        let accounts = this.getAllAccounts();
-        Store.log('[store] updateAllAccounts:', accounts);
-        for (let screen_name in accounts) {
-          this.updateAccount(accounts[screen_name]);
-        }
-      },
-    });
-
 
     /*
     LastActiveAccount = <LAST_ACCOUNT>

@@ -9,6 +9,9 @@
         this.twitter_clients = {};
       }
 
+      /**
+       * @param {Account} account
+       */
       getTwitterClient(account) {
         if (!account || !account.token || !account.token_secret) {
           console.error('[cache] getTwitterClient:', account);

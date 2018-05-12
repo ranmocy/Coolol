@@ -54,16 +54,16 @@
 
         // init view
         window.onpopstate = (event) => {
-          this.loadLastView(event.state);
+          this.loadLastViewAsync(event.state).then(/*ignore*/)
         };
-        this.loadLastView(window.location);
+        this.loadLastViewAsync(window.location).then(/*ignore*/);
       }
 
       /**
        * First time loading
        * @param {Location} location
        */
-      loadLastView(location) {
+      async loadLastViewAsync(location) {
         console.info('[app] loadLastView', location);
         if (!location) {
           location = window.location;
@@ -75,7 +75,7 @@
         document.account = null;
 
         // get screen_names
-        let accounts = document.store.getAllAccounts();
+        let accounts = await document.store.getAllAccountsAsync();
         let screen_names = Object.keys(accounts);
         if (!$.isDefined(screen_names) || screen_names.length === 0) {
           console.info('[app] no specified account, go to sessions');

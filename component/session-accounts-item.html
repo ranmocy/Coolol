@@ -72,9 +72,9 @@
       setAccount(account) {
         this.$('#avatar').src = account.profile_image_url;
         this.$('#name').textContent = account.screen_name;
-        this.$('#delete').handle('click', () => {
-          document.store.deleteConfig(account);
-          document.store.deleteAccount(account);
+        this.$('#delete').handle('click', async () => {
+          await document.store.deleteConfigAsync(account);
+          await document.store.deleteAccountAsync(account);
         });
         this.handle('click', () => {
           this.trigger('switchView', 'board', account);

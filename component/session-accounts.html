@@ -36,10 +36,12 @@
       /*private*/
       refresh() {
         $.removeAllChildren(this.$('#accounts'));
-        $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
-          console.log('[SessionAccounts] refresh', screen_name);
-          let $node = document.createElement('x-session-accounts-item').setAccount(account);
-          this.$('#accounts').appendChild($node);
+        document.store.getAllAccountsAsync().then(accounts => {
+          accounts.forEach(account => {
+            console.log('[SessionAccounts] refresh', account.screen_name);
+            let $node = document.createElement('x-session-accounts-item').setAccount(account);
+            this.$('#accounts').appendChild($node);
+          });
         });
       }
     }

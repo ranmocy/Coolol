@@ -32,7 +32,7 @@
         this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$tweet_conversation.content, true));
 
         this.oldest_conversation_tweet = null;
-        this.$('.fetch-older-conversation i').handle('click', this.getMoreOlderConversations.bind(this, 5));
+        this.$('.fetch-older-conversation i').handle('click', this.getMoreOlderConversationsAsync.bind(this, 5));
       }
 
       setTweet(tweet) {
@@ -64,7 +64,7 @@
       }
 
       /*private*/
-      getMoreOlderConversations(n_more) {
+      async getMoreOlderConversationsAsync(n_more) {
         if (n_more <= 0) {
           return;
         }
@@ -76,20 +76,21 @@
           return;
         }
 
-        // TODO: check mem cache first
-        let client = document.cache.getTwitterClient(document.account);
-        client
-          .fetch("statuses_show_ID", {
+        let id_str = this.oldest_conversation_tweet.in_reply_to_status_id_str;
+        let tweet = document.store.getTweetAsync(id_str);
+        if (!$.isDefined(tweet)) {
+          tweet = await document.cache.getTwitterClient(document.account).fetch("statuses_show_ID", {
             id: this.oldest_conversation_tweet.in_reply_to_status_id_str
-          })
-          .then((tweet) => {
-            let $container = this.$('.conversation');
-            let $tweet = document.createElement('x-tweet').setTweet(tweet).setInsideConversation();
-            $container.insertBefore($tweet, $container.firstChild);
-
-            this.setOldestTweet(tweet);
-            this.getMoreOlderConversations(n_more - 1);
           });
+          // unify tweet object
+          tweet = await document.store.updateTweetAsync(tweet);
+        }
+        let $container = this.$('.conversation');
+        let $tweet = document.createElement('x-tweet').setTweet(tweet).setInsideConversation();
+        $container.insertBefore($tweet, $container.firstChild);
+
+        this.setOldestTweet(tweet);
+        await this.getMoreOlderConversationsAsync(n_more - 1);
       }
     }
 

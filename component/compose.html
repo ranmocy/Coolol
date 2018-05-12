@@ -135,8 +135,9 @@
         let client = document.cache.getTwitterClient(document.account);
         client
           .post("statuses_update", this.params)
-          .then((reply) => {
+          .then(async (reply) => {
             console.log('[compose] posted:', reply);
+            await document.store.updateTweetAsync(reply);
             this.$('#submit').disabled = false;
             this.clear();
             this.hide();

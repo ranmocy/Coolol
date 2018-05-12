@@ -46,17 +46,11 @@
         }
       },
 
-      forEachKeyValue: function (obj, callback) {
-        Object.keys(obj).forEach((key) => {
-          callback(key, obj[key]);
-        });
-        return obj;
-      },
-
-      mapKeyValue: function (obj, callback) {
-        return Object.keys(obj).map((key) => {
-          return callback(key, obj[key]);
-        });
+      arrToMap: function (arr, key_func) {
+        return arr.reduce((map, item) => {
+          map[key_func(item)] = item;
+          return map;
+        }, {});
       },
 
       /* String */

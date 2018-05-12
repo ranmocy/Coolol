@@ -76,11 +76,12 @@
 
         // get screen_names
         let accounts = await document.store.getAllAccountsAsync();
-        let screen_names = Object.keys(accounts);
-        if (!$.isDefined(screen_names) || screen_names.length === 0) {
+        if (!$.isDefined(accounts) || accounts.length === 0) {
           console.info('[app] no specified account, go to sessions');
           return this.switchSession();
         }
+
+        let account_map = $.arrToMap(accounts, (account) => account.screen_name);
 
         // get current screen_name
         let screen_name;
@@ -90,24 +91,24 @@
           screen_name = parts[0];
           console.info('[app] active account from url', screen_name);
 
-          if (screen_name in accounts) {
+          if (screen_name in account_map) {
             if (parts[1] === 'settings') {
-              return this.switchConfig(accounts[screen_name]);
+              return this.switchConfig(account_map[screen_name]);
             } else {
-              return this.switchBoard(accounts[screen_name]);
+              return this.switchBoard(account_map[screen_name]);
             }
           } else {
-            console.info('[app] last active account is not valid', screen_name, screen_names);
+            console.info('[app] last active account is not valid', screen_name, account_map);
           }
         }
 
         // try load from store
-        screen_name = document.store.getLastActiveAccountName();
+        screen_name = await document.store.getLastActiveAccountNameAsync();
         console.info('[app] active account from store', screen_name);
-        if (screen_name in accounts) {
-          this.switchBoard(accounts[screen_name]);
+        if (screen_name in account_map) {
+          this.switchBoard(account_map[screen_name]);
         } else {
-          console.info('[app] last active account is not valid', screen_name, screen_names);
+          console.info('[app] last active account is not valid', screen_name, account_map);
           // fallback, show sessions page
           return this.switchSession();
         }
@@ -168,29 +169,29 @@
       switchBoard(account) {
         console.info('[app] switchBoard', account && account.screen_name);
         document.account = account;
-        document.store.saveLastActiveAccountName(account.screen_name);
-
-        document.store.getConfigAsync(account).then(config => {
-          if (!$.isDefined(config) || Object.keys(config).length === 0) {
-            console.info('[app] switchBoard: config is empty, switch to config view.');
-            Notify.info('You need to setup config first.');
-            this.switchConfig(document.account);
-          } else if (document.store.verifyConfig(config).length > 0) {
-            console.info('[app] switchBoard: Config invalid, switch to config view.', document.store.verifyConfig(config));
-            Notify.warn('Config is invalid, please check it first.');
-            this.switchConfig(document.account);
-          } else {
-            this.switchLoading();
-            document.cache.getTwitterClient(account)
-              .fetch('account_verifyCredentials')
-              .then(() => {
-                this.updateView('x-board', true /* pass_elem_to_nav */);
-              })
-              .catch(() => {
-                Notify.error('Your credential may outdated!');
-                this.switchSession();
-              });
-          }
+        document.store.saveLastActiveAccountNameAsync(account.screen_name).then(() => {
+          document.store.getConfigAsync(account).then(config => {
+            if (!$.isDefined(config) || Object.keys(config).length === 0) {
+              console.info('[app] switchBoard: config is empty, switch to config view.');
+              Notify.info('You need to setup config first.');
+              this.switchConfig(document.account);
+            } else if (document.store.verifyConfig(config).length > 0) {
+              console.info('[app] switchBoard: Config invalid, switch to config view.', document.store.verifyConfig(config));
+              Notify.warn('Config is invalid, please check it first.');
+              this.switchConfig(document.account);
+            } else {
+              this.switchLoading();
+              document.cache.getTwitterClient(account)
+                .fetch('account_verifyCredentials')
+                .then(() => {
+                  this.updateView('x-board', true /* pass_elem_to_nav */);
+                })
+                .catch(() => {
+                  Notify.error('Your credential may outdated!');
+                  this.switchSession();
+                });
+            }
+          });
         });
       }
 
@@ -198,9 +199,9 @@
       switchConfig(account) {
         console.info('[app] switchConfig', account && account.screen_name);
         document.account = account;
-        document.store.saveLastActiveAccountName(account.screen_name);
-
-        this.updateView('x-config');
+        document.store.saveLastActiveAccountNameAsync(account.screen_name).then(() => {
+          this.updateView('x-config');
+        });
       }
 
       /*private*/

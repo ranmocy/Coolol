@@ -2,11 +2,13 @@
   (function () {
     "use strict";
 
-    /** @typedef {"tweet"|"config"|"account"} TableName */
+    /** @typedef {"tweet"|"config"|"account"|"app"} TableName */
     const SINGLETON_KEY = '0';
     const T_TWEET = 'tweet';
     const T_CONFIG = 'config';
     const T_ACCOUNT = 'account';
+    const T_APP = 'app';
+    const KEY_LAST_ACTIVE_ACCOUNT_NAME = "last_active_account_name";
 
     function getRequestPromise(request) {
       return new Promise((resolve, reject) => {
@@ -32,12 +34,15 @@
 
     /** @returns {IDBDatabase} */
     async function getGlobalDB() {
-      let request = window.indexedDB.open(`Coolol`, 1);
+      let request = window.indexedDB.open(`Coolol`, 2);
       request.onupgradeneeded = (event) => {
         let db = event.target.result;
         switch (event.oldVersion) {
           case 0:
             db.createObjectStore(T_ACCOUNT, {keyPath: 'screen_name'});
+          // fall through
+          case 1:
+            db.createObjectStore(T_APP);
           // fall through
         }
       };
@@ -446,7 +451,7 @@
       async getAllAccountsAsync() {
         let db = await getGlobalDB();
         let request = db
-          .transaction([T_ACCOUNT], 'readwrite')
+          .transaction([T_ACCOUNT], 'readonly')
           .objectStore(T_ACCOUNT)
           .getAll();
         return await getRequestPromise(request);
@@ -527,6 +532,30 @@
         return listener_map[SINGLETON_KEY];
       }
 
+      // ==================== LastActiveAccountName ====================
+
+      // noinspection JSMethodCanBeStatic
+      /** @return {string} */
+      async getLastActiveAccountNameAsync() {
+        let db = await getGlobalDB();
+        let request = db
+          .transaction([T_APP], 'readonly')
+          .objectStore(T_APP)
+          .get(KEY_LAST_ACTIVE_ACCOUNT_NAME);
+        return await getRequestPromise(request);
+      }
+
+      // noinspection JSMethodCanBeStatic
+      /** @param {string} screen_name */
+      async saveLastActiveAccountNameAsync(screen_name) {
+        let db = await getGlobalDB();
+        let request = db
+          .transaction([T_APP], 'readwrite')
+          .objectStore(T_APP)
+          .put(screen_name, KEY_LAST_ACTIVE_ACCOUNT_NAME);
+        await getRequestPromise(request);
+      }
+
       // ==================== PRIVATE ====================
 
       /**
@@ -570,6 +599,7 @@
         return this.listeners[name];
       }
 
+      // noinspection JSMethodCanBeStatic
       /**
        * @private
        * @param {Map.<string, Set.<XElement>>} listener_map
@@ -723,12 +753,6 @@
 
 
     let store = new Store();
-
-    /*
-    LastActiveAccount = <LAST_ACCOUNT>
-    */
-    Store.addAccessToAppField('last_active_account_name', Store.defaultValueFactoryFactory(''));
-
 
     const CURRENT_VERSION = '0.2.0';
     /*

@@ -1,21 +1,26 @@
 <template id="tweet-control">
   <style type="text/css">
     @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
+
     :host {
       position: absolute;
       right: 1em;
     }
+
     i {
       display: inline-block;
       cursor: pointer;
     }
+
     i[data-status='disabled'] {
-      cursor: normal;
+      cursor: default;
       color: #eee;
     }
+
     i[data-status='retweeted'] {
       color: #5c913b;
     }
+
     i[data-status='favorited'] {
       color: #dd2e44;
     }
@@ -27,7 +32,7 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     const $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-control').content;
@@ -59,10 +64,10 @@
 
         this.$('#retweet-button').dataset.status =
           (this.tweet.user.screen_name === document.account.screen_name) ?
-          'disabled' :
-          (this.tweet.retweeted) ?
-          'retweeted' :
-          '';
+            'disabled' :
+            (this.tweet.retweeted) ?
+              'retweeted' :
+              '';
 
         this.$('#fav-button').dataset.status =
           (this.tweet.favorited) ? 'favorited' : '';

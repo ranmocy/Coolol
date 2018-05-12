@@ -14,11 +14,13 @@
 <template id='notify-item'>
   <style type="text/css">
     @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
+
     :host {
       display: block;
       text-align: center;
       margin: 3px 0;
     }
+
     #message {
       position: relative;
       display: inline-block;
@@ -28,19 +30,24 @@
       border-radius: 5px;
       color: white;
     }
+
     #message.info {
       color: #111;
       background-color: #ddd;
     }
+
     #message.success {
       background-color: #5cb85c;
     }
+
     #message.warn {
       background-color: #f0ad4e;
     }
+
     #message.error {
       background-color: #d9534f;
     }
+
     #close {
       position: absolute;
       top: 0;
@@ -48,6 +55,7 @@
       display: none;
       cursor: pointer;
     }
+
     #message:hover #close {
       display: inline-block;
     }
@@ -59,10 +67,11 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     'use strict';
 
     const $$$item = document.currentScript.ownerDocument.querySelector('template#notify-item');
+
     class NotifyItemElement extends XElement {
       constructor() {
         super();
@@ -72,7 +81,7 @@
       }
 
       setMessage(msg, level) {
-        if (! $.isDefined(level)) {
+        if (!$.isDefined(level)) {
           level = 'info';
         }
         this.$('#body').textContent = msg;
@@ -84,9 +93,11 @@
         this.parentElement.removeChild(this);
       }
     }
+
     window.customElements.define("x-notify-item", NotifyItemElement);
 
     const $$$notify = document.currentScript.ownerDocument.querySelector('template#notify');
+
     class NotifyElement extends XElement {
       constructor() {
         super();
@@ -95,7 +106,7 @@
       }
 
       notify(msg, level, time) {
-        if (! $.isDefined(time)) {
+        if (!$.isDefined(time)) {
           time = 5000; // 5s as default
         }
         let $item = document.createElement('x-notify-item').setMessage(msg, level);
@@ -127,6 +138,7 @@
         return this.notify(msg, 'error', 0);
       }
     }
+
     window.customElements.define("x-notify", NotifyElement);
   })();
 </script>

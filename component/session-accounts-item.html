@@ -1,46 +1,54 @@
 <template id="session-accounts-item">
   <style type="text/css">
     @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
+
     #account {
       position: relative;
       height: 58px;
       border-top: 1px solid #efefef;
       padding: 5px 0;
     }
+
     #account:hover {
       background-color: #efefef;
     }
+
     #avatar, #name, #delete {
       position: absolute;
       top: 5px;
       bottom: 5px;
     }
+
     #avatar {
       left: 0;
       height: 48px;
       width: 48px;
     }
+
     #name {
       left: 48px;
       line-height: 48px;
       padding: 0 1em;
       cursor: default;
     }
+
     #delete {
       right: 0;
       padding: 17px 5px;
       color: black;
     }
+
     #delete i.fa-trash, #delete:hover i.fa-trash-o {
       display: none;
     }
+
     #delete:hover i.fa-trash {
       display: inline-block;
       color: #c00;
     }
   </style>
   <li id="account">
-    <img id="avatar" src="" alt="avatar" />
+    <img id="avatar" src="" alt="avatar"/>
     <span id="name"></span>
     <a id="delete" href="#">
       <i class="fa fa-trash-o"></i>
@@ -50,15 +58,15 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
-    const $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts-item').content;
+    const $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts-item');
 
     class SessionAccountsItem extends XElement {
       constructor() {
         super();
-        this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$template, true));
+        this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$template.content, true));
       }
 
       setAccount(account) {

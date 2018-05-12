@@ -1,13 +1,14 @@
 <script type="text/javascript">
-(function() {
-  "use strict";
+  (function () {
+    "use strict";
 
-  class XElement extends HTMLElement {
-    $(query) {
-      return this.shadowRoot.querySelector(query);
+    class XElement extends HTMLElement {
+      /** @return {HTMLElement} */
+      $(query) {
+        return this.shadowRoot.querySelector(query);
+      }
     }
-  }
 
-  window.XElement = XElement;
-})();
+    window.XElement = XElement;
+  })();
 </script>

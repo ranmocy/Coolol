@@ -1,6 +1,7 @@
 <template id="tweet-conversation">
   <style media="screen">
     @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
+
     i {
       cursor: pointer;
     }
@@ -20,7 +21,7 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     const $$$tweet_conversation = document.currentScript.ownerDocument.querySelector('template#tweet-conversation');
@@ -36,14 +37,15 @@
 
       setTweet(tweet) {
         if (!$.isDefined(this.oldest_conversation_tweet)
-            || this.oldest_conversation_tweet.id_str !== tweet.id_str) {
+          || this.oldest_conversation_tweet.id_str !== tweet.id_str) {
           $.removeAllChildren(this.$('.conversation'));
         }
         this.setOldestTweet(tweet);
         return this;
       }
 
-      /*private*/ setOldestTweet(tweet) {
+      /*private*/
+      setOldestTweet(tweet) {
         this.oldest_conversation_tweet = tweet;
         if ($.isReplyTweet(tweet)) {
           this.setReplyTo(tweet.in_reply_to_screen_name);
@@ -55,12 +57,14 @@
         }
       }
 
-      /*private*/ setReplyTo(screen_name) {
+      /*private*/
+      setReplyTo(screen_name) {
         this.$('#replying-info .screen-name').textContent = screen_name;
         this.$('#replying-info').show();
       }
 
-      /*private*/ getMoreOlderConversations(n_more) {
+      /*private*/
+      getMoreOlderConversations(n_more) {
         if (n_more <= 0) {
           return;
         }

@@ -3,30 +3,38 @@
 <template id="session">
   <style media="screen">
     @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
+
     :host {
       display: block;
       width: 300px;
       margin: 50px auto;
     }
+
     #add, #loading, #login {
       background-color: #efefef;
       text-align: center;
     }
+
     #add:hover {
       background-color: #bbb;
     }
+
     #add, #loading {
       line-height: 48px;
     }
+
     #add {
       cursor: pointer;
     }
+
     #loading, #login {
       cursor: default;
     }
+
     #login {
       padding: 0.5em 0;
     }
+
     #verify:hover {
       color: #0c0;
     }
@@ -44,7 +52,7 @@
     </p>
     <p>Finally, paste your PIN code here:</p>
     <p>
-      <input type="text" id="pin-code" value="">
+      <input title="pin code" type="text" id="pin-code" value="">
       <a id="verify" class="fa fa-check">Finish</a>
     </p>
   </div>
@@ -53,7 +61,7 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     const $$$template = document.currentScript.ownerDocument.querySelector('template').content;

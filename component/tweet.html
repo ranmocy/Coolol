@@ -2,7 +2,7 @@
 <link rel="import" href="tweet-conversation.html">
 <link rel="import" href="tweet-media.html">
 
-<template id="tweet">
+<template id="tweet_template">
   <style>
     :host {
       display: block;
@@ -51,7 +51,7 @@
   </div>
 </template>
 
-<template id="retweeted">
+<template id="retweeted_template">
   <img class="avatar" src=""/>
   <span class="name"></span>
   <span class="handle">
@@ -60,7 +60,7 @@
   <span> retweeted</span>
 </template>
 
-<template id="creator">
+<template id="creator_template">
   <a href="#" target="_blank" style="color: green; text-decoration: none;">
     <img class="avatar" src=""/>
     <span class="name"></span>
@@ -75,9 +75,9 @@
   (function() {
     "use strict";
 
-    const $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet').content;
-    const $$$retweeted = document.currentScript.ownerDocument.querySelector('template#retweeted').content;
-    const $$$creator = document.currentScript.ownerDocument.querySelector('template#creator').content;
+    const $$$tweet = document.currentScript.ownerDocument.querySelector('template#tweet_template').content;
+    const $$$retweeted = document.currentScript.ownerDocument.querySelector('template#retweeted_template').content;
+    const $$$creator = document.currentScript.ownerDocument.querySelector('template#creator_template').content;
 
     class TweetElement extends XElement {
       constructor() {
@@ -131,7 +131,7 @@
       }
 
       /*private*/ setCreator(user) {
-        $$$creator.$('a').href = `https://twitter.com/${user.screen_name}`
+        $$$creator.$('a').href = `https://twitter.com/${user.screen_name}`;
         $$$creator.$('.avatar').src = user.profile_image_url_https;
         $$$creator.$('.name').textContent = user.name;
         $$$creator.$('.screen-name').textContent = user.screen_name;
@@ -151,7 +151,7 @@
             }, entities);
           }
         });
-        this.$('#text').innerHTML = twttr.txt.autoLink(text, {
+        this.$('#text').innerHTML = window.twttr.txt.autoLink(text, {
           urlEntities: entities
         });
         this.$('#text').querySelectorAll('a').forEach(function(node) {

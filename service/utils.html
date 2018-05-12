@@ -1,339 +1,266 @@
 <script type="text/javascript">
-(function() {
-  "use strict";
+  (function () {
+    "use strict";
 
-  let $ = Object.assign(function() {
-    return document.querySelector.apply(document, arguments);
-  }, {
-    /* DOM */
-    findAll: function() {
-      return document.querySelectorAll.apply(document, arguments);
-    },
+    let $ = Object.assign(function () {
+      return document.querySelector.apply(document, arguments);
+    }, {
+      /* DOM */
+      findAll: function () {
+        return document.querySelectorAll.apply(document, arguments);
+      },
 
-    removeAllChildren: function(element) {
-      while (element.firstChild) {
-        element.removeChild(element.firstChild);
-      }
-      return element;
-    },
-
-    /* AJAX */
-    get: function(url) {
-      return $http(url).get();
-    },
-
-    /* Object */
-    isDefined: function(v) {
-      return (typeof(v) !== 'undefined') && (v !== null);
-    },
-
-    isFunction: function(f) {
-      return (typeof(f) === 'function');
-    },
-
-    isObject: function(o) {
-      return (typeof(o) === 'object' && o.constructor === Object);
-    },
-
-    isArray: function(a) {
-      return Array.isArray(a);
-    },
-
-    isString: function(s) {
-      return (typeof(s) === 'string');
-    },
-
-    entries: function*(obj) {
-      for (let key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          yield [key, obj[key]];
+      removeAllChildren: function (element) {
+        while (element.firstChild) {
+          element.removeChild(element.firstChild);
         }
-      }
-    },
+        return element;
+      },
 
-    forEachKeyValue: function(obj, callback) {
-      Object.keys(obj).forEach((key) => {
-        callback(key, obj[key]);
-      });
-      return obj;
-    },
+      /* Object */
+      isDefined: function (v) {
+        return (typeof(v) !== 'undefined') && (v !== null);
+      },
 
-    mapKeyValue: function(obj, callback) {
-      return Object.keys(obj).map((key) => {
-        return callback(key, obj[key]);
-      });
-    },
+      isFunction: function (f) {
+        return (typeof(f) === 'function');
+      },
 
-    /* String */
-    capitalize: function(s) {
-      return s[0].toUpperCase() + s.substr(1);
-    },
+      isObject: function (o) {
+        return (typeof(o) === 'object' && o.constructor === Object);
+      },
 
-    camelize: function(s) {
-      return $.capitalize(s).replace(/_([a-z])/g, function(g) {
-        return g[1].toUpperCase().replace('_', '');
-      });
-    },
+      isArray: function (a) {
+        return Array.isArray(a);
+      },
 
-    /* Tweet */
-    isReplyTweet: function(tweet) {
-      return $.isDefined(tweet.in_reply_to_screen_name);
-    },
+      isString: function (s) {
+        return (typeof(s) === 'string');
+      },
 
-    isRetweet: function(tweet) {
-      return $.isDefined(tweet.retweeted_status);
-    },
-
-    isQuotedRetweet: function(tweet) {
-      return tweet.is_quote_status && $.isDefined(tweet.quoted_status); // in case quoted tweets chain
-    },
-
-    isDirectMessage: function(tweet) {
-      return $.isDefined(tweet.sender_screen_name);
-    },
-
-    tweetType: function(tweet) {
-      // order sensitive
-      if ($.isDirectMessage(tweet)) {
-        return 'direct_message';
-      }
-      if ($.isQuotedRetweet(tweet)) {
-        return 'quoted_retweet';
-      }
-      if ($.isRetweet(tweet)) {
-        return 'retweet';
-      }
-      if ($.isReplyTweet(tweet)) {
-        return 'reply';
-      }
-      return 'tweet';
-    },
-
-    /*
-    Registers ELEMENT to the OBJ.
-    When OBJ changes, ELEMENT.attachedCallback() will be called.
-    */
-    registerObjectCallback: function(obj, element) {
-      if (!(element instanceof XElement)) {
-        console.error('[utils] registerObjectCallback', 'Register data callback has to be an custom element', element);
-        Notify.error(`Operation failed on registering object.`);
-        return;
-      }
-
-      if (!$.isDefined(obj.__callbacks)) {
-        obj.__callbacks = new Set();
-      }
-      obj.__callbacks.add(element);
-      if (obj.__callbacks.size >= 50) {
-        console.warn('[utils] registerObjectCallback: obj has over 50 callbacks!', obj);
-      }
-      return obj;
-    },
-
-    /*
-    Unregisters ELEMENT from OBJ.
-    */
-    unregisterObjectCallback: function(obj, element) {
-      if (!(element instanceof XElement)) {
-        console.error('[utils] unregisterObjectCallback', 'Unregister data callback has to be an custom element', element);
-        Notify.error(`Operation failed on unregister object.`);
-        return;
-      }
-      if (!$.isDefined(obj.__callbacks)) {
-        obj.__callbacks = new Set();
-      }
-      obj.__callbacks.delete(element);
-      return obj;
-    },
-
-    /*
-    Update OBJ with NEW_FIELDS,
-    and trigger all callback elements with ELEMENT.attachedCallback(OBJ).
-    */
-    updateObject: function(obj, new_fields) {
-      Object.assign(obj, new_fields);
-      if ($.isDefined(obj.__callbacks)) {
-        // call all the callbacks and remove these callbacks.
-        // it's the callbacks' duty to re-register
-        console.debug("Updated obj: ", obj, "trigger callbacks.", obj.__callbacks);
-        let callbacks = obj.__callbacks;
-        obj.__callbacks = new Set();
-        callbacks.forEach((element) => {
-          if (element instanceof XElement) {
-            element.connectedCallback(obj);
-          } else {
-            console.error('[utils]', 'updateObject', 'callback is not a custom element', element);
-            Notify.error(`Operation failed on updating object.`);
+      entries: function* (obj) {
+        for (let key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            yield [key, obj[key]];
           }
+        }
+      },
+
+      forEachKeyValue: function (obj, callback) {
+        Object.keys(obj).forEach((key) => {
+          callback(key, obj[key]);
         });
-      }
-    },
+        return obj;
+      },
 
-    /**
-     * Replace OBJ with NEW_OBJ.
-     * All old keys will be removed, and all keys in NEW_OBJ will be copied to OBJ.
-     */
-    replaceObject: function (obj, new_obj) {
-      if (obj === new_obj) {
-        return;
-      }
-      Object.keys(obj).forEach(key => {
-        if (!(key in new_obj)) {
-          delete obj[key];
-        }
-      });
-      Object.assign(obj, new_obj);
-    }
-  });
-
-
-  /* Core extensions */
-  NodeList.prototype.forEach = Array.prototype.forEach;
-
-  Object.assign(DocumentFragment.prototype, {
-    $: function() {
-      return this.querySelector.apply(this, arguments);
-    },
-  });
-
-  Object.assign(HTMLElement.prototype, {
-    $: function() {
-      return this.querySelector.apply(this, arguments);
-    },
-
-    detach: function() {
-      let parent = this.parentNode;
-      if (!parent) {
-        return;
-      }
-      parent.removeChild(this);
-      return this;
-    },
-
-    show: function(display) {
-      if (this.style.display === 'none') {
-        if (!$.isDefined(display)) {
-          if ($.isDefined(this._old_display_value)) {
-            display = this._old_display_value;
-            this._old_display_value = undefined;
-          } else {
-            display = 'block';
-          }
-        }
-        this.style.display = display;
-      }
-    },
-
-    hide: function() {
-      if (this.style.display !== 'none') {
-        this._old_display_value = this.style.display;
-        this.style.display = 'none';
-      }
-    },
-
-    trigger: function(eventName) {
-      let parameters = Array.from(arguments).slice(1);
-      console.log('trigger', eventName, parameters);
-      this.dispatchEvent(new CustomEvent(eventName, {
-        detail: parameters,
-        composed: true, // otherwise it does not cross shadowRoot
-      }));
-    },
-
-    handle: function(eventName, callback, popup) {
-      this.addEventListener(eventName, (event) => {
-        event.preventDefault();
-        if ($.isDefined(popup) && popup) {
-          console.log('handle propagate up');
-        } else {
-          event.stopPropagation();
-        }
-        if (['mouseenter', 'mouseleave', 'scroll'].indexOf(eventName) < 0) {
-          console.log('handle', eventName, event.detail);
-        }
-        if (callback) {
-          callback(event);
-        }
-      });
-    },
-
-    handleActions: function(actions) {
-      actions.forEach((actionName) => {
-        this.handle(actionName, (event) => {
-          this[actionName].apply(this, event.detail);
+      mapKeyValue: function (obj, callback) {
+        return Object.keys(obj).map((key) => {
+          return callback(key, obj[key]);
         });
-      });
-    },
-  });
+      },
 
+      /* String */
+      capitalize: function (s) {
+        return s[0].toUpperCase() + s.substr(1);
+      },
 
-  /* A function is implemented in order to follow the standard Adapter pattern */
-  function $http(url) {
-    // A small example of object
-    let core = {
+      camelize: function (s) {
+        return $.capitalize(s).replace(/_([a-z])/g, function (g) {
+          return g[1].toUpperCase().replace('_', '');
+        });
+      },
 
-      // Method that performs the Ajax request
-      ajax: function(method, url, args) {
+      /* Tweet */
+      isReplyTweet: function (tweet) {
+        return $.isDefined(tweet.in_reply_to_screen_name);
+      },
 
-        // Creating a promise
-        let promise = new Promise(function(resolve, reject) {
+      isRetweet: function (tweet) {
+        return $.isDefined(tweet.retweeted_status);
+      },
 
-          // Instantiates the XMLHttpRequest
-          let client = new XMLHttpRequest();
-          let uri = url;
+      isQuotedRetweet: function (tweet) {
+        return tweet.is_quote_status && $.isDefined(tweet.quoted_status); // in case quoted tweets chain
+      },
 
-          if (args && (method === 'POST' || method === 'PUT')) {
-            uri += '?';
-            let argcount = 0;
-            for (let key in args) {
-              if (args.hasOwnProperty(key)) {
-                if (argcount++) {
-                  uri += '&';
-                }
-                uri += encodeURIComponent(key) + '=' + encodeURIComponent(args[key]);
-              }
-            }
-          }
+      isDirectMessage: function (tweet) {
+        return $.isDefined(tweet.sender_screen_name);
+      },
 
-          client.open(method, uri);
-          client.send();
+      tweetType: function (tweet) {
+        // order sensitive
+        if ($.isDirectMessage(tweet)) {
+          return 'direct_message';
+        }
+        if ($.isQuotedRetweet(tweet)) {
+          return 'quoted_retweet';
+        }
+        if ($.isRetweet(tweet)) {
+          return 'retweet';
+        }
+        if ($.isReplyTweet(tweet)) {
+          return 'reply';
+        }
+        return 'tweet';
+      },
 
-          client.onload = function() {
-            if (this.status >= 200 && this.status < 300) {
-              // Performs the function "resolve" when this.status is equal to 2xx
-              resolve(this.response);
+      /*
+      Registers ELEMENT to the OBJ.
+      When OBJ changes, ELEMENT.attachedCallback() will be called.
+      */
+      registerObjectCallback: function (obj, element) {
+        if (!(element instanceof XElement)) {
+          console.error('[utils] registerObjectCallback', 'Register data callback has to be an custom element', element);
+          Notify.error(`Operation failed on registering object.`);
+          return;
+        }
+
+        if (!$.isDefined(obj.__callbacks)) {
+          obj.__callbacks = new Set();
+        }
+        obj.__callbacks.add(element);
+        if (obj.__callbacks.size >= 50) {
+          console.warn('[utils] registerObjectCallback: obj has over 50 callbacks!', obj);
+        }
+        return obj;
+      },
+
+      /*
+      Unregisters ELEMENT from OBJ.
+      */
+      unregisterObjectCallback: function (obj, element) {
+        if (!(element instanceof XElement)) {
+          console.error('[utils] unregisterObjectCallback', 'Unregister data callback has to be an custom element', element);
+          Notify.error(`Operation failed on unregister object.`);
+          return;
+        }
+        if (!$.isDefined(obj.__callbacks)) {
+          obj.__callbacks = new Set();
+        }
+        obj.__callbacks.delete(element);
+        return obj;
+      },
+
+      /*
+      Update OBJ with NEW_FIELDS,
+      and trigger all callback elements with ELEMENT.attachedCallback(OBJ).
+      */
+      updateObject: function (obj, new_fields) {
+        Object.assign(obj, new_fields);
+        if ($.isDefined(obj.__callbacks)) {
+          // call all the callbacks and remove these callbacks.
+          // it's the callbacks' duty to re-register
+          console.debug("Updated obj: ", obj, "trigger callbacks.", obj.__callbacks);
+          let callbacks = obj.__callbacks;
+          obj.__callbacks = new Set();
+          callbacks.forEach((element) => {
+            if (element instanceof XElement) {
+              element.connectedCallback(obj);
             } else {
-              // Performs the function "reject" when this.status is different than 2xx
-              reject(this.statusText);
+              console.error('[utils]', 'updateObject', 'callback is not a custom element', element);
+              Notify.error(`Operation failed on updating object.`);
             }
-          };
-          client.onerror = function() {
-            reject(this.statusText);
-          };
+          });
+        }
+      },
+
+      /**
+       * Replace OBJ with NEW_OBJ.
+       * All old keys will be removed, and all keys in NEW_OBJ will be copied to OBJ.
+       */
+      replaceObject: function (obj, new_obj) {
+        if (obj === new_obj) {
+          return;
+        }
+        Object.keys(obj).forEach(key => {
+          if (!(key in new_obj)) {
+            delete obj[key];
+          }
         });
-
-        // Return the promise
-        return promise;
+        Object.assign(obj, new_obj);
       }
-    };
+    });
 
-    // Adapter pattern
-    return {
-      'get': function(args) {
-        return core.ajax('GET', url, args);
-      },
-      'post': function(args) {
-        return core.ajax('POST', url, args);
-      },
-      'put': function(args) {
-        return core.ajax('PUT', url, args);
-      },
-      'delete': function(args) {
-        return core.ajax('DELETE', url, args);
-      }
-    };
-  }
 
-  window.$ = $;
-})();
+    /* Core extensions */
+    NodeList.prototype.forEach = Array.prototype.forEach;
+
+    Object.assign(DocumentFragment.prototype, {
+      $: function () {
+        return this.querySelector.apply(this, arguments);
+      },
+    });
+
+    Object.assign(HTMLElement.prototype, {
+      $: function () {
+        return this.querySelector.apply(this, arguments);
+      },
+
+      detach: function () {
+        let parent = this.parentNode;
+        if (!parent) {
+          return;
+        }
+        parent.removeChild(this);
+        return this;
+      },
+
+      show: function (display) {
+        if (this.style.display === 'none') {
+          if (!$.isDefined(display)) {
+            if ($.isDefined(this._old_display_value)) {
+              display = this._old_display_value;
+              this._old_display_value = undefined;
+            } else {
+              display = 'block';
+            }
+          }
+          this.style.display = display;
+        }
+      },
+
+      hide: function () {
+        if (this.style.display !== 'none') {
+          this._old_display_value = this.style.display;
+          this.style.display = 'none';
+        }
+      },
+
+      trigger: function (eventName) {
+        let parameters = Array.from(arguments).slice(1);
+        console.log('trigger', eventName, parameters);
+        this.dispatchEvent(new CustomEvent(eventName, {
+          detail: parameters,
+          composed: true, // otherwise it does not cross shadowRoot
+        }));
+      },
+
+      handle: function (eventName, callback, popup) {
+        this.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          if ($.isDefined(popup) && popup) {
+            console.log('handle propagate up');
+          } else {
+            event.stopPropagation();
+          }
+          if (['mouseenter', 'mouseleave', 'scroll'].indexOf(eventName) < 0) {
+            console.log('handle', eventName, event.detail);
+          }
+          if (callback) {
+            callback(event);
+          }
+        });
+      },
+
+      handleActions: function (actions) {
+        actions.forEach((actionName) => {
+          this.handle(actionName, (event) => {
+            this[actionName].apply(this, event.detail);
+          });
+        });
+      },
+    });
+
+    window.$ = $;
+  })();
 </script>

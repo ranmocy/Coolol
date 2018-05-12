@@ -3,6 +3,7 @@
 <template id="nav">
   <style media="screen">
     @import "../vendor/font-awesome-4.4.0/css/font-awesome.min.css";
+
     nav {
       height: 50px;
       padding: 0 20px;
@@ -11,12 +12,14 @@
       position: relative;
       z-index: 100;
     }
+
     #logo img {
       position: relative;
       top: 4px;
       height: 32px;
       width: 32px;
     }
+
     #logo a {
       line-height: 50px;
       font-size: 30px;
@@ -24,11 +27,13 @@
       color: #424d54;
       padding: 0;
     }
+
     #control-panel {
       float: right;
       height: 30px;
       line-height: 30px;
     }
+
     a {
       display: inline-block;
       text-decoration: none;
@@ -37,13 +42,16 @@
       color: #555;
       padding: 0 0.5em;
     }
+
     a:hover {
       color: #4C91DB;
     }
+
     a.menu {
       line-height: 48px;
       border-bottom: 3px solid rgba(0, 0, 0, 0);;
     }
+
     a.menu:hover {
       border-bottom: 3px solid #4C91DB;
     }
@@ -52,13 +60,16 @@
     .account-list-dropdown .account-list-container {
       display: none;
     }
+
     .account-list-dropdown:hover .account-list-container {
       display: block;
     }
+
     .account-list-dropdown {
       display: inline-block;
       position: relative;
     }
+
     .account-list-container {
       position: absolute;
       z-index: 500;
@@ -70,6 +81,7 @@
       border: 1px solid rgba(0, 0, 0, 0.15);;
       box-shadow: rgba(0, 0, 0, 0.18) 0 3px 3px;
     }
+
     #account-list {
       list-style-type: none;
       margin: 0;
@@ -79,8 +91,8 @@
 
   <nav>
     <span id="logo">
-      <a href="#sessions">
-        <img src="icons/icon-64.png">
+      <a href="#">
+        <img src="/icons/icon-64.png">
         Coolol
       </a>
     </span>
@@ -105,7 +117,7 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     const $$$nav = document.currentScript.ownerDocument.querySelector('template#nav').content;
@@ -157,7 +169,8 @@
         }
       }
 
-      /*private*/ updateAccountList() {
+      /*private*/
+      updateAccountList() {
         $.removeAllChildren(this.$('#account-list'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.info('[nav] list account item', screen_name);

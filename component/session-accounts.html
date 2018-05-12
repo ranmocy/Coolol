@@ -13,7 +13,7 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     const $$$template = document.currentScript.ownerDocument.querySelector('template#session-accounts').content;
@@ -33,7 +33,8 @@
         document.store.unregisterAccounts(this);
       }
 
-      /*private*/ refresh() {
+      /*private*/
+      refresh() {
         $.removeAllChildren(this.$('#accounts'));
         $.forEachKeyValue(document.store.getAllAccounts(), (screen_name, account) => {
           console.log('[SessionAccounts] refresh', screen_name);

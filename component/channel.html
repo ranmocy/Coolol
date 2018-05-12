@@ -8,6 +8,7 @@
       height: 100%;
       width: 100%;
     }
+
     #header {
       color: orange;
       height: 24px;
@@ -15,10 +16,12 @@
       text-align: center;
       border-bottom: 1px #eee solid;
     }
+
     #tweets, #loading {
       position: absolute;
       width: 100%;
     }
+
     #tweets {
       top: 24px;
       bottom: 0;
@@ -26,6 +29,7 @@
       overflow-x: hidden;
       overflow-y: auto;
     }
+
     #tweets x-tweet {
       border-bottom: 1px #eee solid;
     }
@@ -43,11 +47,11 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     /**
-     * @param {Object} filter_rule
+     * @param {string} filter_rule
      * @param {Tweet} tweet.
      * @return {boolean}
      */
@@ -81,16 +85,16 @@
       }
 
       // noinspection JSUnusedAssignment
-      isBetweenUser = function(user1, user2) {
+      isBetweenUser = function (user1, user2) {
         return (sender.screen_name === user1 && receiver.screen_name === user2) ||
           (sender.screen_name === user2 && receiver.screen_name === user1);
       };
       // noinspection JSUnusedAssignment
-      tweetContains = function(keyword) {
+      tweetContains = function (keyword) {
         return tweet.text.indexOf(keyword) >= 0;
       };
       // noinspection JSUnusedAssignment
-      tweetContainsAny = function() {
+      tweetContainsAny = function () {
         for (let keyword of arguments) {
           if (tweetContains(keyword)) {
             return true;
@@ -202,7 +206,9 @@
        * @param {Tweet[][]} new_data
        * @return {Promise<Tweet[][]>}
        */
-      /*private*/ async transformData(new_data) {
+
+      /*private*/
+      async transformData(new_data) {
         console.info('[channel] transformData', new_data);
 
         if (!$.isDefined(new_data)) {
@@ -210,7 +216,7 @@
         }
 
         new_data = new_data
-          // flatten [[tweetsForSource1], [tweetsForSource2], ...]
+        // flatten [[tweetsForSource1], [tweetsForSource2], ...]
           .reduce((all, current) => {
             return all.concat(current);
           }, [])
@@ -228,7 +234,7 @@
         new_data = await document.store.updateTweets(new_data);
 
         return new_data
-          // apply filters from config
+        // apply filters from config
           .filter((tweet) => {
             if ($.isDefined(this.config.filters)) {
               for (let filter_rule of this.config.filters) {
@@ -250,7 +256,9 @@
       /**
        * @param {[[Tweet]]} new_data
        */
-      /*private*/ appendData(data) {
+
+      /*private*/
+      appendData(data) {
         console.info('[channel] appendData');
 
         if (data.length === 0) {

@@ -9,6 +9,7 @@
       bottom: 0;
       z-index: 1000;
     }
+
     #image, #video {
       max-height: 90%;
       max-width: 95%;
@@ -27,7 +28,7 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     const $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-media-player').content;
@@ -47,7 +48,7 @@
         this.$('#background').handle('click', this.detach.bind(this));
         this.$('#video').handle('click');
 
-        switch(media.type) {
+        switch (media.type) {
           case 'video':
           case 'animated_gif':
             if (media.video_info && media.video_info.variants) {

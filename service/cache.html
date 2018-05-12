@@ -1,63 +1,53 @@
 <link rel="import" href="store.html">
 
 <script type="text/javascript">
-(function() {
-  "use strict";
+  (function () {
+    "use strict";
 
-  class Cache extends Store {
-    getLocalStorageItem() {
-      return null;
-    }
-
-    saveLocalStorageItem() {
-    }
-  }
-
-  const cache = new Cache();
-
-  /*
-  Client = {
-    <screen_name>: [Twitter]
-  }
-  */
-  Cache.addAccessToAccountField('client', (account) => {
-    return new Twitter(account.token, account.token_secret);
-  });
-  cache.extend({
-    getTwitterClient: function(account) {
-      if (!account || !account.token || !account.token_secret) {
-        console.error('[cache] getTwitterClient:', account);
-        Notify.error(`[cache] getTwitterClient: ${account.screen_name}`);
-        throw "[cache] getTwitterClient: account/token/token_secret is null!";
+    class Cache extends Store {
+      getLocalStorageItem() {
+        return null;
       }
-      return this.getClient(account);
-    },
 
-    saveTwitterClient: function(account, client) {
-      this.saveClient(account, client);
-    },
-  });
-
-  /*
-  Tweet = {
-    <screen_name>: {
-      <tweet_id>: <Tweet>
-    }
-  }
-  */
-  Cache.addAccessToAccountField('tweets', Cache.defaultValueFactoryFactory({}));
-  cache.extend({
-    getCurrentAccountTweet: function(tweet) {
-      let tweets = this.getTweets(document.account);
-      if (!(tweet.id in tweets)) {
-        tweets[tweet.id] = tweet;
+      saveLocalStorageItem() {
       }
-      return tweets[tweet.id];
-    },
-  });
+    }
 
+    const cache = new Cache();
 
-  // Exported
-  document.cache = cache;
-})();
+    /*
+    Client = {
+      <screen_name>: [Twitter]
+    }
+    */
+    Cache.addAccessToAccountField('client', (account) => {
+      return new Twitter(account.token, account.token_secret);
+    });
+    cache.extend({
+      getTwitterClient: function (account) {
+        if (!account || !account.token || !account.token_secret) {
+          console.error('[cache] getTwitterClient:', account);
+          Notify.error(`[cache] getTwitterClient: ${account.screen_name}`);
+          throw "[cache] getTwitterClient: account/token/token_secret is null!";
+        }
+        return this.getClient(account);
+      },
+
+      saveTwitterClient: function (account, client) {
+        this.saveClient(account, client);
+      },
+    });
+
+    /*
+    Tweet = {
+      <screen_name>: {
+        <tweet_id>: <Tweet>
+      }
+    }
+    */
+    Cache.addAccessToAccountField('tweets', Cache.defaultValueFactoryFactory({}));
+
+    // Exported
+    document.cache = cache;
+  })();
 </script>

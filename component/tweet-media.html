@@ -5,19 +5,22 @@
     :host {
       margin: 0 1em;
     }
+
     #preview {
       position: relative;
     }
+
     #preview-img {
       height: 200px;
     }
+
     #preview-indicator {
       position: absolute;
       left: 5px;
       bottom: 5px;
       padding: 3px;
       color: white;
-      background-color: rgba(0,0,0,0.3);
+      background-color: rgba(0, 0, 0, 0.3);
       border: 1px solid #888;
       border-radius: 3px;
       font-family: sans-serif;
@@ -32,7 +35,7 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     const $$$template = document.currentScript.ownerDocument.querySelector('template#tweet-media').content;
@@ -53,7 +56,7 @@
           this.$('#player').appendChild($player);
         });
 
-        switch(media.type) {
+        switch (media.type) {
           case 'video':
             this.$('#preview-indicator').textContent = "Video";
             this.$('#preview-indicator').show();

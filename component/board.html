@@ -10,9 +10,11 @@
       overflow-y: hidden;
       white-space: nowrap; /* key to horizontal scrolling */
     }
+
     #channels {
       height: 100%;
     }
+
     x-channel {
       display: inline-block; /* key to horizontal */
       height: 100%;
@@ -20,10 +22,12 @@
       white-space: normal; /* reset for children */
       border-left: 1px #eee solid;
     }
+
     x-channel:last-child {
       border-right: 1px #eee solid;
     }
-    @media (max-width: 500px)  {
+
+    @media (max-width: 500px) {
       x-channel {
         width: 100% !important;
       }
@@ -33,7 +37,7 @@
 </template>
 
 <script type="text/javascript">
-  (function() {
+  (function () {
     "use strict";
 
     const $$$template = document.currentScript.ownerDocument.querySelector('template#board').content;
@@ -59,7 +63,7 @@
 
         // create all channels
         let allChannelsPromises = this.config.channels.map((channel_config) => {
-          let channel_filters =  channel_config.filters || [];
+          let channel_filters = channel_config.filters || [];
           channel_config = Object.assign({}, channel_config, {
             filters: [].concat(channel_filters, board_filters),
           });

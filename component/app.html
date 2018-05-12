@@ -43,20 +43,21 @@
         this.handleActions(['openCompose', 'openComposeForReply', 'openComposeForRetweet', 'switchView']);
 
         // initialize storage
-        let require_reconfiguration = document.store.updateVersionCode();
-        if (require_reconfiguration) {
-          console.warn("ATTENTION: Backward incompatible update finished, your config may need updates!");
-          Notify.warn("ATTENTION: Major update, please update your config.");
-          this.switchSession();
-          return;
-        }
-        document.store.updateAllAccounts();
+        document.store.updateVersionCodeAsync().then(require_reconfiguration => {
+          if (require_reconfiguration) {
+            console.warn("ATTENTION: Backward incompatible update finished, your config may need updates!");
+            Notify.warn("ATTENTION: Major update, please update your config.");
+            this.switchSession();
+            return;
+          }
+          document.store.updateAllAccounts();
 
-        // init view
-        window.onpopstate = (event) => {
-          this.loadLastViewAsync(event.state).then(/*ignore*/)
-        };
-        this.loadLastViewAsync(window.location).then(/*ignore*/);
+          // init view
+          window.onpopstate = (event) => {
+            this.loadLastViewAsync(event.state).then(/*ignore*/)
+          };
+          this.loadLastViewAsync(window.location).then(/*ignore*/);
+        });
       }
 
       /**

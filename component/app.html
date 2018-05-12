@@ -207,6 +207,7 @@
 
       /*private*/
       switchSession() {
+        $.removeAllChildren(this.$('#main'));
         document.account = null;
         this.updateView('x-session');
       }

@@ -6,6 +6,12 @@
       cursor: pointer;
     }
   </style>
+
+  <div id="fetching">
+    <span>Fetching more conversation...</span>
+    <i class="fa fa-refresh fa-spin"></i>
+  </div>
+
   <div id="replying-info">
     <span class="reply-to">In reply to:</span>
     <span class="name"></span>
@@ -32,6 +38,8 @@
         this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$tweet_conversation.content, true));
 
         this.oldest_conversation_tweet = null;
+
+        this.$('#fetching').hide();
         this.$('.fetch-older-conversation i').handle('click', this.getMoreOlderConversationsAsync.bind(this, 5));
       }
 
@@ -80,6 +88,10 @@
         let tweet = await document.store.getTweetAsync(id_str);
         if (!$.isDefined(tweet)) {
           let client = document.cache.getTwitterClient(document.account);
+
+          this.$('#fetching').show();
+          this.$('#replying-info').hide();
+
           // noinspection JSValidateTypes
           /** @type {Tweet} */
           let result = await client.fetch("statuses_show_ID", {
@@ -87,6 +99,9 @@
           });
           // unify tweet object
           tweet = await document.store.updateTweetAsync(result);
+
+          this.$('#fetching').hide();
+          this.$('#replying-info').show();
         }
         let $container = this.$('.conversation');
         let $tweet = document.createElement('x-tweet').setTweet(tweet).setInsideConversation();

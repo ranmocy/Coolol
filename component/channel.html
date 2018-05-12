@@ -223,15 +223,6 @@
             }
             return true; // keep this
           })
-          // transform created_at field into Date object
-          .map((tweet) => {
-            tweet.created_at = new Date(tweet.created_at);
-            return tweet;
-          })
-          // sort by created_at
-          .sort((a, b) => {
-            return b.created_at - a.created_at;
-          })
           // unify tweet into unique objects
           .map((tweet) => {
             return document.cache.getCurrentAccountTweet(tweet);
@@ -248,6 +239,10 @@
               }
             }
             return true; // keep this
+          })
+          // sort by created_at
+          .sort((a, b) => {
+            return new Date(b.created_at) - new Date(a.created_at);
           });
       }
 

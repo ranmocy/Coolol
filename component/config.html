@@ -69,9 +69,10 @@
       }
 
       loadConfig() {
-        let config = document.store.getConfig(document.account);
-        this.setConfig(config);
-        console.log("Config loaded:", config);
+        document.store.getConfigAsync(document.account).then(config => {
+          this.setConfig(config);
+          console.log("Config loaded:", config);
+        });
       }
 
       saveConfig() {
@@ -89,15 +90,17 @@
           return;
         }
         this.$errors.hide();
-        document.store.saveConfig(document.account, config);
-        console.log("Config saved.", config);
-        this.trigger('switchView', 'board', document.account);
+        document.store.saveConfigAsync(document.account, config).then(() => {
+          console.log("Config saved.", config);
+          this.trigger('switchView', 'board', document.account);
+        });
       }
 
       resetConfig() {
-        let config = document.store.resetConfig(document.account);
-        this.setConfig(config);
-        console.log("Config reseted.");
+        document.store.resetConfigAsync(document.account).then(config => {
+          this.setConfig(config);
+          console.log("Config reset.");
+        });
       }
 
       getConfig() {

@@ -3,6 +3,8 @@
     "use strict";
 
     const T_TWEET = 'tweet';
+    const T_CONFIG = 'config';
+    const KEY_CONFIG = 0;
 
     function getRequestPromise(request) {
       return new Promise((resolve, reject) => {
@@ -39,17 +41,26 @@
       return await getRequestPromise(request);
     }
 
-    /** @returns {IDBDatabase} */
-    async function getAccountDB() {
-      if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
+    /**
+     * @param {User} [account=document.account]
+     * @returns {IDBDatabase}
+     */
+    async function getAccountDB(account) {
+      if (!$.isDefined(account)) {
+        account = document.account;
+      }
+      if (!$.isDefined(account) || !$.isDefined(account.screen_name)) {
         throw 'No account is logged in!';
       }
-      let request = window.indexedDB.open(`Coolol_${document.account.screen_name}`, 1);
+      let request = window.indexedDB.open(`Coolol_${account.screen_name}`, 2);
       request.onupgradeneeded = (event) => {
         let db = event.target.result;
         switch (event.oldVersion) {
           case 0:
             db.createObjectStore(T_TWEET, {keyPath: 'id_str'});
+          // fall through
+          case 1:
+            db.createObjectStore(T_CONFIG)
           // fall through
         }
       };
@@ -72,6 +83,182 @@
     //   return await getRequestPromise(request);
     // }
 
+
+    /**
+     * @typedef {object} Config
+     * @property {string[]} filters
+     * @property {ChannelConfig[]} channels
+     */
+    /**
+     * @typedef {object} ChannelConfig
+     * @property {string} name
+     * @property {Source[]} sources
+     * @property {string[]} filters
+     */
+    /**
+     * @typedef {[string, object]} Source
+     */
+    // noinspection SpellCheckingInspection
+    /** Default Config */
+    const DEFAULT_CONFIG =
+      {
+        "filters": [
+          "isBetweenUser('ranmocy', 'CathellieAir')",
+        ],
+        "channels": [{
+          "name": "Home",
+          "sources": [
+            ["statuses_homeTimeline", {}],
+          ],
+          "filters": [
+            "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
+          ],
+        }, {
+          "name": "Mentions",
+          "sources": [
+            ["statuses_mentionsTimeline", {}],
+          ],
+        }, {
+          "name": "Direct Messages",
+          "sources": [
+            ["directMessages", {}],
+            ["directMessages_sent", {}],
+          ],
+        }, {
+          "name": "My tweets",
+          "sources": [
+            ["statuses_userTimeline", {"user_id": "me"}],
+          ]
+        }]
+      };
+    const CONFIG_SPEC = {
+      name: 'entire config',
+      type: 'object',
+      required: {
+        channels: {
+          name: 'channels',
+          type: 'array',
+          elements: {
+            name: 'channel',
+            type: 'object',
+            required: {
+              name: {
+                name: 'channel name',
+                type: 'string',
+              },
+              sources: {
+                name: 'channel sources',
+                type: 'array',
+                elements: {
+                  name: 'channel source',
+                  type: 'vector',
+                  values: [
+                    {
+                      name: 'channel source API name',
+                      type: 'string'
+                    },
+                    {
+                      name: 'channel source API parameters',
+                      type: 'object'
+                    }
+                  ]
+                },
+              }
+            },
+            optional: {
+              filters: {
+                name: 'channel filters',
+                type: 'array',
+                elements: {
+                  name: 'channel filter rule',
+                  type: 'string',
+                }
+              }
+            }
+          }
+        }
+      },
+      optional: {
+        filters: {
+          name: 'global filters',
+          type: 'array',
+          elements: {
+            name: 'global filter rule',
+            type: 'string',
+          }
+        }
+      }
+    };
+
+    function createTypeErrorMessage(name, type, config) {
+      return `${name} needs to be ${type}, instead it is ${JSON.stringify(config)}`;
+    }
+
+    /* Returns array of error messages. */
+    function verifyConfigWithSpec(spec, config) {
+      let error_messages = [];
+      if (!$.isDefined(spec)) {
+        return error_messages;
+      }
+      if (!$.isDefined(config)) {
+        error_messages.push(`${spec.name} is required`);
+        return error_messages;
+      }
+
+      switch (spec.type) {
+        case 'string':
+          if (!$.isString(config)) {
+            error_messages.push(createTypeErrorMessage(spec.name, 'a string', config));
+          }
+          break;
+        case 'array':
+          if ($.isArray(config)) {
+            let elements_spec = spec.elements;
+            for (let sub_config of config) {
+              error_messages = error_messages.concat(verifyConfigWithSpec(elements_spec, sub_config));
+            }
+          } else {
+            error_messages.push(createTypeErrorMessage(spec.name, 'an array', config));
+          }
+          break;
+        case 'vector':
+          if ($.isArray(config)) {
+            let sub_specs = spec.values;
+            if (sub_specs.length === config.length) {
+              for (let index = 0; index < sub_specs.length; index++) {
+                error_messages = error_messages.concat(verifyConfigWithSpec(sub_specs[index], config[index]));
+              }
+            } else {
+              error_messages.push(`${spec.name} requires array with length ${sub_specs.length}, instead of ${config.length}`);
+            }
+          } else {
+            error_messages.push(createTypeErrorMessage(spec.name, 'a vector', config));
+          }
+          break;
+        case 'object':
+          if ($.isObject(config)) {
+            for (let [sub_key, sub_spec] of $.entries(spec.required)) {
+              if (config[sub_key]) {
+                error_messages = error_messages.concat(verifyConfigWithSpec(sub_spec, config[sub_key]));
+              } else {
+                error_messages.push(`${spec.name} requires key '${sub_key}'`);
+              }
+            }
+            for (let [sub_key, sub_spec] of $.entries(spec.optional)) {
+              if (config[sub_key]) {
+                error_messages = error_messages.concat(verifyConfigWithSpec(sub_spec, config[sub_key]));
+              }
+            }
+          } else {
+            error_messages.push(createTypeErrorMessage(spec.name, 'an object', config));
+          }
+          break;
+        default:
+          console.warn('Unknown spec type', spec);
+      }
+
+      return error_messages;
+    }
 
     class Store {
 
@@ -168,10 +355,55 @@
       }
 
       /**
+       * @param {User} account
+       * @return {Config}
+       */
+      async getConfigAsync(account) {
+        let db = await getAccountDB(account);
+        let request = db
+          .transaction([T_CONFIG], 'readonly')
+          .objectStore(T_CONFIG)
+          .get(KEY_CONFIG);
+        return await getRequestPromise(request);
+      }
+
+      /**
+       * @param {User} account
+       * @param {Config} config
+       * @return {Config}
+       */
+      async saveConfigAsync(account, config) {
+        let db = await getAccountDB(account);
+        let request = db
+          .transaction([T_CONFIG], 'readwrite')
+          .objectStore(T_CONFIG)
+          .put(config, KEY_CONFIG);
+        await getRequestPromise(request);
+        return config;
+      }
+
+      /**
+       * @param {User} config
+       * @return {boolean}
+       */
+      verifyConfig(config) {
+        return verifyConfigWithSpec(CONFIG_SPEC, config);
+      }
+
+      /**
+       * @param {User} account
+       * @return {Config}
+       */
+      async resetConfigAsync(account) {
+        await this.saveConfigAsync(account, DEFAULT_CONFIG);
+        return DEFAULT_CONFIG;
+      }
+
+      /**
+       * @private
+       * @param {string} prefix
        * @return {Object.<string, Object>} cache
        */
-
-      /*private*/
       getAccountCache(prefix) {
         if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
           throw 'No account is logged in!';
@@ -184,10 +416,10 @@
       }
 
       /**
-       * @param {Set.<XElement>} listeners
+       * @private
+       * @param {string} prefix
+       * @return {Set.<XElement>} listeners
        */
-
-      /*private*/
       getAccountListeners(prefix) {
         if (!$.isDefined(document.account) || !$.isDefined(document.account.screen_name)) {
           throw 'No account is logged in!';
@@ -411,194 +643,6 @@
 
 
     let store = new Store();
-
-
-    const DEFAULT_CONFIG =
-      {
-        "filters": [
-          "isBetweenUser('ranmocy', 'CathellieAir')",
-        ],
-        "channels": [{
-          "name": "Home",
-          "sources": [
-            ["statuses_homeTimeline", {}],
-          ],
-          "filters": [
-            "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
-          ],
-        }, {
-          "name": "Mentions",
-          "sources": [
-            ["statuses_mentionsTimeline", {}],
-          ],
-        }, {
-          "name": "Direct Messages",
-          "sources": [
-            ["directMessages", {}],
-            ["directMessages_sent", {}],
-          ],
-        }, {
-          "name": "My tweets",
-          "sources": [
-            ["statuses_userTimeline", {"user_id": "me"}],
-          ]
-        }]
-      };
-    const CONFIG_SPEC = {
-      name: 'entire config',
-      type: 'object',
-      required: {
-        channels: {
-          name: 'channels',
-          type: 'array',
-          elements: {
-            name: 'channel',
-            type: 'object',
-            required: {
-              name: {
-                name: 'channel name',
-                type: 'string',
-              },
-              sources: {
-                name: 'channel sources',
-                type: 'array',
-                elements: {
-                  name: 'channel source',
-                  type: 'vector',
-                  values: [
-                    {
-                      name: 'channel source API name',
-                      type: 'string'
-                    },
-                    {
-                      name: 'channel source API parameters',
-                      type: 'object'
-                    }
-                  ]
-                },
-              }
-            },
-            optional: {
-              filters: {
-                name: 'channel filters',
-                type: 'array',
-                elements: {
-                  name: 'channel filter rule',
-                  type: 'string',
-                }
-              }
-            }
-          }
-        }
-      },
-      optional: {
-        filters: {
-          name: 'global filters',
-          type: 'array',
-          elements: {
-            name: 'global filter rule',
-            type: 'string',
-          }
-        }
-      }
-    };
-
-    function createTypeErrorMessage(name, type, config) {
-      return `${name} needs to be ${type}, instead it is ${JSON.stringify(config)}`;
-    }
-
-    /* Returns array of error messages. */
-    function verifyConfigWithSpec(spec, config) {
-      let error_messages = [];
-      if (!$.isDefined(spec)) {
-        return error_messages;
-      }
-      if (!$.isDefined(config)) {
-        error_messages.push(`${spec.name} is required`);
-        return error_messages;
-      }
-
-      switch (spec.type) {
-        case 'string':
-          if (!$.isString(config)) {
-            error_messages.push(createTypeErrorMessage(spec.name, 'a string', config));
-          }
-          break;
-        case 'array':
-          if ($.isArray(config)) {
-            let elements_spec = spec.elements;
-            for (let sub_config of config) {
-              error_messages = error_messages.concat(verifyConfigWithSpec(elements_spec, sub_config));
-            }
-          } else {
-            error_messages.push(createTypeErrorMessage(spec.name, 'an array', config));
-          }
-          break;
-        case 'vector':
-          if ($.isArray(config)) {
-            let sub_specs = spec.values;
-            if (sub_specs.length === config.length) {
-              for (let index = 0; index < sub_specs.length; index++) {
-                error_messages = error_messages.concat(verifyConfigWithSpec(sub_specs[index], config[index]));
-              }
-            } else {
-              error_messages.push(`${spec.name} requires array with length ${sub_specs.length}, instead of ${config.length}`);
-            }
-          } else {
-            error_messages.push(createTypeErrorMessage(spec.name, 'a vector', config));
-          }
-          break;
-        case 'object':
-          if ($.isObject(config)) {
-            for (let [sub_key, sub_spec] of $.entries(spec.required)) {
-              if (config[sub_key]) {
-                error_messages = error_messages.concat(verifyConfigWithSpec(sub_spec, config[sub_key]));
-              } else {
-                error_messages.push(`${spec.name} requires key '${sub_key}'`);
-              }
-            }
-            for (let [sub_key, sub_spec] of $.entries(spec.optional)) {
-              if (config[sub_key]) {
-                error_messages = error_messages.concat(verifyConfigWithSpec(sub_spec, config[sub_key]));
-              }
-            }
-          } else {
-            error_messages.push(createTypeErrorMessage(spec.name, 'an object', config));
-          }
-          break;
-        default:
-          console.warn('Unknown spec type', spec);
-      }
-
-      return error_messages;
-    }
-
-    /*
-    Config = {
-      <screen_name>: {
-        channels: [
-          {
-            'name': <NAME>,
-            'sources': [
-              <SOURCE>
-            ]
-          }
-        ]
-      }
-    }
-    */
-    Store.addAccessToAccountField('config', Store.defaultValueFactoryFactory({}));
-    store.extend({
-      verifyConfig: function (config) {
-        return verifyConfigWithSpec(CONFIG_SPEC, config);
-      },
-
-      resetConfig: function (account) {
-        this.saveConfig(account, DEFAULT_CONFIG);
-        return DEFAULT_CONFIG;
-      },
-    });
-
 
     /*
     Accounts = {

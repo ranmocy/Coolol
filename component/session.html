@@ -112,10 +112,10 @@
             };
             document.cache.saveTwitterClient(account, this.current_client);
             document.store.updateAccount(account);
-            document.store.resetConfig(account);
-
-            this.$('#login').hide();
-            this.$('#add').show();
+            document.store.resetConfigAsync(account).then(() => {
+              this.$('#login').hide();
+              this.$('#add').show();
+            });
           });
         return this;
       }

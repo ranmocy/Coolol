@@ -47,8 +47,6 @@
         super();
         this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$template, true));
 
-        this.config = document.store.getConfig(document.account);
-
         this.refresh();
 
         return this;
@@ -58,29 +56,31 @@
         // Remove all children
         $.removeAllChildren(this.$('#channels'));
 
-        // merge filter to channels config
-        let board_filters = $.isDefined(this.config.filters) ? this.config.filters : [];
+        document.store.getConfigAsync(document.account).then(config => {
+          // merge filter to channels config
+          let board_filters = $.isDefined(config.filters) ? config.filters : [];
 
-        // create all channels
-        let allChannelsPromises = this.config.channels.map((channel_config) => {
-          let channel_filters = channel_config.filters || [];
-          channel_config = Object.assign({}, channel_config, {
-            filters: [].concat(channel_filters, board_filters),
+          // create all channels
+          let allChannelsPromises = config.channels.map((channel_config) => {
+            let channel_filters = channel_config.filters || [];
+            channel_config = Object.assign({}, channel_config, {
+              filters: [].concat(channel_filters, board_filters),
+            });
+            /** @type {Channel} */
+            let $channel = document.createElement('x-channel').setConfig(channel_config);
+            this.$('#channels').appendChild($channel);
+            return $channel.refresh();
           });
-          /** @type {Channel} */
-          let $channel = document.createElement('x-channel').setConfig(channel_config);
-          this.$('#channels').appendChild($channel);
-          return $channel.refresh();
+          console.info('[board] refresh all Promises:', allChannelsPromises);
+
+          Promise.all(allChannelsPromises)
+            .then((data) => {
+              console.info('[board] refresh allData', data);
+              if ($.isDefined(callback)) {
+                callback();
+              }
+            });
         });
-        console.info('[board] refresh all Promises:', allChannelsPromises);
-
-        Promise.all(allChannelsPromises)
-          .then((data) => {
-            console.info('[board] refresh allData', data);
-            if ($.isDefined(callback)) {
-              callback();
-            }
-          });
       }
     }
 

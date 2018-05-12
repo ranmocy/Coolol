@@ -101,10 +101,10 @@
 
       for (let tweet of tweets) {
         let id_str = tweet.id_str;
-        Store.log("updateTweet", tweet, listeners[id_str]);
 
         // update object_store and cache
-        cache[id_str] = tweet;
+        cache[id_str] = cache[id_str] || {};
+        $.replaceObject(cache[id_str], tweet);
         object_store.put(tweet);
 
         // trigger listeners' callback
@@ -112,9 +112,7 @@
           let old = new Set(listeners[id_str]);
           listeners[id_str] = new Set();
           for (let element of old) {
-            if (document.contains(element)) {
-              element.connectedCallback();
-            }
+            element.connectedCallback();
           }
         }
       }

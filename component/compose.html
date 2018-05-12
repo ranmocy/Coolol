@@ -150,7 +150,7 @@
           .post("statuses_retweet_ID", {
             id: this.quoted_status.id_str
           })
-          .then((reply) => {
+          .then(async (reply) => {
             console.log('[compose] retweet:', reply);
             // Update current_user_retweet
             if (this.quoted_status.retweeted_status) {
@@ -159,7 +159,8 @@
               this.quoted_status.current_user_retweet = {id_str: reply.id_str};
             }
             // trigger callbacks
-            $.updateObject(this.quoted_status, {retweeted: true});
+            Object.assign(this.quoted_status, {retweeted: true});
+            await document.store.updateTweet(this.quoted_status);
             // reset UI
             this.$('#submit').disabled = false;
             this.clear();

@@ -79,7 +79,7 @@
     const $$$retweeted = document.currentScript.ownerDocument.querySelector('template#retweeted').content;
     const $$$creator = document.currentScript.ownerDocument.querySelector('template#creator').content;
 
-    class Tweet extends XElement {
+    class TweetElement extends XElement {
       constructor() {
         super();
         this.attachShadow({mode: 'open'}).appendChild(document.importNode($$$tweet, true));
@@ -98,12 +98,12 @@
         if (this.tweet == null) {
           throw new Error('tweet is null');
         }
-        $.registerObjectCallback(this.tweet, this);
+        document.store.registerTweet(this, this.tweet);
         this.refresh();
       }
 
       disconnectedCallback() {
-        $.unregisterObjectCallback(this.tweet, this);
+        document.store.unregisterTweet(this, this.tweet);
       }
 
       setTweet(tweet) {
@@ -222,6 +222,6 @@
       }
     }
 
-    window.customElements.define("x-tweet", Tweet);
+    window.customElements.define("x-tweet", TweetElement);
   })();
 </script>

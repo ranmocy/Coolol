@@ -317,7 +317,8 @@
        * @return {Tweet}
        */
       async updateTweetAsync(tweet) {
-        return await this.updateTweetsAsync([tweet])[0];
+        let tweets = await this.updateTweetsAsync([tweet]);
+        return tweets[0];
       }
 
       /**

@@ -77,13 +77,16 @@
         }
 
         let id_str = this.oldest_conversation_tweet.in_reply_to_status_id_str;
-        let tweet = document.store.getTweetAsync(id_str);
+        let tweet = await document.store.getTweetAsync(id_str);
         if (!$.isDefined(tweet)) {
-          tweet = await document.cache.getTwitterClient(document.account).fetch("statuses_show_ID", {
+          let client = document.cache.getTwitterClient(document.account);
+          // noinspection JSValidateTypes
+          /** @type {Tweet} */
+          let result = await client.fetch("statuses_show_ID", {
             id: this.oldest_conversation_tweet.in_reply_to_status_id_str
           });
           // unify tweet object
-          tweet = await document.store.updateTweetAsync(tweet);
+          tweet = await document.store.updateTweetAsync(result);
         }
         let $container = this.$('.conversation');
         let $tweet = document.createElement('x-tweet').setTweet(tweet).setInsideConversation();

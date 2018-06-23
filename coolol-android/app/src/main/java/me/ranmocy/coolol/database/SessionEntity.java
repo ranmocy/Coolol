@@ -1,10 +1,10 @@
 package me.ranmocy.coolol.database;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-
 import com.twitter.sdk.android.core.TwitterAuthToken;
 import com.twitter.sdk.android.core.TwitterSession;
+
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 @Entity
 public final class SessionEntity {

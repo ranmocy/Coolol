@@ -33,9 +33,6 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha3'
 
-    implementation 'com.twitter.sdk.android:twitter-core:3.3.0'
-    implementation 'com.twitter.sdk.android:tweet-ui:3.3.0'
-
     // ViewModel and LiveData
     implementation "androidx.lifecycle:lifecycle-extensions:2.0.0-alpha1"
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.0.0-alpha1"
@@ -48,4 +45,9 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:2.0.0-alpha1"
     // Test helpers for Room
     testImplementation "androidx.room:room-testing:2.0.0-alpha1"
+
+    // Twitter SDK
+    implementation('com.twitter.sdk.android:twitter:3.3.0@aar') {
+        transitive = true
+    }
 }

@@ -1,10 +1,8 @@
 package me.ranmocy.coolol;
 
 import android.app.Application;
-
-import com.twitter.sdk.android.core.Twitter;
-
 import androidx.annotation.NonNull;
+import com.twitter.sdk.android.core.Twitter;
 
 public final class Coolol extends Application {
 

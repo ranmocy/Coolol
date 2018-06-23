@@ -1,7 +1,6 @@
 package me.ranmocy.coolol;
 
 import android.support.annotation.NonNull;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

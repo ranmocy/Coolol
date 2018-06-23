@@ -1,14 +1,12 @@
 package me.ranmocy.coolol.models;
 
-import com.twitter.sdk.android.core.TwitterSession;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
+import com.twitter.sdk.android.core.TwitterSession;
+import java.util.ArrayList;
+import java.util.List;
 import me.ranmocy.coolol.Coolol;
 import me.ranmocy.coolol.Utils;
 import me.ranmocy.coolol.database.CoololDB;

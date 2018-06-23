@@ -53,9 +53,7 @@ dependencies {
     androidTestImplementation "android.arch.work:work-testing:1.0.0-alpha03"
 
     // Twitter SDK
-    implementation('com.twitter.sdk.android:twitter:3.3.0@aar') {
-        transitive = true
-    }
+    implementation 'com.twitter.sdk.android:twitter:3.3.0'
 }
 
 apply plugin: "androidx.navigation.safeargs"

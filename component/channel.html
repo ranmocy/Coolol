@@ -17,12 +17,12 @@
       border-bottom: 1px #eee solid;
     }
 
-    #tweets, #loading {
+    #tweets_list, #loading {
       position: absolute;
       width: 100%;
     }
 
-    #tweets {
+    #tweets_list {
       top: 24px;
       bottom: 0;
       padding-bottom: 24px;
@@ -30,7 +30,7 @@
       overflow-y: auto;
     }
 
-    #tweets x-tweet {
+    #tweets_list x-tweet {
       border-bottom: 1px #eee solid;
     }
 
@@ -42,7 +42,7 @@
   </style>
 
   <div id="header"></div>
-  <div id="tweets"></div>
+  <div id="tweets_list"></div>
   <div id="loading">Loading more...</div>
 </template>
 
@@ -125,9 +125,9 @@
         this.no_more_earlier_tweet = false;
 
         // scroll event
-        let $tweets = this.$('#tweets');
-        $tweets.handle('scroll', () => {
-          if ($tweets.scrollTop + $tweets.offsetHeight + 100 >= $tweets.scrollHeight) {
+        let $tweets_list = this.$('#tweets_list');
+        $tweets_list.handle('scroll', () => {
+          if ($tweets_list.scrollTop + $tweets_list.offsetHeight + 100 >= $tweets_list.scrollHeight) {
             console.debug('scroll to bottom');
             if (!this.no_more_earlier_tweet) {
               this.fetchMore();
@@ -147,7 +147,7 @@
 
         // clear data
         this.data = [];
-        $.removeAllChildren(this.$('#tweets'));
+        $.removeAllChildren(this.$('#tweets_list'));
 
         return this.fetchMore();
       }
@@ -170,7 +170,7 @@
           if (this.data.length > 0) {
             let earliest_tweet_id = this.data[this.data.length - 1].id_str;
             console.log('[channel] fetchMore: earliest_tweet_id', earliest_tweet_id);
-            // Alternative: this.$('#tweets').lastChild.dataset.tweetId
+            // Alternative: this.$('#tweets_list').lastChild.dataset.tweetId
             extra_params.max_id = earliest_tweet_id;
           }
 
@@ -198,7 +198,7 @@
           this.$('#loading').hide();
 
           console.error('[channel] fetchMore: error during fetching!', e);
-          Notify.error('Error during fetching more tweets!');
+          Notify.error('Error during fetching more tweets_list!');
         }
       }
 
@@ -270,7 +270,7 @@
         // append data
         this.data = [].concat(this.data, data);
         data.forEach((tweet) => {
-          this.$('#tweets').appendChild(document.createElement('x-tweet').setTweet(tweet));
+          this.$('#tweets_list').appendChild(document.createElement('x-tweet').setTweet(tweet));
         });
 
         return this;

@@ -23,7 +23,7 @@ It allows you to write a config like:
 ```json
 {
   "filters": [
-    "isBetweenUser('ranmocy', 'CathellieAir')"
+    "isBetweenUser('ranmocy', 'BillGates')"
   ],
   "channels": [
     {
@@ -53,10 +53,10 @@ It allows you to write a config like:
       "sources": [
         ["statuses_homeTimeline", {}],
         ["statuses_userTimeline", { "screen_name": "ranmocy" }],
-        ["statuses_userTimeline", { "screen_name": "CathellieAir" }]
+        ["statuses_userTimeline", { "screen_name": "BillGates" }]
       ],
       "filters": [
-        "sender.screen_name == 'CathellieAir' && receiver.screen_name == 'ranmocy'"
+        "sender.screen_name == 'BillGates' && receiver.screen_name == 'ranmocy'"
       ]
     },
     {

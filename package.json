@@ -10,6 +10,8 @@
     "typescript": "3.6.4"
   },
   "dependencies": {
+    "codebird": "github:jublonet/codebird-js#2.6.0",
+    "twitter-text": "^3.0.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0"

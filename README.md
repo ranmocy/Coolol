@@ -1,110 +1,44 @@
-# Coolol
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-Coolol is a fully customizable twitter client based on JavaScript ES6 without any backend. It communicates with Twitter server directly. So you don't have to sign up or give your token to me. Everything stays and only stays in your browser.
+## Available Scripts
 
-Open [Coolol.Me](http://coolol.me) and you are ready to go.
+In the project directory, you can run:
 
-*Notice*: I only test in latest Google Chrome. May or may not support other browser in the future. But contribution is welcomed.
+### `npm start`
 
+Runs the app in the development mode.<br />
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-## Features
+The page will reload if you make edits.<br />
+You will also see any lint errors in the console.
 
-* Multi-column board view.
-* Multi accounts.
-* Multi-source for one channel.
-* Customizable JavaScript based filter rules at both board/channel levels.
-* Web-based allows accessing from everywhere, and no backend.
-* Open-source and free to hack.
+### `npm test`
 
-## Config
+Launches the test runner in the interactive watch mode.<br />
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-It allows you to write a config like:
+### `npm run build`
 
-```json
-{
-  "filters": [
-    "isBetweenUser('ranmocy', 'BillGates')"
-  ],
-  "channels": [
-    {
-      "name": "Home",
-      "sources": [
-        ["statuses_homeTimeline", {}]
-      ],
-      "filters": [
-        "tweetContainsAny('SomeDirtyWord', 'SomeUninterestingKeyword', 'OrSomeBoringEventName')"
-      ]
-    },
-    {
-      "name": "Mentions",
-      "sources": [
-        ["statuses_mentionsTimeline", {}]
-      ]
-    },
-    {
-      "name": "Direct Messages",
-      "sources": [
-        ["directMessages", {}],
-        ["directMessages_sent", {}]
-      ]
-    },
-    {
-      "name": "Mix sources",
-      "sources": [
-        ["statuses_homeTimeline", {}],
-        ["statuses_userTimeline", { "screen_name": "ranmocy" }],
-        ["statuses_userTimeline", { "screen_name": "BillGates" }]
-      ],
-      "filters": [
-        "sender.screen_name == 'BillGates' && receiver.screen_name == 'ranmocy'"
-      ]
-    },
-    {
-      "name": "My tweets",
-      "sources": [
-        ["statuses_userTimeline", { "user_id": "me" }]
-      ]
-    }
-  ]
-}
-```
+Builds the app for production to the `build` folder.<br />
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-### Sources
+The build is minified and the filenames include the hashes.<br />
+Your app is ready to be deployed!
 
-Name of sources come from [Codebird convention][codebirdMapping] based on [Twitter API][twitterApi]
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### Filters
+### `npm run eject`
 
-Rule of filters are pure JavaScript expression returns a boolean.
-If the expression returns true, the corresponding tweet will be removed from the channel.
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-Pre-defined variables:
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-1. **`tweet`**: The tweet object to determine, fetched from Twitter server.
-2. **`sender`**: The user object of the tweet sender/creator. Typical fields to be used: `sender.id_str`, `sender.screen_name`.
-3. **`receiver`**: The user object of the tweet receiver. Used in replying tweet, or direct message. Would be empty object `{}` in other cases.
+Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-Pre-defined functions:
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-1. **`isBetweenUser(user1, user2)`**: returns true if the tweet is a conversation between `user1` and `user2`.
-2. **`tweetContains(keyword)`**: returns true if the tweet body contains the given keyword.
-3. **`tweetContainsAny(keyword1, keyword2, ...)`**: returns true if the tweet body contains any given keyword.
+## Learn More
 
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-# Local Usage
-
-* `git clone https://github.com/ranmocy/Coolol.git`
-* `cd Coolol`
-* `python -m SimpleHTTPServer 8080`
-* Open browser with url: `http://localhost:8080`
-
-
-# TODO list
-
-* Support Direct-Message composition
-* Re-auth when token invalid
-* Auto refresh
-* Prepends tweet when publish new tweet.
-
-   [codebirdMapping]: https://github.com/jublonet/codebird-js#mapping-api-methods-to-codebird-function-calls (Codebird API Mapping)
-   [twitterApi]: https://dev.twitter.com/rest/public (Twitter REST API)
+To learn React, check out the [React documentation](https://reactjs.org/).
